@@ -1,0 +1,20 @@
+{
+  "name": "@cw/api",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "migrate": "tsx src/db/migrate.ts",
+    "seed": "tsx src/seed/run.ts"
+  },
+  "dependencies": {
+    "@cw/core": "*",
+    "hono": "^4.6.10",
+    "@hono/node-server": "^1.13.7",
+    "zod": "^3.23.8",
+    "postgres": "^3.4.5",
+    "xlsx": "^0.18.5"
+  }
+}
