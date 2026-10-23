@@ -13,7 +13,7 @@ import type { Customer, Item, OptionGroup, Order, Store } from "@cw/core";
  * Backend completo rodando no navegador: mesma API do servidor, banco em memória salvo no IndexedDB,
  * SAIPOS de teste que confirma, despacha e entrega os pedidos sozinha.
  */
-const DB_NAME = "superapp-demo", KEY = "snapshot-v4";
+const DB_NAME = "superapp-demo", KEY = "snapshot-v5";
 const SLUG = "forneria-original";
 const media = (f: string) => `media/${f}`;
 
@@ -71,6 +71,10 @@ export async function startDemo(onProgress: (msg: string) => void): Promise<Demo
     onProgress("Publicando a primeira versão…");
     await req("POST", "/admin/publish", { notes: "Cardápio importado do iFood + preços de set/2026" }, auth);
   }
+
+  // WhatsApp e e-mail de teste: as campanhas "saem" e o relatório mostra entregas, aberturas e cliques simulados
+  if (!(await db.get("integrations", T, "whatsapp"))) await db.put("integrations", T, { id: "whatsapp", provider: "whatsapp", config: { enabled: true, provider: "fake", phoneNumberId: "demo", token: "demo", appSecret: "demo", verifyToken: "demo", graphVersion: "v26.0", otpTemplate: { name: "codigo_acesso", language: "pt_BR" }, costPerMessage: 0.35 } });
+  if (!(await db.get("integrations", T, "email"))) await db.put("integrations", T, { id: "email", provider: "email", config: { enabled: true, provider: "fake", apiKey: "demo", fromName: "Forneria Original", fromEmail: "contato@forneria.com.br", webhookToken: "demo" } });
 
   // catálogo da SAIPOS de teste espelha os códigos do cardápio (para o "Importar códigos PDV")
   const items = await db.list<Item & { id: string }>("items", T); const groups = await db.list<OptionGroup & { id: string }>("option_groups", T);

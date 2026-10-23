@@ -10,6 +10,8 @@ import { findByPhone, upsertCustomer, ledgerOf } from "../services/customers";
 import { checkoutSchema } from "../schemas";
 import { walletBalance } from "@cw/core";
 import { emit } from "../services/integrations";
+import { fakeProviders, waConfig } from "../services/messaging";
+import { MetaWhatsApp } from "../integrations/messaging/whatsapp";
 
 const otps = new Map<string, { code: string; exp: number; tries: number }>();
 
@@ -81,7 +83,13 @@ export function publicRoutes() {
     const deps = c.get("deps");
     const code = deps.demo ? "1234" : String(Math.floor(1000 + Math.random() * 9000));
     otps.set(`${c.get("tenantId")}|${p}`, { code, exp: Date.now() + 10 * 60e3, tries: 0 });
-    await deps.sendOtp(c.get("tenantId"), p, code);
+    const wa = await waConfig(ctxOf(c));
+    if (wa?.enabled && wa.otpTemplate?.name) {
+      // código pelo modelo de autenticação aprovado na Meta (botão "copiar código")
+      const prov = wa.provider === "fake" ? fakeProviders(c.get("tenantId")).wa : new MetaWhatsApp(wa, deps.messagingFetch);
+      try { await prov.send(p, { kind: "otp", name: wa.otpTemplate.name, language: wa.otpTemplate.language || "pt_BR", code }); }
+      catch { throw new HttpError(502, "Não conseguimos enviar o código pelo WhatsApp agora. Tente de novo em instantes."); }
+    } else await deps.sendOtp(c.get("tenantId"), p, code);
     return c.json({ ok: true, demoCode: deps.demo ? code : undefined, known: !!(await findByPhone(ctxOf(c), p)) });
   });
   r.post("/auth/verify", async (c) => {

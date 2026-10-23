@@ -13,15 +13,16 @@ import { LoyaltyPage } from "./pages/Loyalty";
 import { OrdersPage } from "./pages/Orders";
 import { CrmPage, CustomersPage, SegmentsPage, AutomationsPage } from "./pages/Crm";
 import { StoresPage } from "./pages/Stores";
+import { MessagingPage } from "./pages/Messaging";
 import { IntegrationsPage } from "./pages/Integrations";
 import { PublishPage } from "./pages/Publish";
 
-export type Route = "inicio" | "cardapio" | "complementos" | "vitrine" | "paginas" | "estrategias" | "cupons" | "cashback" | "pedidos" | "crm" | "clientes" | "segmentos" | "automacoes" | "lojas" | "integracoes" | "publicar";
+export type Route = "inicio" | "cardapio" | "complementos" | "vitrine" | "paginas" | "estrategias" | "cupons" | "cashback" | "pedidos" | "crm" | "clientes" | "segmentos" | "automacoes" | "mensagens" | "lojas" | "integracoes" | "publicar";
 const NAV: { group: string; items: { id: Route; label: string }[] }[] = [
   { group: "Visão", items: [{ id: "inicio", label: "Início" }] },
   { group: "Cardápio", items: [{ id: "cardapio", label: "Itens e categorias" }, { id: "complementos", label: "Complementos" }, { id: "vitrine", label: "Vitrine e sugestões" }, { id: "paginas", label: "Páginas e pesquisas" }] },
   { group: "Vendas", items: [{ id: "estrategias", label: "Estratégias" }, { id: "cupons", label: "Cupons" }, { id: "cashback", label: "Cashback" }, { id: "pedidos", label: "Pedidos" }] },
-  { group: "CRM", items: [{ id: "crm", label: "Painel e funil" }, { id: "clientes", label: "Clientes" }, { id: "segmentos", label: "Segmentos" }, { id: "automacoes", label: "Automações" }] },
+  { group: "CRM", items: [{ id: "crm", label: "Painel e funil" }, { id: "clientes", label: "Clientes" }, { id: "segmentos", label: "Segmentos" }, { id: "automacoes", label: "Automações" }, { id: "mensagens", label: "WhatsApp e e-mail" }] },
   { group: "Operação", items: [{ id: "lojas", label: "Lojas e entrega" }, { id: "integracoes", label: "Integrações e bases" }, { id: "publicar", label: "Publicar" }] },
 ];
 const ROUTES = NAV.flatMap((g) => g.items.map((i) => i.id));
@@ -81,7 +82,7 @@ function Shell(p: AdminProps & { api: ReturnType<typeof createClient>; onLogout:
   const pages: Record<Route, ReactNode> = {
     inicio: <Home tick={draftTick} />, cardapio: <MenuPage />, complementos: <GroupsPage />, vitrine: <ShowcasePage />, paginas: <PagesPage />,
     estrategias: <StrategiesPage />, cupons: <CouponsPage />, cashback: <LoyaltyPage />, pedidos: <OrdersPage />,
-    crm: <CrmPage />, clientes: <CustomersPage />, segmentos: <SegmentsPage />, automacoes: <AutomationsPage />,
+    crm: <CrmPage />, clientes: <CustomersPage />, segmentos: <SegmentsPage />, automacoes: <AutomationsPage />, mensagens: <MessagingPage />,
     lojas: <StoresPage />, integracoes: <IntegrationsPage />, publicar: <PublishPage />,
   };
   return <Ctx.Provider value={ctx}>

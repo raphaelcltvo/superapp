@@ -1,4 +1,4 @@
-export const TABLES = ["users", "api_keys", "stores", "categories", "items", "option_groups", "strategies", "coupons", "banners", "pages", "page_responses", "settings", "segments", "automations", "messages", "imports", "integrations", "menu_versions", "media", "webhooks", "ledger", "customers", "orders"] as const;
+export const TABLES = ["users", "api_keys", "stores", "categories", "items", "option_groups", "strategies", "coupons", "banners", "pages", "page_responses", "settings", "segments", "automations", "messages", "imports", "integrations", "menu_versions", "media", "webhooks", "ledger", "customers", "orders", "message_templates", "campaigns", "inbox"] as const;
 export type Table = (typeof TABLES)[number];
 
 export interface Doc { id: string }

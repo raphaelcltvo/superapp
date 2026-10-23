@@ -11,6 +11,7 @@ import { adminRoutes } from "./routes/admin";
 import { v1Routes } from "./routes/v1";
 import { onSaiposEvent } from "./services/orders";
 import { saiposConfig } from "./services/integrations";
+import { mountMessaging } from "./routes/messaging-public";
 
 export function createApp(deps: Deps) {
   const app = new Hono<Env>();
@@ -42,6 +43,7 @@ export function createApp(deps: Deps) {
   app.route("/admin", adminRoutes());
   app.route("/public/:slug", publicRoutes());
   app.route("/v1", v1Routes());
+  mountMessaging(app);
 
   /** Webhook que a SAIPOS chama a cada mudança de status (configure a URL no Saipos Developer > Configuração). */
   app.post("/webhooks/saipos/:slug/:storeId", async (c) => {

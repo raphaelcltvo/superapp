@@ -199,6 +199,7 @@ export function AutomationsPage() {
 function AutoEditor(p: { a: Partial<Automation>; onClose: () => void; onSaved: () => void }) {
   const { api } = useAdmin(); const { run, busy } = useAction();
   const segs = useLoad<Segment[]>("/admin/segments"); const coupons = useLoad<Coupon[]>("/admin/coupons"); const pages = useLoad<Page[]>("/admin/pages");
+  const tpls = useLoad<{ id: string; name: string; channel: string }[]>("/admin/message_templates");
   const [a, setA] = useState<Partial<Automation>>(p.a);
   const t = a.trigger!;
   const save = async () => { const r = await run(() => (a.id ? api.put(`/admin/automations/${a.id}`, a) : api.post("/admin/automations", a)), "Automação salva"); if (r) p.onSaved(); };
@@ -216,7 +217,12 @@ function AutoEditor(p: { a: Partial<Automation>; onClose: () => void; onSaved: (
       <Field label="Grupo de controle (%)" hint="Não recebe; serve para medir o incremento"><Num value={a.holdoutPercent} onChange={(v) => setA({ ...a, holdoutPercent: v ?? 0 })} /></Field>
       <Field label="Máximo por cliente por semana"><Num value={a.maxPerCustomerPerWeek} onChange={(v) => setA({ ...a, maxPerCustomerPerWeek: v ?? 1 })} /></Field>
     </div>
-    <Field label="Mensagem" hint="Variáveis: {{nome}} {{cupom}} {{link}} {{marca}} {{dias}} {{pedido}} {{cashback}}"><textarea id="au-tpl" value={a.template} onChange={(e) => setA({ ...a, template: e.target.value })} /></Field>
+    <div className="grid3">
+      <Field label="Canal"><Select value={(a.channel || "whatsapp") as "whatsapp"} onChange={(v) => setA({ ...a, channel: v })} options={[{ value: "whatsapp", label: "WhatsApp" }, { value: "email", label: "E-mail" }, { value: "whatsapp_then_email", label: "WhatsApp; sem aceite, e-mail" } as never]} /></Field>
+      {a.channel !== "email" && <Field label="Modelo de WhatsApp" hint="Fora da janela de 24h a Meta só aceita modelo aprovado"><Select value={a.templateId || ""} onChange={(v) => setA({ ...a, templateId: v || undefined })} options={[{ value: "", label: "Texto abaixo (só dentro de 24h)" }, ...(tpls.data || []).filter((x) => x.channel === "whatsapp").map((x) => ({ value: x.id, label: x.name }))]} /></Field>}
+      {a.channel !== "whatsapp" && <Field label="Modelo de e-mail"><Select value={a.emailTemplateId || ""} onChange={(v) => setA({ ...a, emailTemplateId: v || undefined })} options={[{ value: "", label: "Escolha…" }, ...(tpls.data || []).filter((x) => x.channel === "email").map((x) => ({ value: x.id, label: x.name }))]} /></Field>}
+    </div>
+    <Field label="Texto (sem modelo)" hint="Variáveis: {{nome}} {{cupom}} {{link}} {{marca}} {{dias}} {{pedido}} {{cashback}}"><textarea id="au-tpl" value={a.template} onChange={(e) => setA({ ...a, template: e.target.value })} /></Field>
     <Toggle checked={!!a.active} onChange={(v) => setA({ ...a, active: v })} label="Ativa" />
   </Drawer>;
 }

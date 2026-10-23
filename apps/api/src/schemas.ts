@@ -72,8 +72,19 @@ export const schemas = {
   pages: z.object({ slug: z.string().regex(/^[a-z0-9-]+$/), title: z.string().min(1), blocks: z.array(z.record(z.unknown()).and(z.object({ kind: z.string() }))), active: z.boolean(), thankYou: z.string().optional() }),
   segments: z.object({ name: z.string().min(1), description: z.string().optional(), rules: z.array(z.record(z.unknown()).and(z.object({ field: z.string() }))) }),
   automations: z.object({
-    name: z.string().min(1), trigger: z.record(z.unknown()).and(z.object({ kind: z.string() })), segmentId: z.string().optional(), channel: z.literal("whatsapp"), template: z.string().min(1),
+    name: z.string().min(1), trigger: z.record(z.unknown()).and(z.object({ kind: z.string() })), segmentId: z.string().optional(), channel: z.enum(["whatsapp", "email", "whatsapp_then_email"]), template: z.string().min(1), templateId: z.string().optional(), emailTemplateId: z.string().optional(),
     couponId: z.string().optional(), pageId: z.string().optional(), holdoutPercent: z.number().min(0).max(50), quietHours: z.tuple([z.number(), z.number()]).optional(), maxPerCustomerPerWeek: z.number().int().min(1), active: z.boolean(),
+  }),
+  message_templates: z.object({
+    name: z.string().min(1), channel: z.enum(["whatsapp", "email"]),
+    waName: z.string().regex(/^[a-z0-9_]*$/, "nome do modelo na Meta: minúsculas, números e _").optional(), waLanguage: z.string().optional(), waCategory: z.enum(["MARKETING", "UTILITY", "AUTHENTICATION"]).optional(), waBody: z.string().optional(),
+    waVars: z.array(z.object({ source: z.enum(["nome", "cupom", "link", "marca", "dias", "pedido", "cashback", "codigo", "fixo"]), value: z.string().optional() })).optional(), waHeaderImage: z.string().optional(),
+    subject: z.string().optional(), preheader: z.string().optional(), blocks: z.array(z.record(z.unknown()).and(z.object({ kind: z.enum(["heading", "text", "image", "button", "items", "coupon", "divider"]) }))).optional(),
+  }).refine((t) => t.channel === "email" ? !!t.subject : true, "e-mail precisa de assunto"),
+  campaigns: z.object({
+    name: z.string().min(1), channel: z.enum(["whatsapp", "email"]), templateId: z.string().min(1), segmentId: z.string().optional(), couponId: z.string().optional(), pageId: z.string().optional(),
+    scheduleAt: z.string().optional(), holdoutPercent: z.number().min(0).max(50), quietHours: z.tuple([z.number(), z.number()]).optional(), maxPerCustomerPerWeek: z.number().int().min(1),
+    status: z.enum(["draft", "scheduled", "sending", "done", "paused"]),
   }),
   webhooks: z.object({ url: z.string().url(), events: z.array(z.enum(["order.created", "order.status", "customer.created", "page.response"])), secret: z.string().min(8), active: z.boolean() }),
 } as const;
@@ -121,3 +132,11 @@ export const checkoutSchema = z.object({
   customer: z.object({ name: z.string().min(1), phone: z.string().min(10), email: z.string().email().optional(), optinWhatsapp: z.boolean().optional() }).optional(),
 });
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
+
+export const whatsappConfigSchema = z.object({
+  enabled: z.boolean(), provider: z.enum(["meta", "fake"]), phoneNumberId: z.string(), wabaId: z.string().optional(), token: z.string(), appSecret: z.string(), verifyToken: z.string(),
+  graphVersion: z.string().optional(), otpTemplate: z.object({ name: z.string(), language: z.string() }).optional(), costPerMessage: z.number().optional(),
+});
+export const emailConfigSchema = z.object({
+  enabled: z.boolean(), provider: z.enum(["resend", "brevo", "fake"]), apiKey: z.string(), fromName: z.string().min(1), fromEmail: z.string().email(), replyTo: z.string().email().optional().or(z.literal("")), webhookToken: z.string().optional(),
+});

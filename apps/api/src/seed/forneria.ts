@@ -1,4 +1,4 @@
-import { priceLine, r2, slugify, uid, type Automation, type Banner, type Category, type Coupon, type Customer, type Item, type LoyaltyProgram, type MerchSettings, type Option, type OptionGroup, type Order, type Page, type Segment, type Store, type Strategy, type Tenant } from "@cw/core";
+import { priceLine, r2, slugify, uid, type Automation, type Banner, type Campaign, type MessageTemplate, type Category, type Coupon, type Customer, type Item, type LoyaltyProgram, type MerchSettings, type Option, type OptionGroup, type Order, type Page, type Segment, type Store, type Strategy, type Tenant } from "@cw/core";
 import type { Db } from "../db/types";
 import { hashPassword } from "../auth";
 
@@ -185,13 +185,32 @@ export async function seedForneria(db: Db, o: SeedOpts) {
   ];
   for (const s of segments) await db.put("segments", T, s as never);
   const autos: Automation[] = [
-    { id: "au_2pedido", name: "2º pedido em 7 dias", trigger: { kind: "days_after_first_order", days: 7 }, channel: "whatsapp", template: "Oi {{nome}}! Que tal repetir a Forneria hoje? R$ 15 off no segundo pedido com o cupom {{cupom}}: {{link}}", couponId: "cup_2pedido", holdoutPercent: 10, maxPerCustomerPerWeek: 1, quietHours: [22, 10], active: true },
-    { id: "au_carrinho", name: "Sacola esquecida (30 min)", trigger: { kind: "cart_abandoned", afterMinutes: 30 }, channel: "whatsapp", template: "{{nome}}, sua pizza ficou na sacola. Ela continua lá: {{link}}", holdoutPercent: 10, maxPerCustomerPerWeek: 2, active: true },
+    { id: "au_2pedido", name: "2º pedido em 7 dias", trigger: { kind: "days_after_first_order", days: 7 }, channel: "whatsapp_then_email", templateId: "tpl_wa_2pedido", template: "Oi {{nome}}! Que tal repetir a Forneria hoje? R$ 15 off no segundo pedido com o cupom {{cupom}}: {{link}}", couponId: "cup_2pedido", holdoutPercent: 10, maxPerCustomerPerWeek: 1, quietHours: [22, 10], active: true },
+    { id: "au_carrinho", name: "Sacola esquecida (30 min)", trigger: { kind: "cart_abandoned", afterMinutes: 30 }, channel: "whatsapp", templateId: "tpl_wa_carrinho", template: "{{nome}}, sua pizza ficou na sacola. Ela continua lá: {{link}}", holdoutPercent: 10, maxPerCustomerPerWeek: 2, active: true },
     { id: "au_ciclo", name: "Passou do ciclo de compra", trigger: { kind: "no_order_cycle", multiplier: 1.5 }, channel: "whatsapp", template: "{{nome}}, faz {{dias}} dias. Volta com 15% off: {{cupom}} {{link}}", couponId: "cup_volta", holdoutPercent: 15, maxPerCustomerPerWeek: 1, quietHours: [22, 10], active: true },
-    { id: "au_nps", name: "Pesquisa 1h após a entrega", trigger: { kind: "order_concluded", afterMinutes: 60 }, channel: "whatsapp", template: "Como foi o pedido #{{pedido}}? Leva 20 segundos: {{link}}", pageId: "pg_avaliacao", holdoutPercent: 0, maxPerCustomerPerWeek: 2, active: true },
+    { id: "au_nps", name: "Pesquisa 1h após a entrega", trigger: { kind: "order_concluded", afterMinutes: 60 }, channel: "whatsapp", templateId: "tpl_wa_pesquisa", template: "Como foi o pedido #{{pedido}}? Leva 20 segundos: {{link}}", pageId: "pg_avaliacao", holdoutPercent: 0, maxPerCustomerPerWeek: 2, active: true },
     { id: "au_cashback", name: "Cashback vencendo", trigger: { kind: "cashback_expiring", daysBefore: 5 }, channel: "whatsapp", template: "{{nome}}, você tem R$ {{cashback}} de cashback vencendo. Use hoje: {{link}}", holdoutPercent: 10, maxPerCustomerPerWeek: 1, active: true },
   ];
   for (const a of autos) await db.put("automations", T, a as never);
+
+  /* modelos de mensagem (WhatsApp aprovados na Meta + e-mail) e uma campanha em rascunho */
+  const templates: MessageTemplate[] = [
+    { id: "tpl_wa_2pedido", name: "Segundo pedido", channel: "whatsapp", waName: "segundo_pedido", waLanguage: "pt_BR", waCategory: "MARKETING", waBody: "Oi {{1}}! Que tal repetir a {{2}} hoje? Use o cupom {{3}} e ganhe R$ 15 no segundo pedido: {{4}}", waVars: [{ source: "nome" }, { source: "marca" }, { source: "cupom" }, { source: "link" }] },
+    { id: "tpl_wa_carrinho", name: "Sacola esquecida", channel: "whatsapp", waName: "carrinho_abandonado", waLanguage: "pt_BR", waCategory: "MARKETING", waBody: "{{1}}, sua pizza ficou na sacola. Ela continua lá esperando: {{2}}", waVars: [{ source: "nome" }, { source: "link" }] },
+    { id: "tpl_wa_pesquisa", name: "Pesquisa pós-pedido", channel: "whatsapp", waName: "pesquisa_pos_pedido", waLanguage: "pt_BR", waCategory: "UTILITY", waBody: "Como foi o pedido #{{1}}? Leva 20 segundos e ajuda a cozinha: {{2}}", waVars: [{ source: "pedido" }, { source: "link" }] },
+    { id: "tpl_wa_codigo", name: "Código de acesso", channel: "whatsapp", waName: "codigo_acesso", waLanguage: "pt_BR", waCategory: "AUTHENTICATION", waBody: "{{1}} é seu código de verificação. Por segurança, não compartilhe.", waVars: [{ source: "codigo" }] },
+    { id: "tpl_em_bf", name: "Black Friday Forneria", channel: "email", subject: "{{nome}}, a Black Friday da Forneria começou", preheader: "Combos com preço fechado e frete grátis acima de R$ 120", blocks: [
+      { kind: "image", url: o.media.poster || o.media.cover || "", alt: "Pizzas da Forneria", href: "{{link}}" },
+      { kind: "heading", text: "A semana mais gostosa do ano" },
+      { kind: "text", text: "{{nome}}, separamos os combos que mais saem às sextas. Preço fechado, até dois sabores e frete grátis acima de R$ 120." },
+      { kind: "items", title: "Os combos da semana", itemIds: ["c1", "c3", "c2"] },
+      { kind: "coupon", couponId: "cup_frete", text: "Ative os avisos no WhatsApp e use:" },
+      { kind: "button", label: "Ver o cardápio", href: "{{link}}" },
+    ] },
+  ];
+  for (const t0 of templates) await db.put("message_templates", T, { ...t0, createdAt: now.toISOString() } as never);
+  const campaign: Campaign = { id: "cmp_bf_vip", name: "Black Friday · VIPs", channel: "email", templateId: "tpl_em_bf", segmentId: "seg_vip", couponId: "cup_frete", holdoutPercent: 10, maxPerCustomerPerWeek: 2, quietHours: [22, 9], status: "draft", createdAt: now.toISOString() };
+  await db.put("campaigns", T, campaign as never);
 
   if (o.history) await seedHistory(db, T, items, G, now);
   return { tenant, store };
@@ -206,6 +225,8 @@ async function seedHistory(db: Db, T: string, items: Item[], G: Record<string, O
   const sources = ["instagram", "google", "whatsapp", "direto", "instagram", "google"];
   const customers: Customer[] = [];
   for (let i = 0; i < 260; i++) customers.push({ id: `cus_seed${i}`, name: `${pick(first)} ${pick(last)}`, phone: `55219${String(80000000 + i * 7919).slice(0, 8)}`, optinWhatsapp: rnd() < 0.62, source: pick(sources), orders: 0, spent: 0, createdAt: new Date(+now - 95 * 864e5).toISOString() });
+  // e-mail para parte da base (sem alterar a sequência aleatória do histórico)
+  customers.forEach((c, i) => { c.email = (c.name || "cliente").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z]+/g, ".") + i + "@exemplo.com.br"; c.optinEmail = (i * 37) % 100 < 40; });
   const zones = ["z_leblon", "z_ipanema", "z_gavea"];
   const fees: Record<string, number> = { z_leblon: 4.9, z_ipanema: 6.9, z_gavea: 8.9 };
   const pop = ["c1", "c1", "m1", "c3", "m3", "c2", "s40", "m2", "m5", "d3"];
