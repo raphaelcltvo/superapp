@@ -53,7 +53,7 @@ function Results() {
   const r = useLoad<Report>(`/admin/engagement/report?days=${days}`, [days]);
   const d = r.data;
   return <div className="stack">
-    <div className="row"><span className="small muted">Período</span><Select value={days} onChange={setDays} options={[{ value: "7", label: "7 dias" }, { value: "30", label: "30 dias" }, { value: "90", label: "90 dias" }]} /></div>
+    <div className="row"><span className="small muted">Período</span><div style={{ width: 140 }}><Select value={days} onChange={setDays} options={[{ value: "7", label: "7 dias" }, { value: "30", label: "30 dias" }, { value: "90", label: "90 dias" }]} /></div></div>
     {!d ? (r.error ? <Empty title="Não deu para carregar">{r.error}</Empty> : null) : <>
       <div className="grid4">
         <Tile k="NPS" v={d.nps.n ? d.nps.nps : "—"} d={d.prevNps.n ? <span className={d.nps.nps >= d.prevNps.nps ? "up" : "down"}>{d.nps.nps >= d.prevNps.nps ? "▲" : "▼"} {Math.abs(d.nps.nps - d.prevNps.nps)} pts vs período anterior</span> : <span className="muted">sem base anterior</span>} />

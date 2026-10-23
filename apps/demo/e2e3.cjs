@@ -42,7 +42,7 @@ const OUT = process.env.OUT || ".";
   await sf.locator('[data-screen="bag"] .foot-cta .cta').click(); await pg.waitForTimeout(400);
   await sf.locator("#cw-a-postalCode").fill("22431-050"); await sf.locator("#cw-a-number").fill("100"); await sf.locator("#cw-a-street").fill("Rua Dias Ferreira"); await sf.locator("#cw-a-district").fill("Leblon"); await sf.locator("#cw-a-city").click();
   await sf.locator('[data-screen="checkout"] .okline').first().waitFor();
-  await sf.locator('.payopt:has-text("cartão"), .payopt:has-text("Cartão")').first().click();
+  await sf.locator('.payopt:has-text("na entrega")').first().click();
   await pg.waitForTimeout(400);
   await sf.locator('[data-screen="checkout"] .foot-cta .cta').click();
   await pg.waitForTimeout(2500);

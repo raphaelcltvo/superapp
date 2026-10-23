@@ -27,7 +27,7 @@ const OUT = process.env.OUT || ".";
   // Pix simulado → acompanhamento
   const pay = sf.locator('button:has-text("Já paguem"), button:has-text("Já paguei"), button:has-text("Simular pagamento")');
   if (await pay.count()) await pay.first().click();
-  await pg.waitForTimeout(27000);
+  await pg.waitForTimeout(38000);
   await pg.screenshot({ path: OUT + "/8-track.png" });
   ok(/Entregue|entregue/.test(await sf.textContent()), "status chegou a entregue pelo webhook da SAIPOS de teste");
   await pg.click('.cw-ad .navbtn:has-text("Pedidos")'); await pg.waitForTimeout(1200);
