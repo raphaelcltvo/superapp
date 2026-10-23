@@ -1,0 +1,5 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": { "noEmit": true, "types": ["vite/client"], "baseUrl": "../..", "paths": { "@cw/core": ["packages/core/src/index.ts"], "@cw/client": ["packages/client/src/index.ts"] } },
+  "include": ["src"]
+}

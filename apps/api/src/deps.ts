@@ -21,6 +21,8 @@ export interface Deps {
   messenger: Messenger;
   /** envia o código de verificação (WhatsApp/SMS). Retorna o código só em modo demonstração. */
   sendOtp: (tenantId: string, phone: string, code: string) => Promise<void>;
+  /** endereço -> coordenadas (Google, Mapbox, Nominatim). Sem ele, usamos o centro da área cujo nome contém o bairro. */
+  geocode?: (q: { street: string; number: string; district: string; city: string; state: string; postalCode: string }) => Promise<{ lat: number; lng: number } | null>;
   demo?: boolean;
   publicUrl: string;
   log?: (msg: string, extra?: unknown) => void;

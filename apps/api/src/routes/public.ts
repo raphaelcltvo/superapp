@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { z } from "zod";
-import { normPhone, resolveZone, uid, type Customer, type Page, type Order } from "@cw/core";
+import { normPhone, resolveZone, uid, type Coupon, type Customer, type Page, type Order } from "@cw/core";
 import { body, ctxOf, type Env } from "../http";
 import { HttpError } from "../services/ctx";
 import { readToken, signCustomer, type CustomerClaims, type AdminClaims } from "../auth";
@@ -58,6 +58,23 @@ export function publicRoutes() {
     return c.json(z0 ? { ok: true, zone: { id: z0.id, name: z0.name, fee: z0.fee, etaMin: z0.etaMin, etaMax: z0.etaMax } } : { ok: false });
   });
 
+  /** Geocodifica o endereço e já devolve a área, a taxa e o tempo. */
+  r.post("/geocode", async (c) => {
+    const i = await body(c, z.object({ storeId: z.string(), street: z.string().default(""), number: z.string().default(""), district: z.string(), city: z.string().default(""), state: z.string().default(""), postalCode: z.string().default("") }));
+    const snap = await snapshotFor(ctxOf(c), await isPreview(c));
+    const st = snap.stores.find((s) => s.id === i.storeId);
+    if (!st) throw new HttpError(404, "Loja não encontrada");
+    let pt = c.get("deps").geocode ? await c.get("deps").geocode!(i) : null;
+    if (!pt) {
+      const norm = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      const z0 = st.zones.find((z) => z.active && z.kind === "polygon" && norm(z.name).includes(norm(i.district).trim()) && i.district.trim().length > 2);
+      if (z0?.polygon) pt = { lat: z0.polygon.reduce((a, p) => a + p[0], 0) / z0.polygon.length, lng: z0.polygon.reduce((a, p) => a + p[1], 0) / z0.polygon.length };
+    }
+    if (!pt) return c.json({ ok: false, reason: "Não encontramos esse endereço na área de entrega" });
+    const z1 = resolveZone(st.zones, [pt.lat, pt.lng], st.address.lat != null ? [st.address.lat, st.address.lng!] : undefined);
+    return c.json(z1 ? { ok: true, lat: pt.lat, lng: pt.lng, zone: { id: z1.id, name: z1.name, fee: z1.fee, etaMin: z1.etaMin, etaMax: z1.etaMax } } : { ok: false, lat: pt.lat, lng: pt.lng, reason: "Endereço fora da área de entrega" });
+  });
+
   r.post("/auth/otp", async (c) => {
     const { phone } = await body(c, z.object({ phone: z.string() }));
     const p = normPhone(phone); if (!p) throw new HttpError(422, "Telefone inválido");
@@ -102,7 +119,9 @@ export function publicRoutes() {
   r.get("/pages/:pageSlug", async (c) => {
     const p = (await c.get("deps").db.list<Page & { id: string }>("pages", c.get("tenantId"), { where: { slug: c.req.param("pageSlug") }, limit: 1 }))[0];
     if (!p || !p.active) throw new HttpError(404, "Página não encontrada");
-    return c.json(p);
+    // cupons citados na página: expõe só o código e o benefício
+    const coupons = await c.get("deps").db.list<Coupon & { id: string }>("coupons", c.get("tenantId"));
+    return c.json({ ...p, blocks: p.blocks.map((b) => (b.kind === "coupon" ? { ...b, coupon: (({ code, name, type, value }) => ({ code, name, type, value }))(coupons.find((x) => x.id === b.couponId && x.active) || ({} as Coupon)) } : b)) });
   });
   r.post("/pages/:pageSlug/responses", async (c) => {
     const ctx = ctxOf(c);

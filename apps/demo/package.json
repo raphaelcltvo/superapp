@@ -1,0 +1,3 @@
+{ "name": "@cw/demo", "version": "0.1.0", "type": "module", "private": true,
+  "scripts": { "build": "vite build", "dev": "vite" },
+  "dependencies": { "@cw/core": "*", "@cw/client": "*", "@cw/api": "*", "@cw/admin": "*", "@cw/storefront": "*" } }

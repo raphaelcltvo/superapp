@@ -30,6 +30,9 @@ export function crmRoutes() {
       const ev = events.filter((e) => e.ts >= from && e.ts < to) as TrackEvent[];
       const lite = (l: O[]) => l.map((o) => ({ customerId: o.customerId, total: o.total, createdAt: o.createdAt, items: o.lines.reduce((a, x) => a + x.qty, 0) || ((o as unknown as { itemsCount?: number }).itemsCount ?? 1), status: o.status }));
       const k = kpis(lite(os), customers, ev, new Date(to));
+      // 2º pedido e intervalo usam todo o histórico até o fim da janela (a coorte precisa de 60+ dias)
+      const hist = kpis(lite(allOrders.filter((o) => o.createdAt < to)), customers, [], new Date(to));
+      Object.assign(k, { secondOrderRate60d: hist.secondOrderRate60d, secondOrderCohort: hist.secondOrderCohort, avgIntervalDays: hist.avgIntervalDays, repeatCustomers: hist.repeatCustomers });
       const seg = (f: (o: O) => boolean) => { const l = os.filter((o) => o.status !== "cancelled" && f(o)); const rev = l.reduce((a, o) => a + o.total, 0); return { orders: l.length, revenue: r2(rev), avgTicket: l.length ? r2(rev / l.length) : 0, discount: r2(l.reduce((a, o) => a + o.discount + o.cashbackUsed, 0)) }; };
       return { ...k, novos: seg(isFirst), recorrentes: seg((o) => !isFirst(o) && !!o.customerId), cancelled: os.filter((o) => o.status === "cancelled").length, couponCost: r2(os.reduce((a, o) => a + o.discount, 0)), cashbackIssued: r2(os.reduce((a, o) => a + o.cashbackEarned, 0)), freeDeliveryCost: r2(os.reduce((a, o) => a + Math.max(0, (o.baseDeliveryFee ?? o.deliveryFee) - o.deliveryFee), 0)), serviceFees: r2(os.reduce((a, o) => a + (o.fees || []).reduce((x, f) => x + f.amount, 0), 0)) };
     };

@@ -230,6 +230,7 @@ async function seedHistory(db: Db, T: string, items: Item[], G: Record<string, O
       const deliveryFee = free ? 0 : fees[z];
       const total = r2(subtotal - discount + deliveryFee + (subtotal < 50 ? 15 : 0));
       const at = new Date(t); at.setHours(18 + Math.floor(rnd() * 5), Math.floor(rnd() * 60));
+      if (+at > +now - 3600e3) at.setTime(+now - (2 + rnd() * 20) * 3600e3); // nunca no futuro
       const status = rnd() < 0.04 ? "cancelled" : "concluded";
       const o: Order = { id: `ord_seed${n}`, displayId: String(n++), storeId: "sto_leblon", customerId: c.id, mode: "DELIVERY", lines, subtotal, discount, deliveryFee, baseDeliveryFee: fees[z], fees: subtotal < 50 ? [{ label: "Taxa de serviço", amount: 15, feeType: "MIN_ORDER_FEE" }] : [], strategiesApplied: free ? ["st_frete120"] : [], cashbackUsed: 0, total, cashbackEarned: r2(subtotal * 0.05), couponId: discount ? "cup_bemvindo" : undefined, payment: { code: pick(["PIX_ONLINE", "PIX_ONLINE", "CARD_ON_DELIVERY", "VR_VA"]) as "PIX_ONLINE" }, status, statusHistory: [{ status: "created", at: at.toISOString(), by: "cliente" }, { status, at: new Date(+at + 50 * 60e3).toISOString(), by: "saipos" }], source: c.source, createdAt: at.toISOString() };
       (o as Order & { zoneId: string }).zoneId = z;
@@ -244,6 +245,7 @@ async function seedHistory(db: Db, T: string, items: Item[], G: Record<string, O
   // sessões que não compraram (o funil real tem a maior parte aqui)
   for (let i = 0; i < 2600; i++) {
     const at = new Date(+now - rnd() * 90 * 864e5); at.setHours(17 + Math.floor(rnd() * 6), Math.floor(rnd() * 60));
+    if (+at > +now - 600e3) at.setTime(+now - (1 + rnd() * 20) * 3600e3);
     const sid = `ses_x${i}`; const src = pick([...sources, "instagram", "instagram"]); const dev = rnd() < 0.86 ? "mobile" : "desktop";
     const it = pick(pop); const depth = rnd();
     const steps = ["visit", ...(depth > 0.35 ? ["item_view"] : []), ...(depth > 0.72 ? ["add_to_cart"] : []), ...(depth > 0.85 ? ["cart_view"] : []), ...(depth > 0.93 ? ["checkout_start"] : [])];
