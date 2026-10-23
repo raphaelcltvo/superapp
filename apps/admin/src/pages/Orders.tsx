@@ -3,10 +3,11 @@ import type { Order, OrderStatus } from "@cw/core";
 import { BRL, Btn, Drawer, Empty, Pill, Select, dt, useAction, useAdmin, useLoad } from "../ui";
 
 export const STATUS: Record<OrderStatus, { label: string; tone?: "good" | "warn" | "bad" | "accent" }> = {
+  awaiting_payment: { label: "Aguardando pagamento", tone: "warn" }, payment_failed: { label: "Pagamento não concluído", tone: "bad" },
   created: { label: "Recebido", tone: "warn" }, sent_to_pos: { label: "No PDV", tone: "accent" }, pos_error: { label: "Erro no PDV", tone: "bad" }, confirmed: { label: "Confirmado", tone: "accent" },
   ready: { label: "Pronto", tone: "accent" }, dispatched: { label: "Saiu para entrega", tone: "accent" }, concluded: { label: "Entregue", tone: "good" }, cancelled: { label: "Cancelado", tone: "bad" },
 };
-const PAY: Record<string, string> = { PIX_ONLINE: "Pix", CARD_ON_DELIVERY: "Cartão na entrega", CREDIT_ON_DELIVERY: "Crédito", DEBIT_ON_DELIVERY: "Débito", VR_VA: "VR/VA", CASH: "Dinheiro" };
+const PAY: Record<string, string> = { CARD_ONLINE: "Cartão online", PIX_ONLINE: "Pix", CARD_ON_DELIVERY: "Cartão na entrega", CREDIT_ON_DELIVERY: "Crédito", DEBIT_ON_DELIVERY: "Débito", VR_VA: "VR/VA", CASH: "Dinheiro" };
 
 export function OrdersPage() {
   const [st, setSt] = useState<string>("");
@@ -39,6 +40,11 @@ function OrderDrawer(p: { id: string; onClose: () => void }) {
   </>}>
     <div className="row"><Pill tone={STATUS[d.status]?.tone}>{STATUS[d.status]?.label}</Pill><span className="muted small">{dt(d.createdAt)} · {d.mode === "DELIVERY" ? "Entrega" : "Retirada"} · {PAY[d.payment.code]}{d.payment.changeFor ? ` · troco para ${BRL(d.payment.changeFor)}` : ""}</span></div>
     {d.pos?.error && <div className="issue erro"><span><b>SAIPOS:</b> {d.pos.error}</span></div>}
+    {d.payment.online && <section className="panel"><header><h3>Pagamento online</h3><Pill tone={d.payment.online.status === "paid" ? "good" : d.payment.online.status === "pending" ? "warn" : d.payment.online.status === "refunded" ? "accent" : "bad"}>{{ pending: "Aguardando", paid: "Pago", failed: "Recusado", expired: "Expirado", refunded: "Estornado" }[d.payment.online.status]}</Pill></header>
+      <p className="small">{d.payment.online.method === "pix" ? "Pix" : `Cartão ${d.payment.online.card?.brand || ""} •••• ${d.payment.online.card?.last4 || ""}${(d.payment.online.card?.installments || 1) > 1 ? ` em ${d.payment.online.card!.installments}x` : ""}`} · {d.payment.online.gateway} · cobrança <span className="mono">{d.payment.online.chargeId}</span>{d.payment.online.paidAt ? ` · pago ${dt(d.payment.online.paidAt)}` : ""}{d.payment.online.refundedAt ? ` · estornado ${dt(d.payment.online.refundedAt)}` : ""}</p>
+      {d.payment.online.failureReason && <p className="small down">{d.payment.online.failureReason}</p>}
+      {d.payment.online.status === "paid" && <div><Btn sm disabled={busy} onClick={() => act(() => api.post(`/admin/orders/${d.id}/refund`, {}), "Estorno solicitado")}>Estornar valor total</Btn></div>}
+    </section>}
     <div className="tablewrap"><table><tbody>
       {d.lines.map((l, i) => <tr key={i}><td><b>{l.qty}× {l.name}</b><div className="small muted">{l.choices.map((c) => `${c.fraction && c.fraction !== "inteira" ? c.fraction + " " : ""}${c.name}${c.unitDelta ? ` (+${BRL(c.unitDelta)})` : ""}`).join(" · ")}{l.notes ? ` · obs: ${l.notes}` : ""}</div></td><td className="r">{BRL(l.total)}</td></tr>)}
       <tr><td>Itens</td><td className="r">{BRL(d.subtotal)}</td></tr>

@@ -31,7 +31,7 @@ export const schemas = {
     hours: z.array(z.object({ weekday, open: hhmm, close: hhmm })),
     zones: z.array(z.object({ id, name: z.string(), kind: z.enum(["polygon", "radius"]), polygon: z.array(z.tuple([z.number(), z.number()])).optional(), radiusKm: z.number().optional(), color: z.string(), fee: money, etaMin: z.number().int(), etaMax: z.number().int(), active: z.boolean() })),
     modes: z.object({ delivery: z.boolean(), takeout: z.boolean() }),
-    payments: z.array(z.object({ code: z.enum(["PIX_ONLINE", "CARD_ON_DELIVERY", "CREDIT_ON_DELIVERY", "DEBIT_ON_DELIVERY", "VR_VA", "CASH"]), label: z.string(), active: z.boolean(), saiposCode: z.string(), saiposComplement: z.string().optional(), online: z.boolean() })),
+    payments: z.array(z.object({ code: z.enum(["PIX_ONLINE", "CARD_ONLINE", "CARD_ON_DELIVERY", "CREDIT_ON_DELIVERY", "DEBIT_ON_DELIVERY", "VR_VA", "CASH"]), label: z.string(), active: z.boolean(), saiposCode: z.string(), saiposComplement: z.string().optional(), online: z.boolean() })),
     status: z.enum(["draft", "live", "paused"]),
     pausedReason: z.string().optional(),
   }),
@@ -113,7 +113,12 @@ export const checkoutSchema = z.object({
   mode: z.enum(["DELIVERY", "TAKEOUT"]),
   lines: z.array(z.object({ itemId: id, qty: z.number().int().min(1).max(50), selection: z.record(z.record(z.number().int().min(0))).optional(), notes: z.string().max(140).optional() })).min(1),
   address: z.object({ street: z.string(), number: z.string(), district: z.string(), city: z.string(), state: z.string(), postalCode: z.string(), complement: z.string().optional(), reference: z.string().optional(), lat: z.number().optional(), lng: z.number().optional() }).optional(),
-  payment: z.object({ code: z.enum(["PIX_ONLINE", "CARD_ON_DELIVERY", "CREDIT_ON_DELIVERY", "DEBIT_ON_DELIVERY", "VR_VA", "CASH"]), changeFor: z.number().optional() }),
+  payment: z.object({
+    code: z.enum(["PIX_ONLINE", "CARD_ONLINE", "CARD_ON_DELIVERY", "CREDIT_ON_DELIVERY", "DEBIT_ON_DELIVERY", "VR_VA", "CASH"]), changeFor: z.number().optional(),
+    // cartão online: só o token gerado no navegador pelo gateway (número do cartão nunca chega aqui)
+    cardToken: z.string().max(200).optional(), installments: z.number().int().min(1).max(12).optional(), cardBrand: z.string().max(20).optional(), cardLast4: z.string().regex(/^\d{4}$/).optional(), issuerId: z.string().max(20).optional(),
+  }),
+  customerDocument: z.string().max(18).optional(),
   couponCode: z.string().optional(),
   useCashback: z.boolean().optional(),
   notes: z.string().max(300).optional(),
@@ -121,3 +126,10 @@ export const checkoutSchema = z.object({
   customer: z.object({ name: z.string().min(1), phone: z.string().min(10), email: z.string().email().optional(), optinWhatsapp: z.boolean().optional() }).optional(),
 });
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
+
+export const paymentsConfigSchema = z.object({
+  enabled: z.boolean(), gateway: z.enum(["mercadopago", "pagarme", "asaas", "fake"]), env: z.enum(["sandbox", "production"]),
+  accessToken: z.string().optional(), publicKey: z.string().optional(), secretKey: z.string().optional(), apiKey: z.string().optional(), webhookSecret: z.string().optional(),
+  methods: z.object({ pix: z.boolean(), card: z.boolean() }), pixExpiresMinutes: z.number().int().min(2).max(1440), maxInstallments: z.number().int().min(1).max(12),
+  softDescriptor: z.string().max(13).optional(), captureOnlyIfStoreOpen: z.boolean().optional(), baseUrl: z.string().optional(), fakeAutoPaySeconds: z.number().int().min(0).max(600).optional(),
+});

@@ -19,6 +19,7 @@ export const SAIPOS_BASE = { production: "https://order-api.saipos.com", homolog
 
 export const DEFAULT_PAYMENTS: SaiposConfig["payments"] = {
   PIX_ONLINE: { code: "PARTNER_PAYMENT", complement: "pix", type: "ONLINE" },
+  CARD_ONLINE: { code: "PARTNER_PAYMENT", complement: "", type: "ONLINE" }, // complemento = bandeira do cartão aprovado
   CARD_ON_DELIVERY: { code: "CARD", type: "OFFLINE" },
   CREDIT_ON_DELIVERY: { code: "CRE", type: "OFFLINE" },
   DEBIT_ON_DELIVERY: { code: "DEB", type: "OFFLINE" },

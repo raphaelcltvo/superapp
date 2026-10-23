@@ -10,6 +10,8 @@ import { findByPhone, upsertCustomer, ledgerOf } from "../services/customers";
 import { checkoutSchema } from "../schemas";
 import { walletBalance } from "@cw/core";
 import { emit } from "../services/integrations";
+import { publicPayments, renewPix, sweepPayment, markPaid, activePayments } from "../services/payments";
+import { fakeState } from "../integrations/payments/fake";
 
 const otps = new Map<string, { code: string; exp: number; tries: number }>();
 
@@ -111,9 +113,30 @@ export function publicRoutes() {
     return c.json({ order, customerToken: await signCustomer({ cid: customer.id, tid: c.get("tenantId") }, c.get("deps").jwtSecret) }, 201);
   });
   r.get("/orders/:id", async (c) => {
+    let o = await c.get("deps").db.get<Order & { id: string }>("orders", c.get("tenantId"), c.req.param("id"));
+    if (!o || (o.customerId && o.customerId !== c.get("customerId"))) throw new HttpError(404, "Pedido não encontrado");
+    o = (await sweepPayment(ctxOf(c), o)) as Order & { id: string };
+    const on = o.payment.online;
+    return c.json({ id: o.id, displayId: o.displayId, status: o.status, statusHistory: o.statusHistory, total: o.total, lines: o.lines, cashbackEarned: o.cashbackEarned, mode: o.mode,
+      payment: { code: o.payment.code, online: on && { gateway: on.gateway, method: on.method, status: on.status, pix: on.status === "pending" || on.status === "expired" ? on.pix : undefined, card: on.card, failureReason: on.failureReason, paidAt: on.paidAt } } });
+  });
+  /** Configuração pública de pagamento (chave pública para gerar o token do cartão no navegador). */
+  r.get("/payments/config", async (c) => c.json(await publicPayments(ctxOf(c))));
+  r.post("/orders/:id/pix", async (c) => {
     const o = await c.get("deps").db.get<Order & { id: string }>("orders", c.get("tenantId"), c.req.param("id"));
     if (!o || (o.customerId && o.customerId !== c.get("customerId"))) throw new HttpError(404, "Pedido não encontrado");
-    return c.json({ id: o.id, displayId: o.displayId, status: o.status, statusHistory: o.statusHistory, total: o.total, lines: o.lines, cashbackEarned: o.cashbackEarned, mode: o.mode });
+    const n = await renewPix(ctxOf(c), o.id);
+    return c.json({ id: n!.id, status: n!.status, payment: { code: n!.payment.code, online: n!.payment.online } });
+  });
+  /** Só no gateway de teste: simula o banco confirmando o Pix. */
+  r.post("/payments/fake/:chargeId/pay", async (c) => {
+    const ctx = ctxOf(c); const a = await activePayments(ctx);
+    if (a?.cfg.gateway !== "fake") throw new HttpError(404, "Disponível só no gateway de teste");
+    const o = (await ctx.deps.db.list<Order & { id: string }>("orders", ctx.tenantId, { where: { "payment.online.chargeId": c.req.param("chargeId") }, limit: 1 }))[0];
+    if (!o) throw new HttpError(404, "Cobrança não encontrada");
+    fakeState.set(c.req.param("chargeId"), "paid");
+    const n = await markPaid(ctx, o.id, "fake");
+    return c.json({ ok: true, status: n?.status });
   });
 
   r.get("/pages/:pageSlug", async (c) => {

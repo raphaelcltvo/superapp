@@ -342,3 +342,14 @@
 @media (prefers-reduced-motion: reduce) {
   .cw-sf *, .cw-sf *::before, .cw-sf *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+
+/* pagamento online */
+.cw-sf .cardform { display: grid; gap: 10px; margin-top: 10px; padding: 12px; border: 1px solid var(--a-line); border-radius: 12px; }
+.cw-sf .cardform .cc-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cw-sf .cardform select { width: 100%; font: inherit; padding: 10px; border-radius: 10px; border: 1px solid var(--a-line); background: transparent; color: inherit; }
+.cw-sf .pix-qr { border: 8px solid #fff; box-shadow: 0 0 0 1px var(--a-line); border-radius: 8px; background: #fff; image-rendering: pixelated; }
+.cw-sf .pix-code { width: 100%; font: 12px/1.4 ui-monospace, monospace; padding: 10px; border-radius: 10px; border: 1px solid var(--a-line); resize: none; word-break: break-all; background: transparent; color: inherit; }
+.cw-sf .pix-wait { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; opacity: .8; }
+.cw-sf .pix-wait .spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: cw-spin .9s linear infinite; }
+@keyframes cw-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .cw-sf .pix-wait .spin { animation: none; } }

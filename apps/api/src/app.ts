@@ -11,6 +11,7 @@ import { adminRoutes } from "./routes/admin";
 import { v1Routes } from "./routes/v1";
 import { onSaiposEvent } from "./services/orders";
 import { saiposConfig } from "./services/integrations";
+import { onPaymentWebhook } from "./services/payments";
 
 export function createApp(deps: Deps) {
   const app = new Hono<Env>();
@@ -54,6 +55,14 @@ export function createApp(deps: Deps) {
     if (b.cod_store !== cfg.codStore) throw new HttpError(400, "cod_store não confere");
     await onSaiposEvent(ctx, b);
     return c.json({ ok: true }); // responder 200 rápido: a SAIPOS registra erro 918 se o parceiro falhar
+  });
+  /** Webhook dos gateways de pagamento (Mercado Pago, Pagar.me, Asaas). A URL completa, com o token, aparece em Pagamentos no painel. */
+  app.post("/webhooks/payments/:gateway/:slug", async (c) => {
+    const t = await deps.db.tenants.bySlug(c.req.param("slug"));
+    if (!t) throw new HttpError(404, "Marca não encontrada");
+    const headers: Record<string, string> = {}; c.req.raw.headers.forEach((v, k) => { headers[k.toLowerCase()] = v; });
+    const r = await onPaymentWebhook({ deps, tenantId: t.id }, c.req.param("gateway"), { headers, body: await c.req.text(), query: c.req.query() });
+    return c.json(r);
   });
   return app;
 }

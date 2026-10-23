@@ -8,6 +8,7 @@ import { schemas, loyaltySchema, merchSchema, brandSchema, type CrudTable } from
 import { auditCatalog, draftSnapshot, getSetting, putSetting, publish, DEFAULT_LOYALTY, DEFAULT_MERCH, type MenuVersion } from "../services/catalog";
 import { crmRoutes } from "./admin-crm";
 import { opsRoutes } from "./admin-ops";
+import { paymentsAdminRoutes } from "./admin-payments";
 
 const CRUD = Object.keys(schemas) as CrudTable[];
 const slugTables = new Set(["categories", "stores"]);
@@ -125,6 +126,7 @@ export function adminRoutes() {
 
   r.route("/crm", crmRoutes());
   r.route("/", opsRoutes());
+  r.route("/", paymentsAdminRoutes());
 
   /* ---------- CRUD genérico das entidades do painel ---------- */
   for (const table of CRUD) {

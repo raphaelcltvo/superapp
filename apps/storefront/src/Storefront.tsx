@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { ApiError, createClient, type Transport } from "@cw/client";
+import { CardError, detectBrand, fmtCardNumber, fmtCpf, fmtExpiry, tokenizeCard, validateCard, validCpf, type CardFields } from "./payments";
 import { effectiveRule, fractionLabel, groupCount, pickPopup, priceLine, validateSelection, type Banner, type CartLineInput, type OptionGroup, type Page, type PageBlock, type PaymentCode, type PricedLine, type StrategyContext } from "@cw/core";
 import { Bottle, BannerView, ItemArt, PageView, PizzaPhoto, brl, nextOpening, optionPhotos } from "./parts";
 import type { CartLine, Menu, MenuItem, MenuStrategy, QuoteResp } from "./types";
@@ -35,10 +36,11 @@ type Screen = "menu" | "bag" | "checkout" | "pix" | "track";
 interface Draft { itemId: string; sel: Record<string, Record<string, number>>; qty: number; notes: string[]; preset?: number; editKey?: string; tried: boolean }
 interface Addr { postalCode: string; street: string; number: string; complement: string; district: string; city: string; state: string; reference: string }
 interface Geo { ok: boolean; lat?: number; lng?: number; zone?: { name: string; fee: number; etaMin: number; etaMax: number }; reason?: string }
-interface TrackOrder { id: string; displayId: string; status: string; statusHistory: { status: string; at: string; note?: string }[]; total: number; cashbackEarned: number; mode: string; lines: PricedLine[] }
+interface OnlineInfo { gateway: string; method: "pix" | "card"; status: "pending" | "paid" | "failed" | "expired" | "refunded"; pix?: { qrText: string; qrImage?: string; expiresAt: string }; card?: { brand?: string; last4?: string; installments?: number }; failureReason?: string; paidAt?: string }
+interface TrackOrder { id: string; displayId: string; status: string; statusHistory: { status: string; at: string; note?: string }[]; total: number; cashbackEarned: number; mode: string; lines: PricedLine[]; payment?: { code: string; online?: OnlineInfo } }
 
 const NOTE_CHIPS = ["Bem assada", "Cortar em 12", "Sem orégano", "Pouca cebola"];
-const STATUS: Record<string, string> = { created: "Pedido recebido", sent_to_pos: "Enviado para a cozinha", pos_error: "Estamos confirmando com a loja", confirmed: "Confirmado pela loja", ready: "Pronto", dispatched: "Saiu para entrega", concluded: "Entregue", cancelled: "Cancelado" };
+const STATUS: Record<string, string> = { awaiting_payment: "Aguardando pagamento", payment_failed: "Pagamento não concluído", created: "Pedido recebido", sent_to_pos: "Enviado para a cozinha", pos_error: "Estamos confirmando com a loja", confirmed: "Confirmado pela loja", ready: "Pronto", dispatched: "Saiu para entrega", concluded: "Entregue", cancelled: "Cancelado" };
 const FLOW = ["created", "sent_to_pos", "confirmed", "ready", "dispatched", "concluded"];
 
 export function Storefront(props: StorefrontProps) {
@@ -69,6 +71,8 @@ export function Storefront(props: StorefrontProps) {
   const [geo, setGeo] = useState<Geo | null>(null);
   const [pay, setPay] = useState<PaymentCode | null>(null);
   const [changeFor, setChangeFor] = useState("");
+  const [cc, setCc] = useState<CardFields & { installments: number }>({ number: "", name: "", expiry: "", cvv: "", installments: 1 });
+  const [cpf, setCpf] = useState("");
   const [useCashback, setUseCashback] = useState(false);
   const [ident, setIdent] = useState({ name: "", phone: "", code: "", sent: false, demoCode: "", optin: false, busy: false, err: "" });
   const [me, setMe] = useState<{ name?: string; phone?: string } | null>(null);
@@ -492,9 +496,11 @@ export function Storefront(props: StorefrontProps) {
           <div className="blk"><h4>Pagamento</h4>
             {store.payments.map((p) => (
               <button key={p.code} className={`payopt${pay === p.code ? " on" : ""}`} role="radio" aria-checked={pay === p.code} onClick={() => { setPay(p.code); touch(); }}>
-                <span className={`radio${pay === p.code ? " on" : ""}`} aria-hidden="true" /><div><b>{p.label}</b><small>{p.online ? "Aprovado na hora, pelo app do banco" : "Pague na entrega ou na retirada"}</small></div>
+                <span className={`radio${pay === p.code ? " on" : ""}`} aria-hidden="true" /><div><b>{p.label}</b><small>{p.code === "CARD_ONLINE" ? "Pague agora, com aprovação na hora" : p.online ? "Aprovado na hora, pelo app do banco" : "Pague na entrega ou na retirada"}</small></div>
               </button>
             ))}
+            {pay === "CARD_ONLINE" && menu.onlinePayments && <CardForm card={cc} setCard={setCc} max={menu.onlinePayments.maxInstallments} total={quote?.total || 0} />}
+            {(pay === "CARD_ONLINE" || pay === "PIX_ONLINE") && menu.onlinePayments?.requiresDocument && (pay === "PIX_ONLINE" ? menu.onlinePayments.gateway !== "mercadopago" : true) && <div className="field"><label htmlFor="cw-cpf">CPF do pagador</label><input id="cw-cpf" inputMode="numeric" autoComplete="off" placeholder="000.000.000-00" value={cpf} onChange={(e) => setCpf(fmtCpf(e.target.value))} />{cpf.length >= 14 && !validCpf(cpf) && <span className="err">CPF inválido</span>}</div>}
             {pay === "CASH" && <div className="field"><label htmlFor="cw-change">Troco para quanto?</label><input id="cw-change" inputMode="decimal" placeholder="Ex.: 200" value={changeFor} onChange={(e) => setChangeFor(e.target.value.replace(/[^\d,.]/g, ""))} /></div>}
           </div>
 
@@ -555,24 +561,36 @@ export function Storefront(props: StorefrontProps) {
             {(() => {
               const needAddr = mode === "DELIVERY" && !(geo?.ok && addr.street && addr.number);
               const needId = !(me && token);
-              const label = closed ? "Loja fechada agora" : needAddr ? "Informe o endereço" : needId ? "Confirme seu telefone" : !pay ? "Escolha o pagamento" : placing ? "Enviando…" : "Fazer pedido";
-              const blocked = closed || needAddr || needId || !pay || placing || !quote;
+              const op = menu.onlinePayments;
+              const needDoc = !!op?.requiresDocument && (pay === "CARD_ONLINE" || (pay === "PIX_ONLINE" && op.gateway !== "mercadopago")) && !validCpf(cpf);
+              const cardErr = pay === "CARD_ONLINE" ? validateCard(cc) : null;
+              const label = closed ? "Loja fechada agora" : needAddr ? "Informe o endereço" : needId ? "Confirme seu telefone" : !pay ? "Escolha o pagamento" : cardErr ? "Preencha o cartão" : needDoc ? "Informe o CPF" : placing ? (pay === "CARD_ONLINE" ? "Processando pagamento…" : "Enviando…") : pay === "CARD_ONLINE" ? "Pagar e fazer pedido" : "Fazer pedido";
+              const blocked = closed || needAddr || needId || !pay || !!cardErr || needDoc || placing || !quote;
               return (
                 <button className={`cta${blocked ? " blocked" : ""}`} disabled={blocked} onClick={async () => {
                   setPlacing(true); setOrderErr(null);
                   try {
+                    let cardPay: { cardToken: string; installments: number; cardBrand: string; cardLast4: string; issuerId?: string } | undefined;
+                    if (pay === "CARD_ONLINE" && op) {
+                      const t = await tokenizeCard(op, { ...cc, document: cpf || undefined });
+                      cardPay = { cardToken: t.token, installments: cc.installments, cardBrand: t.brand, cardLast4: t.last4, issuerId: t.issuerId };
+                    }
                     const body = {
                       storeId: store.id, sessionId, source: props.source, mode,
                       lines: cart.map(({ itemId, qty, selection, notes }) => ({ itemId, qty, selection, notes })),
                       address: mode === "DELIVERY" ? { ...addr, complement: addr.complement || undefined, reference: addr.reference || undefined, lat: geo?.lat, lng: geo?.lng } : undefined,
-                      payment: { code: pay!, changeFor: pay === "CASH" && changeFor ? Number(changeFor.replace(",", ".")) : undefined },
+                      payment: { code: pay!, changeFor: pay === "CASH" && changeFor ? Number(changeFor.replace(",", ".")) : undefined, ...cardPay },
+                      customerDocument: (pay === "CARD_ONLINE" || pay === "PIX_ONLINE") && cpf ? cpf.replace(/\D/g, "") : undefined,
                       couponCode: couponCode || undefined, useCashback,
                       customer: { name: me?.name || ident.name, phone: me?.phone || ident.phone, optinWhatsapp: ident.optin || undefined },
                     };
-                    const r = await api.post<{ order: TrackOrder & { payment: { code: string } }; customerToken: string }>(`${base}/orders${q}`, body);
+                    const r = await api.post<{ order: TrackOrder; customerToken: string }>(`${base}/orders${q}`, body);
+                    if (cardPay) setCc({ number: "", name: "", expiry: "", cvv: "", installments: 1 });
                     setToken(r.customerToken); setOrder(r.order); setCart([]); setCouponCode(""); ss.set(`cw:coupon:${slug}`, ""); setUseCashback(false);
-                    go(pay === "PIX_ONLINE" ? "pix" : "track");
+                    go(r.order.payment?.online ? (r.order.payment.online.method === "pix" ? "pix" : "track") : pay === "PIX_ONLINE" ? "pix" : "track");
                   } catch (e) {
+                    if (e instanceof CardError) { setOrderErr(e.message); return; }
+                    if (e instanceof ApiError && e.status === 402) { setOrderErr(`Pagamento recusado: ${e.message}`); track("payment_declined", { reason: e.message }); return; }
                     const msg = e instanceof ApiError ? (Array.isArray(e.details) && (e.details as { issues?: { message: string }[] }[])[0]?.issues?.[0]?.message) || e.message : "Não conseguimos enviar o pedido. Tente de novo.";
                     setOrderErr(String(msg));
                   } finally { setPlacing(false); }
@@ -586,7 +604,7 @@ export function Storefront(props: StorefrontProps) {
       {/* ================= Pix ================= */}
       <div className={`screen${screen === "pix" ? "" : screen === "track" ? " off-left" : " off-right"}`} data-screen="pix" aria-hidden={screen !== "pix"}>
         <div className="app-hd"><div><h2>Pague com Pix</h2><span>Pedido #{order?.displayId}</span></div></div>
-        {order && <PixPay order={order} onPaid={() => go("track")} onCopy={() => showToast("Código Pix copiado")} />}
+        {order && screen === "pix" && <PixPay api={api} base={base} order={order} setOrder={setOrder} onPaid={() => go("track")} onCopy={() => showToast("Código Pix copiado")} />}
       </div>
 
       {/* ================= acompanhamento ================= */}
@@ -829,7 +847,75 @@ function ItemSheet({ menu, draft, setDraft, groups, photos, onAdd, onClose, shak
   );
 }
 
-function PixPay({ order, onPaid, onCopy }: { order: TrackOrder; onPaid: () => void; onCopy: () => void }) {
+function CardForm({ card, setCard, max, total }: { card: CardFields & { installments: number }; setCard: (c: CardFields & { installments: number }) => void; max: number; total: number }) {
+  const brand = detectBrand(card.number);
+  const n = Math.max(1, Math.min(12, max || 1));
+  return (
+    <div className="cardform" data-private="true">
+      <div className="field"><label htmlFor="cw-cc-number">Número do cartão{brand && <small className="muted"> · {brand}</small>}</label><input id="cw-cc-number" inputMode="numeric" autoComplete="cc-number" placeholder="0000 0000 0000 0000" value={card.number} onChange={(e) => setCard({ ...card, number: fmtCardNumber(e.target.value) })} /></div>
+      <div className="field"><label htmlFor="cw-cc-name">Nome impresso no cartão</label><input id="cw-cc-name" autoComplete="cc-name" value={card.name} onChange={(e) => setCard({ ...card, name: e.target.value.toUpperCase() })} /></div>
+      <div className="cc-row">
+        <div className="field"><label htmlFor="cw-cc-exp">Validade</label><input id="cw-cc-exp" inputMode="numeric" autoComplete="cc-exp" placeholder="MM/AA" value={card.expiry} onChange={(e) => setCard({ ...card, expiry: fmtExpiry(e.target.value) })} /></div>
+        <div className="field"><label htmlFor="cw-cc-cvv">CVV</label><input id="cw-cc-cvv" inputMode="numeric" autoComplete="cc-csc" maxLength={4} placeholder="123" value={card.cvv} onChange={(e) => setCard({ ...card, cvv: e.target.value.replace(/\D/g, "").slice(0, 4) })} /></div>
+      </div>
+      {n > 1 && <div className="field"><label htmlFor="cw-cc-inst">Parcelas</label><select id="cw-cc-inst" value={card.installments} onChange={(e) => setCard({ ...card, installments: +e.target.value })}>{Array.from({ length: n }, (_, i) => i + 1).map((k) => <option key={k} value={k}>{k === 1 ? `À vista · ${brl(total)}` : `${k}x de ${brl(total / k)}`}</option>)}</select></div>}
+      <small className="muted">Os dados do cartão vão direto para o processador de pagamento, protegidos. A loja não vê nem guarda o número.</small>
+    </div>
+  );
+}
+
+function PixPay(p: { api: ReturnType<typeof createClient>; base: string; order: TrackOrder; setOrder: (o: TrackOrder) => void; onPaid: () => void; onCopy: () => void }) {
+  return p.order.payment?.online ? <PixOnline {...p} /> : <PixDemo order={p.order} onPaid={p.onPaid} onCopy={p.onCopy} />;
+}
+
+function PixOnline({ api, base, order, setOrder, onPaid, onCopy }: { api: ReturnType<typeof createClient>; base: string; order: TrackOrder; setOrder: (o: TrackOrder) => void; onPaid: () => void; onCopy: () => void }) {
+  const on = order.payment!.online!;
+  const [nowMs, setNowMs] = useState(Date.now());
+  const [renewing, setRenewing] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const ref = useRef(order); ref.current = order;
+  useEffect(() => { const t = setInterval(() => setNowMs(Date.now()), 1000); return () => clearInterval(t); }, []);
+  useEffect(() => {
+    let alive = true;
+    const poll = () => api.get<TrackOrder>(`${base}/orders/${order.id}`).then((o) => {
+      if (!alive) return;
+      setOrder({ ...ref.current, ...o });
+      if (o.payment?.online?.status === "paid" || !["awaiting_payment", "payment_failed"].includes(o.status)) onPaid();
+    }).catch(() => { /* tenta de novo */ });
+    const t = setInterval(poll, 3000);
+    return () => { alive = false; clearInterval(t); };
+  }, [order.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  const left = on.pix ? Math.max(0, Math.round((+new Date(on.pix.expiresAt) - nowMs) / 1000)) : 0;
+  const expired = on.status === "expired" || on.status === "failed" || order.status === "payment_failed" || (on.status === "pending" && left === 0);
+  const renew = async () => {
+    setRenewing(true); setErr(null);
+    try { const r = await api.post<{ status: string; payment: { code: string; online: OnlineInfo } }>(`${base}/orders/${order.id}/pix`, {}); setOrder({ ...ref.current, status: r.status, payment: r.payment }); }
+    catch (e) { setErr(e instanceof ApiError ? e.message : "Não conseguimos gerar outro Pix. Tente de novo."); }
+    finally { setRenewing(false); }
+  };
+  return (
+    <div className="blk pix" data-pix-status={expired ? "expired" : on.status}>
+      {expired ? <>
+        <p><b>O Pix expirou.</b> Seu pedido continua guardado: gere um código novo para pagar.</p>
+        <b className="pix-total">{brl(order.total)}</b>
+        <button className="cta" disabled={renewing} onClick={renew}><span>{renewing ? "Gerando…" : "Gerar novo Pix"}</span><span>→</span></button>
+      </> : <>
+        <p>Abra o app do seu banco, escolha Pix e leia o QR code ou use o copia e cola.</p>
+        {on.pix?.qrImage ? <img className="pix-qr" src={on.pix.qrImage} width={200} height={200} alt="QR code Pix para pagamento" /> : null}
+        <b className="pix-total">{brl(order.total)}</b>
+        <span className="muted" aria-live="polite">Expira em {String(Math.floor(left / 60)).padStart(2, "0")}:{String(left % 60).padStart(2, "0")}</span>
+        {on.pix?.qrText && <>
+          <textarea className="pix-code" readOnly rows={3} value={on.pix.qrText} aria-label="Código Pix copia e cola" onFocus={(e) => e.currentTarget.select()} />
+          <button className="cta" onClick={() => { navigator.clipboard?.writeText(on.pix!.qrText).then(onCopy).catch(onCopy); }}><span>Copiar código Pix</span><span>⧉</span></button>
+        </>}
+        <span className="pix-wait"><span className="spin" aria-hidden="true" /> Aguardando a confirmação do banco…</span>
+      </>}
+      {err && <p className="err" role="alert">{err}</p>}
+    </div>
+  );
+}
+
+function PixDemo({ order, onPaid, onCopy }: { order: TrackOrder; onPaid: () => void; onCopy: () => void }) {
   const [left, setLeft] = useState(15 * 60);
   useEffect(() => { const t = setInterval(() => setLeft((x) => Math.max(0, x - 1)), 1000); return () => clearInterval(t); }, []);
   const cells = useMemo(() => {

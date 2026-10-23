@@ -17,6 +17,8 @@ export interface Deps {
   now: () => Date;
   /** fetch usado para a SAIPOS (injetável para testes e demonstração) */
   saiposFetch?: Fetch;
+  /** fetch usado para os gateways de pagamento (injetável para testes) */
+  paymentsFetch?: Fetch;
   storage: Storage;
   messenger: Messenger;
   /** envia o código de verificação (WhatsApp/SMS). Retorna o código só em modo demonstração. */

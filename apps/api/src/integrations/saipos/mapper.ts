@@ -24,7 +24,9 @@ export function toSaiposOrder(order: Order, customer: Customer | null, store: St
       }),
     };
   });
-  const pay = cfg.payments[order.payment.code] || DEFAULT_PAYMENTS[order.payment.code]!;
+  let pay = cfg.payments[order.payment.code] || DEFAULT_PAYMENTS[order.payment.code]!;
+  // pago online pelo gateway: a SAIPOS registra como pagamento do parceiro, com Pix ou a bandeira no complemento
+  if (order.payment.online?.status === "paid") pay = { code: "PARTNER_PAYMENT", type: "ONLINE", complement: order.payment.online.method === "pix" ? (cfg.payments.PIX_ONLINE?.complement ?? "pix") : (order.payment.online.card?.brand || "").toUpperCase() };
   let phone = onlyDigits(customer?.phone || "");
   if (phone.startsWith("55") && phone.length > 11) phone = phone.slice(2);
   const fees = order.fees || [];

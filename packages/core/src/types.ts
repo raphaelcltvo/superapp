@@ -44,7 +44,7 @@ export interface DeliveryZone {
   active: boolean;
 }
 
-export type PaymentCode = "PIX_ONLINE" | "CARD_ON_DELIVERY" | "CREDIT_ON_DELIVERY" | "DEBIT_ON_DELIVERY" | "VR_VA" | "CASH";
+export type PaymentCode = "PIX_ONLINE" | "CARD_ONLINE" | "CARD_ON_DELIVERY" | "CREDIT_ON_DELIVERY" | "DEBIT_ON_DELIVERY" | "VR_VA" | "CASH";
 export interface PaymentMethod { code: PaymentCode; label: string; active: boolean; saiposCode: string; saiposComplement?: string; online: boolean }
 
 export interface Store {
@@ -337,7 +337,7 @@ export interface Automation {
 }
 
 /* ---------------- pedidos ---------------- */
-export type OrderStatus = "created" | "sent_to_pos" | "pos_error" | "confirmed" | "ready" | "dispatched" | "concluded" | "cancelled";
+export type OrderStatus = "awaiting_payment" | "payment_failed" | "created" | "sent_to_pos" | "pos_error" | "confirmed" | "ready" | "dispatched" | "concluded" | "cancelled";
 export interface Order {
   id: ID;
   displayId: string;
@@ -356,7 +356,7 @@ export interface Order {
   total: number;
   cashbackEarned: number;
   couponId?: ID;
-  payment: { code: PaymentCode; changeFor?: number };
+  payment: { code: PaymentCode; changeFor?: number; online?: OnlinePayment };
   address?: Store["address"] & { complement?: string; reference?: string };
   notes?: string;
   scheduledFor?: string;
@@ -365,4 +365,19 @@ export interface Order {
   pos?: { provider: "saipos"; sentAt?: string; error?: string; payload?: unknown; response?: unknown };
   source?: string;
   createdAt: string;
+}
+
+/* ---------------- pagamento online (gateway) ---------------- */
+export type GatewayId = "mercadopago" | "pagarme" | "asaas" | "fake";
+export type OnlinePaymentStatus = "pending" | "paid" | "failed" | "expired" | "refunded";
+export interface OnlinePayment {
+  gateway: GatewayId;
+  chargeId: string;
+  status: OnlinePaymentStatus;
+  method: "pix" | "card";
+  pix?: { qrText: string; qrImage?: string; expiresAt: string };
+  card?: { brand?: string; last4?: string; installments?: number };
+  paidAt?: string;
+  refundedAt?: string;
+  failureReason?: string;
 }

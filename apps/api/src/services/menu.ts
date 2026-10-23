@@ -2,6 +2,18 @@ import { detectProfile, pickBanner, walletBalance, hasVariablePrice, type Custom
 import type { Ctx } from "./ctx";
 import type { Snapshot } from "./catalog";
 import { customerContext, ledgerOf } from "./customers";
+import { publicPayments } from "./payments";
+import type { PublicPaymentsConfig } from "../integrations/payments";
+
+/** Com gateway ligado, o Pix vira "pague agora" e o cartão online entra na lista. */
+function withOnline(list: { code: string; label: string; online: boolean }[], p: PublicPaymentsConfig | null) {
+  if (!p) return list;
+  let out = list.filter((x) => x.code !== "PIX_ONLINE" || p.methods.pix);
+  if (p.methods.pix && !out.some((x) => x.code === "PIX_ONLINE")) out = [{ code: "PIX_ONLINE", label: "Pix", online: true }, ...out];
+  out = out.map((x) => (x.code === "PIX_ONLINE" ? { ...x, label: "Pix (pague agora)", online: true } : x));
+  if (p.methods.card) out.splice(1, 0, { code: "CARD_ONLINE", label: "Cartão de crédito online", online: true });
+  return out;
+}
 
 /** Dia da semana e minuto do dia no fuso da marca. */
 export function localClock(now: Date, tz: string) {
@@ -27,6 +39,7 @@ export async function resolveMenu(ctx: Ctx, snap: Snapshot, v: VisitorInput) {
   const now = ctx.deps.now();
   const store = snap.stores.find((s) => s.id === v.storeId) || snap.stores.find((s) => s.status === "live") || snap.stores[0];
   const cctx = await customerContext(ctx, v.customer || null);
+  const onlinePayments = await publicPayments(ctx);
   const visitor = { now, source: v.source, customer: v.customer ? { orders: cctx.orders, lastOrderAt: v.customer.lastOrderAt, spent: v.customer.spent } : undefined, segmentIds: cctx.segmentIds };
   const profile: ProfileKey = detectProfile(visitor);
   const visibleCats = snap.categories.filter((c) => c.visible);
@@ -72,7 +85,7 @@ export async function resolveMenu(ctx: Ctx, snap: Snapshot, v: VisitorInput) {
   const clientStrategies = snap.strategies.filter((s) => s.active).map((s) => ({ ...s, coupon: s.action.kind === "popup_coupon" ? (({ id, name, code, type, value, maxDiscount, minSubtotal }) => ({ id, name, code, type, value, maxDiscount, minSubtotal }))(couponsById[(s.action as { couponId: string }).couponId] || ({} as never)) : undefined }));
   return {
     tenant: snap.tenant,
-    store: store && { id: store.id, name: store.name, address: store.address, phone: store.phone, open: isOpen(store, now, snap.tenant.settings.timezone), modes: store.modes, payments: store.payments.filter((p) => p.active).map(({ code, label, online }) => ({ code, label, online })), eta: store.zones.filter((z) => z.active).map((z) => [z.etaMin, z.etaMax]).sort((a, b) => a[0] - b[0])[0], hours: store.hours },
+    store: store && { id: store.id, name: store.name, address: store.address, phone: store.phone, open: isOpen(store, now, snap.tenant.settings.timezone), modes: store.modes, payments: withOnline(store.payments.filter((p) => p.active).map(({ code, label, online }) => ({ code, label, online })), onlinePayments), eta: store.zones.filter((z) => z.active).map((z) => [z.etaMin, z.etaMax]).sort((a, b) => a[0] - b[0])[0], hours: store.hours },
     profile,
     hero,
     banners,
@@ -87,5 +100,6 @@ export async function resolveMenu(ctx: Ctx, snap: Snapshot, v: VisitorInput) {
     loyalty: snap.loyalty.active ? { earnPercent: snap.loyalty.earnPercent, minRedeem: snap.loyalty.minRedeem, maxRedeemPercent: snap.loyalty.maxRedeemPercent, expiresInDays: snap.loyalty.expiresInDays } : null,
     customer: v.customer ? { id: v.customer.id, name: v.customer.name, orders: cctx.orders, daysSinceLastOrder: cctx.daysSinceLastOrder, wallet } : null,
     pages: snap.pages.filter((p) => p.active),
+    onlinePayments,
   };
 }

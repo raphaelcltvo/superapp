@@ -5,6 +5,7 @@ import type { CheckoutInput } from "../schemas";
 import { catalogOf, publishedSnapshot, draftSnapshot, type Snapshot } from "./catalog";
 import { customerContext, recomputeStats, upsertCustomer } from "./customers";
 import { saiposConfig, emit } from "./integrations";
+import { activePayments, chargeNewOrder, isOnlineCode, refundOrder } from "./payments";
 import { SaiposClient } from "../integrations/saipos/client";
 import { toSaiposOrder, EVENT_TO_STATUS } from "../integrations/saipos/mapper";
 import { SaiposError, type SaiposEvent } from "../integrations/saipos/types";
@@ -47,14 +48,28 @@ export async function placeOrder(ctx: Ctx, input: CheckoutInput, customerFromTok
   if (input.mode === "DELIVERY" && !input.address) throw new HttpError(422, "Informe o endereço de entrega");
   if (input.mode === "DELIVERY" && q.outOfArea) throw new HttpError(422, "Endereço fora da área de entrega");
   if (input.couponCode && q.coupon && !q.coupon.ok) throw new HttpError(422, q.coupon.reason || "Cupom inválido");
-  if (!store.payments.some((p) => p.active && p.code === input.payment.code)) throw new HttpError(422, "Forma de pagamento indisponível");
+  const pay = await activePayments(ctx);
+  const online = !!pay && isOnlineCode(input.payment.code) && (input.payment.code === "CARD_ONLINE" ? pay.cfg.methods.card : pay.cfg.methods.pix);
+  if (input.payment.code === "CARD_ONLINE" && !online) throw new HttpError(422, "Cartão online indisponível");
+  if (!online && !store.payments.some((p) => p.active && p.code === input.payment.code)) throw new HttpError(422, "Forma de pagamento indisponível");
+  if (online && pay!.cfg.captureOnlyIfStoreOpen && store.status !== "live") throw new HttpError(422, "Loja fechada no momento");
+  if (input.customerDocument) customer = await upsertCustomer(ctx, { phone: customer.phone, document: input.customerDocument.replace(/\D/g, "") });
   const order: Order = {
     id: uid("ord"), displayId: await nextDisplayId(ctx), storeId: store.id, customerId: customer.id, sessionId: input.sessionId, mode: input.mode,
     lines: q.lines, subtotal: q.subtotal, discount: q.discount, deliveryFee: q.deliveryFee, baseDeliveryFee: q.baseDeliveryFee, fees: q.fees.map(({ label, amount, feeType }) => ({ label, amount, feeType })), strategiesApplied: q.applied,
     cashbackUsed: q.cashbackUsed, total: q.total, cashbackEarned: q.cashbackEarned, couponId: q.coupon?.ok ? q.coupon.id : undefined,
-    payment: input.payment, address: input.address as Order["address"], notes: input.notes, scheduledFor: input.scheduledFor,
-    status: "created", statusHistory: [{ status: "created", at: now.toISOString(), by: "cliente" }], source: input.source, createdAt: now.toISOString(),
+    payment: { code: input.payment.code, changeFor: input.payment.changeFor }, address: input.address as Order["address"], notes: input.notes, scheduledFor: input.scheduledFor,
+    status: online ? "awaiting_payment" : "created", statusHistory: [{ status: online ? "awaiting_payment" : "created", at: now.toISOString(), by: "cliente" }], source: input.source, createdAt: now.toISOString(),
   };
+  if (online) {
+    // cobra antes de gravar: cartão recusado não vira pedido
+    order.payment.online = await chargeNewOrder(ctx, order, customer, input.payment.code === "CARD_ONLINE" ? { token: input.payment.cardToken || "", installments: input.payment.installments || 1, brand: input.payment.cardBrand, last4: input.payment.cardLast4, issuerId: input.payment.issuerId } : undefined);
+    if (order.payment.online.status === "failed") {
+      await ctx.deps.db.events.insert(ctx.tenantId, [{ id: uid("ev"), sessionId: input.sessionId || order.id, customerId: customer.id, name: "payment_declined", ts: now.toISOString(), source: input.source, props: { reason: order.payment.online.failureReason } }]);
+      throw new HttpError(402, order.payment.online.failureReason || "Pagamento recusado");
+    }
+    if (order.payment.online.status === "paid") { order.status = "created"; order.statusHistory.push({ status: "created", at: now.toISOString(), by: order.payment.online.gateway, note: "Cartão aprovado" }); }
+  }
   (order as Order & { zoneId?: string }).zoneId = zone?.id;
   await ctx.deps.db.put("orders", ctx.tenantId, order as never);
   if (order.cashbackUsed > 0) await ctx.deps.db.put("ledger", ctx.tenantId, { id: uid("led"), customerId: customer.id, type: "redeem", amount: -order.cashbackUsed, orderId: order.id, createdAt: order.createdAt } as never);
@@ -62,6 +77,7 @@ export async function placeOrder(ctx: Ctx, input: CheckoutInput, customerFromTok
   await recomputeStats(ctx, customer.id);
   await ctx.deps.db.events.insert(ctx.tenantId, [{ id: uid("ev"), sessionId: input.sessionId || order.id, customerId: customer.id, name: "order_placed", ts: order.createdAt, source: input.source, props: { orderId: order.id, total: order.total } }]);
   await emit(ctx, "order.created", order);
+  if (order.status === "awaiting_payment") return { order, customer }; // a SAIPOS só recebe depois do pagamento
   const cfg = await saiposConfig(ctx, store.id);
   if (cfg?.enabled && cfg.autoSend) return { order: await sendToPos(ctx, order.id), customer };
   return { order, customer };
@@ -102,6 +118,9 @@ export async function changeStatus(ctx: Ctx, orderId: string, status: OrderStatu
   if (status === "concluded" && order.customerId && order.cashbackEarned > 0) {
     const exp = new Date(+ctx.deps.now() + (snap?.loyalty.expiresInDays || 60) * 864e5).toISOString();
     await ctx.deps.db.put("ledger", ctx.tenantId, { id: uid("led"), customerId: order.customerId, type: "earn", amount: order.cashbackEarned, orderId, createdAt: at, expiresAt: exp } as LedgerEntry as never);
+  }
+  if (status === "cancelled" && order.payment.online?.status === "paid") {
+    try { await refundOrder(ctx, orderId, undefined, by); } catch (e) { ctx.deps.log?.("estorno automático falhou", String(e)); }
   }
   if (status === "cancelled" && order.customerId) {
     const entries = await ctx.deps.db.list<LedgerEntry & { id: string }>("ledger", ctx.tenantId, { where: { orderId } });

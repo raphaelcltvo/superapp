@@ -13,7 +13,7 @@ import type { Customer, Item, OptionGroup, Order, Store } from "@cw/core";
  * Backend completo rodando no navegador: mesma API do servidor, banco em memória salvo no IndexedDB,
  * SAIPOS de teste que confirma, despacha e entrega os pedidos sozinha.
  */
-const DB_NAME = "superapp-demo", KEY = "snapshot-v4";
+const DB_NAME = "superapp-demo", KEY = "snapshot-v5"; // v5: pagamento online (gateway de teste)
 const SLUG = "forneria-original";
 const media = (f: string) => `media/${f}`;
 
@@ -68,6 +68,8 @@ export async function startDemo(onProgress: (msg: string) => void): Promise<Demo
     const login = await req("POST", "/auth/login", { email: "demo@forneria.com.br", password: "forneria2026" });
     const auth = { authorization: "Bearer " + (login.json as { token: string }).token };
     await req("PUT", "/admin/integrations/saipos/sto_leblon", { enabled: true, env: "homolog", idPartner: "demo-partner", secret: "demo-secret", codStore: "896", deliveryBy: "RESTAURANT", autoSend: true, payments: {}, baseUrl: "https://saipos-teste.local" }, auth);
+    // pagamento online com o gateway de teste: Pix se paga sozinho em ~8 s, cartão final 0002 é recusado
+    await req("PUT", "/admin/integrations/payments", { enabled: true, gateway: "fake", env: "sandbox", methods: { pix: true, card: true }, pixExpiresMinutes: 15, maxInstallments: 3, fakeAutoPaySeconds: 8 }, auth);
     onProgress("Publicando a primeira versão…");
     await req("POST", "/admin/publish", { notes: "Cardápio importado do iFood + preços de set/2026" }, auth);
   }

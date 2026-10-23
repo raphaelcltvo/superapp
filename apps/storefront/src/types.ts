@@ -1,3 +1,4 @@
+import type { OnlineCfg } from "./payments";
 import type { Banner, CartLineInput, CrossSellRule, Item, OptionGroup, Page, PaymentCode, Strategy, Tenant } from "@cw/core";
 
 export type MenuItem = Item & { fromPrice: boolean };
@@ -24,6 +25,7 @@ export interface Menu {
   loyalty: null | { earnPercent: number; minRedeem: number; maxRedeemPercent: number; expiresInDays: number };
   customer: null | { id: string; name?: string; orders: number; daysSinceLastOrder?: number; wallet: { balance: number; expiringSoon: number } | null };
   pages: Pick<Page, "id" | "slug" | "title" | "active">[];
+  onlinePayments?: OnlineCfg | null;
 }
 
 export interface QuoteResp {
