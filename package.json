@@ -13,7 +13,7 @@
     "dev:store": "npm -w @cw/storefront run dev",
     "db:migrate": "npm -w @cw/api run migrate",
     "db:seed": "npm -w @cw/api run seed",
-    "test": "vitest run",
+    "test": "vitest run --no-file-parallelism",
     "typecheck": "tsc -b",
     "build:demo": "npm -w @cw/demo run build"
   },

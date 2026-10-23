@@ -14,6 +14,8 @@ import { publicPayments, renewPix, sweepPayment, markPaid, activePayments } from
 import { fakeState } from "../integrations/payments/fake";
 import { fakeProviders, waConfig } from "../services/messaging";
 import { MetaWhatsApp } from "../integrations/messaging/whatsapp";
+import { personalizeMenu } from "../services/engagement";
+import { registerEngagePublic } from "./engage";
 
 const otps = new Map<string, { code: string; exp: number; tries: number }>();
 
@@ -37,7 +39,8 @@ export function publicRoutes() {
   r.get("/menu", async (c) => {
     const ctx = ctxOf(c);
     const snap = await snapshotFor(ctx, await isPreview(c));
-    return c.json(await resolveMenu(ctx, snap, { storeId: c.req.query("store"), source: c.req.query("source"), customer: await me(c) }));
+    const cust = await me(c);
+    return c.json(await personalizeMenu(ctx, await resolveMenu(ctx, snap, { storeId: c.req.query("store"), source: c.req.query("source"), customer: cust }), cust));
   });
 
   r.post("/events", async (c) => {
@@ -125,7 +128,7 @@ export function publicRoutes() {
     if (!o || (o.customerId && o.customerId !== c.get("customerId"))) throw new HttpError(404, "Pedido não encontrado");
     o = (await sweepPayment(ctxOf(c), o)) as Order & { id: string };
     const on = o.payment.online;
-    return c.json({ id: o.id, displayId: o.displayId, status: o.status, statusHistory: o.statusHistory, total: o.total, lines: o.lines, cashbackEarned: o.cashbackEarned, mode: o.mode,
+    return c.json({ id: o.id, displayId: o.displayId, status: o.status, statusHistory: o.statusHistory, total: o.total, lines: o.lines, cashbackEarned: o.cashbackEarned, mode: o.mode, feedback: o.feedback ? { nps: o.feedback.nps, kind: o.feedback.kind } : null,
       payment: { code: o.payment.code, online: on && { gateway: on.gateway, method: on.method, status: on.status, pix: on.status === "pending" || on.status === "expired" ? on.pix : undefined, card: on.card, failureReason: on.failureReason, paidAt: on.paidAt } } });
   });
   /** Configuração pública de pagamento (chave pública para gerar o token do cartão no navegador). */
@@ -166,5 +169,6 @@ export function publicRoutes() {
     await emit(ctx, "page.response", resp);
     return c.json({ ok: true, thankYou: p.thankYou || "Obrigado!" }, 201);
   });
+  registerEngagePublic(r);
   return r;
 }
