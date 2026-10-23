@@ -1,4 +1,4 @@
-import { priceLine, r2, slugify, uid, type Automation, type Banner, type Category, type Coupon, type Customer, type Item, type LoyaltyProgram, type MerchSettings, type Option, type OptionGroup, type Order, type Page, type Segment, type Store, type Strategy, type Tenant } from "@cw/core";
+import { DEFAULT_ENGAGEMENT, npsKind, priceLine, r2, slugify, uid, type Automation, type Banner, type Category, type Coupon, type Customer, type EngagementSettings, type Item, type LoyaltyProgram, type MerchSettings, type Option, type OptionGroup, type Order, type Page, type Segment, type Store, type Strategy, type Tenant } from "@cw/core";
 import type { Db } from "../db/types";
 import { hashPassword } from "../auth";
 
@@ -176,6 +176,16 @@ export async function seedForneria(db: Db, o: SeedOpts) {
   const loyalty: LoyaltyProgram = { active: true, kind: "cashback", earnPercent: 5, minOrder: 0, expiresInDays: 45, minRedeem: 5, maxRedeemPercent: 30, welcomeBonus: 0, tiers: [{ name: "Prata", minSpend90d: 300, earnPercent: 7 }, { name: "Ouro", minSpend90d: 600, earnPercent: 10 }] };
   await db.put("settings", T, { id: "loyalty", value: loyalty });
 
+  /* pesquisa inteligente e engajamento */
+  await db.put("coupons", T, { id: "cup_fica", name: "R$ 8 para fechar agora (antes de ir)", code: "FICA8", type: "amount", value: 8, minSubtotal: 60, maxUsesPerCustomer: 1, marginHint: 0.42, active: true } as never);
+  const engagement: EngagementSettings = {
+    ...DEFAULT_ENGAGEMENT,
+    triage: { ...DEFAULT_ENGAGEMENT.triage, partyItems: { solo: "m1", dupla: "c2", galera: "c3" }, noveltyItemId: "m3" },
+    postOrder: { ...DEFAULT_ENGAGEMENT.postOrder, alertPhone: "5521999990000", googleReviewUrl: "https://g.page/r/forneria-original/review" },
+    effects: { ...DEFAULT_ENGAGEMENT.effects, exitIntent: { enabled: true, couponId: "cup_fica", title: "Antes de ir…", text: "Sua sacola fica guardada. Se fechar o pedido agora, tem R$ 8 de desconto." } },
+  };
+  await db.put("settings", T, { id: "engagement", value: engagement });
+
   /* CRM: segmentos e automações */
   const segments: Segment[] = [
     { id: "seg_1pedido", name: "Fizeram 1 pedido", description: "A maior alavanca: levar ao 2º pedido", rules: [{ field: "orders", op: "=", value: 1 }] },
@@ -252,6 +262,30 @@ async function seedHistory(db: Db, T: string, items: Item[], G: Record<string, O
     steps.forEach((name, m) => events.push({ id: `ev_${sid}_${name}`, sessionId: sid, name, ts: new Date(+at + m * 60e3).toISOString(), source: src, device: dev, props: { itemId: it, profile: "novo" } }));
     if (depth > 0.5 && depth < 0.6) events.push({ id: `ev_${sid}_hes`, sessionId: sid, name: "hesitation", ts: new Date(+at + 5 * 60e3).toISOString(), source: src, device: dev });
   }
+  // pesquisa pós-pedido em ~38% dos pedidos entregues, triagem e efeitos nas sessões
+  const reasonsHi = DEFAULT_ENGAGEMENT.postOrder.reasonsHigh, reasonsLo = DEFAULT_ENGAGEMENT.postOrder.reasonsLow;
+  const comments = ["Chegou quentinha, massa perfeita", "Demorou mais que o previsto", "A borda recheada é viciante", "Veio sem o refrigerante", "Melhor pizza do Leblon", "Achei a pizza meio fria", "Entregador super educado", "Sabor top, preço justo"];
+  for (const o of orders) {
+    if (o.status !== "concluded" || rnd() > 0.38) continue;
+    const nps = Math.min(10, Math.max(0, Math.round(8.4 + (rnd() - 0.55) * 6)));
+    const kind = npsKind(nps);
+    const at = new Date(+new Date(o.createdAt) + (70 + rnd() * 120) * 60e3);
+    if (+at > +now) continue;
+    o.feedback = { nps, kind, at: at.toISOString(), reasons: [pick(kind === "promotor" ? reasonsHi : reasonsLo), ...(rnd() < 0.4 ? [pick(kind === "promotor" ? reasonsHi : reasonsLo)] : [])].filter((x, i, a) => a.indexOf(x) === i), wantToTry: rnd() < 0.35 ? pick(["m3", "m4", "d4", "c3", "d2"]) : undefined, comment: rnd() < 0.3 ? pick(comments) : undefined, creditGiven: kind === "detrator" ? 10 : undefined };
+    events.push({ id: `ev_fb_${o.id}`, sessionId: `ses_${o.id}`, customerId: o.customerId, name: "feedback", ts: o.feedback.at, props: { orderId: o.id, nps, kind } });
+  }
+  for (const o of orders) {
+    const sid = `ses_${o.id}`; const at = +new Date(o.createdAt);
+    const ev = (name: string, m: number, props?: Record<string, unknown>) => events.push({ id: `ev_${sid}_${name}`, sessionId: sid, customerId: o.customerId, name, ts: new Date(at - m * 60e3).toISOString(), props });
+    const repeat = o.customerId && orders.some((x) => x.customerId === o.customerId && x.createdAt < o.createdAt);
+    if (repeat && rnd() < 0.5) { ev("triage_shown", 11.5); if (rnd() < 0.72) { const k = pick(["party", "mood", "craving"]); ev("triage_answer", 11.4, { kind: k, values: [pick(k === "party" ? ["solo", "dupla", "galera", "galera"] : k === "mood" ? ["salgada", "ambas", "doce"] : ["de_sempre", "novidade"])] }); } else ev("triage_skip", 11.4, { kind: "skip", values: [] }); }
+    if (rnd() < 0.45) ev("fx_glow_cta", 3);
+    if (rnd() < 0.2) ev("fx_glow_preset", 3.5);
+    if (rnd() < 0.18) ev("fx_free_ship_nudge", 5);
+    if (rnd() < 0.06) ev("return_toast", 7);
+    if (rnd() < 0.05) ev("exit_shown", 6);
+  }
+  for (let i = 0; i < 2600; i += 7) { const sid = `ses_x${i}`; const v = events.find((e) => e.id === `ev_${sid}_visit`); if (!v) continue; const t0 = +new Date(v.ts); if (rnd() < 0.5) events.push({ id: `ev_${sid}_exit`, sessionId: sid, name: "exit_shown", ts: new Date(t0 + 4 * 60e3).toISOString() }); if (rnd() < 0.3) events.push({ id: `ev_${sid}_glow`, sessionId: sid, name: "fx_glow_cta", ts: new Date(t0 + 2 * 60e3).toISOString() }); }
   for (const o of orders) await db.put("orders", T, o as never);
   const byC = new Map<string, Order[]>();
   for (const o of orders) if (o.status !== "cancelled") { if (!byC.has(o.customerId!)) byC.set(o.customerId!, []); byC.get(o.customerId!)!.push(o); }

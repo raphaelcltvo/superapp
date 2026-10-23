@@ -10,6 +10,8 @@ import { findByPhone, upsertCustomer, ledgerOf } from "../services/customers";
 import { checkoutSchema } from "../schemas";
 import { walletBalance } from "@cw/core";
 import { emit } from "../services/integrations";
+import { personalizeMenu } from "../services/engagement";
+import { registerEngagePublic } from "./engage";
 
 const otps = new Map<string, { code: string; exp: number; tries: number }>();
 
@@ -33,7 +35,8 @@ export function publicRoutes() {
   r.get("/menu", async (c) => {
     const ctx = ctxOf(c);
     const snap = await snapshotFor(ctx, await isPreview(c));
-    return c.json(await resolveMenu(ctx, snap, { storeId: c.req.query("store"), source: c.req.query("source"), customer: await me(c) }));
+    const cust = await me(c);
+    return c.json(await personalizeMenu(ctx, await resolveMenu(ctx, snap, { storeId: c.req.query("store"), source: c.req.query("source"), customer: cust }), cust));
   });
 
   r.post("/events", async (c) => {
@@ -113,7 +116,7 @@ export function publicRoutes() {
   r.get("/orders/:id", async (c) => {
     const o = await c.get("deps").db.get<Order & { id: string }>("orders", c.get("tenantId"), c.req.param("id"));
     if (!o || (o.customerId && o.customerId !== c.get("customerId"))) throw new HttpError(404, "Pedido não encontrado");
-    return c.json({ id: o.id, displayId: o.displayId, status: o.status, statusHistory: o.statusHistory, total: o.total, lines: o.lines, cashbackEarned: o.cashbackEarned, mode: o.mode });
+    return c.json({ id: o.id, displayId: o.displayId, status: o.status, statusHistory: o.statusHistory, total: o.total, lines: o.lines, cashbackEarned: o.cashbackEarned, mode: o.mode, feedback: o.feedback ? { nps: o.feedback.nps, kind: o.feedback.kind } : null });
   });
 
   r.get("/pages/:pageSlug", async (c) => {
@@ -135,5 +138,6 @@ export function publicRoutes() {
     await emit(ctx, "page.response", resp);
     return c.json({ ok: true, thankYou: p.thankYou || "Obrigado!" }, 201);
   });
+  registerEngagePublic(r);
   return r;
 }
