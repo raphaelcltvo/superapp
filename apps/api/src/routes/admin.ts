@@ -9,6 +9,7 @@ import { auditCatalog, draftSnapshot, getSetting, putSetting, publish, DEFAULT_L
 import { crmRoutes } from "./admin-crm";
 import { opsRoutes } from "./admin-ops";
 import { paymentsAdminRoutes } from "./admin-payments";
+import { messagingAdminRoutes } from "./admin-messaging";
 
 const CRUD = Object.keys(schemas) as CrudTable[];
 const slugTables = new Set(["categories", "stores"]);
@@ -125,6 +126,7 @@ export function adminRoutes() {
   });
 
   r.route("/crm", crmRoutes());
+  r.route("/messaging", messagingAdminRoutes());
   r.route("/", opsRoutes());
   r.route("/", paymentsAdminRoutes());
 

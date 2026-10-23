@@ -290,6 +290,8 @@ export interface Customer {
   email?: string;
   document?: string;
   optinWhatsapp?: boolean;
+  optinEmail?: boolean;
+  emailStatus?: "valid" | "bounced" | "complained" | "unsubscribed";
   birthday?: string;
   source?: string;
   externalIds?: Record<string, string>; // saipos, ifood, importação
@@ -326,7 +328,10 @@ export interface Automation {
   name: string;
   trigger: AutomationTrigger;
   segmentId?: ID;
-  channel: "whatsapp";
+  channel: AutomationChannel;
+  /** modelo aprovado (WhatsApp) ou e-mail; sem ele, usa o texto de `template` */
+  templateId?: ID;
+  emailTemplateId?: ID;
   template: string; // {{nome}}, {{cupom}}, {{cashback}}, {{link}}
   couponId?: ID;
   pageId?: ID;
@@ -380,4 +385,67 @@ export interface OnlinePayment {
   paidAt?: string;
   refundedAt?: string;
   failureReason?: string;
+}
+
+/* ---------------- mensagens: WhatsApp e e-mail ---------------- */
+export type MessageChannel = "whatsapp" | "email";
+export type AutomationChannel = "whatsapp" | "email" | "whatsapp_then_email";
+export type MessageStatus = "queued" | "sent" | "delivered" | "read" | "opened" | "clicked" | "failed" | "bounced" | "controle";
+/** origem de cada variável de um modelo */
+export type TemplateVar = "nome" | "cupom" | "link" | "marca" | "dias" | "pedido" | "cashback" | "codigo" | "fixo";
+
+export type EmailBlock =
+  | { kind: "heading"; text: string }
+  | { kind: "text"; text: string }
+  | { kind: "image"; url: string; alt: string; href?: string }
+  | { kind: "button"; label: string; href: string }
+  | { kind: "items"; title?: string; itemIds: ID[] }
+  | { kind: "coupon"; couponId?: ID; text?: string }
+  | { kind: "divider" };
+
+export interface MessageTemplate {
+  id: ID;
+  name: string;
+  channel: MessageChannel;
+  /** WhatsApp: nome do modelo aprovado na Meta, idioma, categoria e de-para das variáveis {{1}}, {{2}}… */
+  waName?: string;
+  waLanguage?: string;
+  waCategory?: "MARKETING" | "UTILITY" | "AUTHENTICATION";
+  waBody?: string; // texto como aprovado, para a pré-visualização
+  waVars?: { source: TemplateVar; value?: string }[];
+  waHeaderImage?: string;
+  /** e-mail */
+  subject?: string;
+  preheader?: string;
+  blocks?: EmailBlock[];
+  createdAt?: string;
+}
+
+export interface Campaign {
+  id: ID;
+  name: string;
+  channel: MessageChannel;
+  templateId: ID;
+  segmentId?: ID;
+  couponId?: ID;
+  pageId?: ID;
+  scheduleAt?: string; // vazio = enviar ao clicar
+  holdoutPercent: number;
+  quietHours?: [number, number];
+  maxPerCustomerPerWeek: number;
+  status: "draft" | "scheduled" | "sending" | "done" | "paused";
+  startedAt?: string;
+  finishedAt?: string;
+  createdAt?: string;
+}
+
+export interface InboxMessage {
+  id: ID;
+  from: string;
+  customerId?: ID;
+  name?: string;
+  text: string;
+  at: string;
+  status: "open" | "resolved";
+  replies?: { text: string; at: string; by: string; status: string }[];
 }

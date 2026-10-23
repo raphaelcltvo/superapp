@@ -19,6 +19,10 @@ export interface Deps {
   saiposFetch?: Fetch;
   /** fetch usado para os gateways de pagamento (injetável para testes) */
   paymentsFetch?: Fetch;
+  /** fetch usado para WhatsApp e e-mail (injetável para testes) */
+  messagingFetch?: Fetch;
+  /** segredo do agendador: header x-cron-secret em POST /cron/tick */
+  cronSecret?: string;
   storage: Storage;
   messenger: Messenger;
   /** envia o código de verificação (WhatsApp/SMS). Retorna o código só em modo demonstração. */

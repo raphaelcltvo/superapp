@@ -1,5 +1,7 @@
 import { daysSince, inSegment, uid, walletBalance, type Automation, type Coupon, type Customer, type LedgerEntry, type Order, type Segment } from "@cw/core";
 import type { Ctx } from "./ctx";
+import type { MessageTemplate } from "@cw/core";
+import { deliver, pickChannel, trackedLink } from "./messaging";
 
 export interface Message { id: string; automationId: string; customerId: string; ref: string; group: "envio" | "controle"; text: string; status: string; createdAt: string; convertedOrderId?: string }
 
@@ -17,6 +19,7 @@ export async function runAutomations(ctx: Ctx) {
     db.list<Coupon & { id: string }>("coupons", t), db.list<LedgerEntry & { id: string }>("ledger", t),
   ]);
   const tenant = await db.tenants.get(t);
+  const templates = await db.list<MessageTemplate & { id: string }>("message_templates", t);
   const byCustomer = new Map<string, Order[]>();
   for (const o of orders) if (o.customerId && o.status !== "cancelled") { if (!byCustomer.has(o.customerId)) byCustomer.set(o.customerId, []); byCustomer.get(o.customerId)!.push(o); }
   const seen = new Set(messages.map((m) => `${m.automationId}|${m.customerId}|${m.ref}`));
@@ -31,7 +34,7 @@ export async function runAutomations(ctx: Ctx) {
     const targets: { c: Customer; ref: string; vars?: Record<string, string> }[] = [];
     const tr = a.trigger;
     for (const c of customers) {
-      if (!c.optinWhatsapp || !c.phone) continue;
+      if (!pickChannel(c, a.channel || "whatsapp")) continue;
       if (seg && !inSegment(seg, c, now)) continue;
       const list = (byCustomer.get(c.id) || []).sort((x, y) => x.createdAt.localeCompare(y.createdAt));
       if (tr.kind === "no_order_cycle" && list.length >= 2) {
@@ -61,7 +64,7 @@ export async function runAutomations(ctx: Ctx) {
         const last = ev[ev.length - 1];
         if (+now - +new Date(last.ts) < tr.afterMinutes * 60e3) continue;
         const c = customers.find((x) => x.id === cid);
-        if (c?.optinWhatsapp && (!seg || inSegment(seg, c, now))) targets.push({ c, ref: `cart:${sid}` });
+        if (c && pickChannel(c, a.channel || "whatsapp") && (!seg || inSegment(seg, c, now))) targets.push({ c, ref: `cart:${sid}` });
       }
     }
     const coupon = a.couponId ? coupons.find((x) => x.id === a.couponId) : undefined;
@@ -70,12 +73,12 @@ export async function runAutomations(ctx: Ctx) {
       if (seen.has(key) || weekCount(tg.c.id) >= a.maxPerCustomerPerWeek) continue;
       seen.add(key);
       const group = hash(tg.c.id + a.id) < a.holdoutPercent ? "controle" : "envio";
-      const link = `${ctx.deps.publicUrl}/${tenant?.slug}${a.pageId ? `/p/${a.pageId}` : ""}?utm_source=whatsapp&utm_campaign=${a.id}`;
-      const text = fill(a.template, { nome: (tg.c.name || "").split(" ")[0], cupom: coupon?.code || "", link, marca: String(tenant?.name || ""), ...tg.vars });
-      let status = "controle";
-      if (group === "envio") status = (await ctx.deps.messenger.send(t, tg.c.phone!, text)).status;
-      const m: Message = { id: uid("msg"), automationId: a.id, customerId: tg.c.id, ref: tg.ref, group, text, status, createdAt: now.toISOString() };
-      await db.put("messages", t, m as never);
+      const channel = pickChannel(tg.c, a.channel || "whatsapp")!;
+      const link = trackedLink(ctx.deps.publicUrl, String(tenant?.slug), a.pageId, channel, a.id);
+      const vars = { nome: (tg.c.name || "").split(" ")[0], cupom: coupon?.code || "", link, marca: String(tenant?.name || ""), ...tg.vars };
+      const tplId = channel === "email" ? a.emailTemplateId : a.templateId;
+      const tpl = tplId ? templates.find((x) => x.id === tplId) || null : null;
+      await deliver(ctx, { customer: tg.c, channel, template: tpl, text: fill(a.template, vars), vars, ref: tg.ref, group, automationId: a.id, couponId: a.couponId });
       if (group === "envio") created++; else controle++;
     }
   }
