@@ -4,6 +4,7 @@ import { effectiveRule, fractionLabel, groupCount, pickPopup, priceLine, validat
 import { Bottle, BannerView, ItemArt, PageView, PizzaPhoto, brl, nextOpening, optionPhotos } from "./parts";
 import type { CartLine, Menu, MenuItem, MenuStrategy, QuoteResp } from "./types";
 import "./storefront.css";
+import { EngageCtx, ExitSheet, FeedbackCard, TriageSheet, engageOf, useExitAndReturn, useFxValue, useIdleGlow, useNudge, useReadyGlow, useStatusBuzz, type EngageMenu } from "./engage";
 
 export interface StorefrontProps {
   transport: Transport;
@@ -35,7 +36,7 @@ type Screen = "menu" | "bag" | "checkout" | "pix" | "track";
 interface Draft { itemId: string; sel: Record<string, Record<string, number>>; qty: number; notes: string[]; preset?: number; editKey?: string; tried: boolean }
 interface Addr { postalCode: string; street: string; number: string; complement: string; district: string; city: string; state: string; reference: string }
 interface Geo { ok: boolean; lat?: number; lng?: number; zone?: { name: string; fee: number; etaMin: number; etaMax: number }; reason?: string }
-interface TrackOrder { id: string; displayId: string; status: string; statusHistory: { status: string; at: string; note?: string }[]; total: number; cashbackEarned: number; mode: string; lines: PricedLine[] }
+interface TrackOrder { id: string; displayId: string; status: string; feedback?: { nps: number } | null; statusHistory: { status: string; at: string; note?: string }[]; total: number; cashbackEarned: number; mode: string; lines: PricedLine[] }
 
 const NOTE_CHIPS = ["Bem assada", "Cortar em 12", "Sem orégano", "Pouca cebola"];
 const STATUS: Record<string, string> = { created: "Pedido recebido", sent_to_pos: "Enviado para a cozinha", pos_error: "Estamos confirmando com a loja", confirmed: "Confirmado pela loja", ready: "Pronto", dispatched: "Saiu para entrega", concluded: "Entregue", cancelled: "Cancelado" };
@@ -77,6 +78,9 @@ export function Storefront(props: StorefrontProps) {
   const [order, setOrder] = useState<TrackOrder | null>(null);
   const [helpShown, setHelpShown] = useState(false);
   const [activeCat, setActiveCat] = useState<string>("");
+  const [exitVia, setExitVia] = useState<string | null>(null);
+  const [triageOpen, setTriageOpen] = useState(false);
+  const [bagGlow, setBagGlow] = useState(false);
   const [stuck, setStuck] = useState(false);
   const [bump, setBump] = useState(0);
 
@@ -91,6 +95,7 @@ export function Storefront(props: StorefrontProps) {
 
   /* ---------------- eventos (lote a cada 2 s) ---------------- */
   const track = useCallback((name: string, p?: Record<string, unknown>) => { evq.current.push({ name, ts: new Date().toISOString(), props: p }); }, []);
+  const fxv = useFxValue(slug, engageOf(menu)?.effects, track);
   useEffect(() => {
     const flush = () => {
       if (!evq.current.length) return;
@@ -163,7 +168,7 @@ export function Storefront(props: StorefrontProps) {
   useEffect(() => {
     if (!menu) return;
     const tick = setInterval(() => {
-      if (screen !== "menu" || draft || search.open || page || popup) return;
+      if (screen !== "menu" || draft || search.open || page || popup || exitVia || triageOpen || fxv.couponOffered()) return;
       const shown = (s: MenuStrategy) => {
         const a = s.action as { frequency?: string };
         if (a.frequency === "day") return ls.get(`cw:pop:${s.id}`) === new Date().toISOString().slice(0, 10);
@@ -184,11 +189,11 @@ export function Storefront(props: StorefrontProps) {
         if (a.frequency === "day") ls.set(`cw:pop:${original.id}`, new Date().toISOString().slice(0, 10));
         else if (a.frequency === "once") ls.set(`cw:pop:${original.id}`, "1");
         else ss.set(`cw:pop:${original.id}`, "1");
-        setPopup(original); track("popup_shown", { strategyId: original.id, code: original.coupon.code });
+        setPopup(original); fxv.markCoupon(); track("popup_shown", { strategyId: original.id, code: original.coupon.code });
       }
     }, 1000);
     return () => clearInterval(tick);
-  }, [menu, screen, draft, search.open, page, popup, subtotal, priced, mode, props.source, props.idleOverrideSeconds, track]);
+  }, [menu, screen, draft, search.open, page, popup, subtotal, priced, mode, props.source, props.idleOverrideSeconds, track, exitVia, triageOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ---------------- hesitação na sacola e na revisão (uma ajuda, sem pop-up) ---------------- */
   useEffect(() => {
@@ -289,6 +294,20 @@ export function Storefront(props: StorefrontProps) {
   };
   useEffect(() => { if (!activeCat || !rootRef.current) return; rootRef.current.querySelector(`[data-pill="${CSS.escape(activeCat)}"]`)?.scrollIntoView({ inline: "center", block: "nearest" }); }, [activeCat]);
 
+  /* ---------------- engajamento: triagem, "antes de ir", volta ao app, frete quase grátis ---------------- */
+  const triageQ = (menu as (Menu & EngageMenu) | null)?.triage;
+  useEffect(() => {
+    if (!triageQ || !token || screen !== "menu" || preview || ss.get(`cw:triage:${slug}:${(token || "").slice(-10)}`)) return;
+    const t = setTimeout(() => setTriageOpen(true), 700); return () => clearTimeout(t);
+  }, [triageQ, token, screen]); // eslint-disable-line react-hooks/exhaustive-deps
+  useExitAndReturn({
+    slug, enabled: !!engageOf(menu)?.effects.exitIntent.enabled && !preview, menuReady: !!menu, cartCount: count,
+    busy: !!draft || placing || screen === "pix" || screen === "track" || !!page || triageOpen || search.open,
+    onExit: (via) => setExitVia(via),
+    onReturn: () => { showToast("Sua sacola continua aqui"); setBagGlow(true); setTimeout(() => setBagGlow(false), 2800); },
+  });
+  const nudge = useNudge(quote?.progress, slug);
+
   /* ---------------- render ---------------- */
   if (loadErr && !menu) return (
     <div className="cw-sf" ref={rootRef} style={brandStyle}>
@@ -317,7 +336,7 @@ export function Storefront(props: StorefrontProps) {
     return (
       <div className="card" key={id} data-id={id}>
         <button className="tap info" onClick={() => openItem(id)} aria-label={`Abrir ${it.name}`}>
-          <span className="nm">{it.name}</span>
+          <span className="nm">{it.name}{(it as { avoidHit?: string }).avoidHit && <span className="chip-avoid">tem {(it as { avoidHit?: string }).avoidHit!.toLowerCase()}</span>}</span>
           {it.description && <span className="ds">{it.description}</span>}
           <span className="pr">{it.fromPrice ? "a partir de " : ""}{brl(it.price)}{it.compareAt ? <s>{brl(it.compareAt)}</s> : null}</span>
           {(it.likes || it.serves || it.tags?.length) && <span className="proof">{it.likes && <>👍 {it.likes.pct}% ({it.likes.n})</>}{it.tags?.slice(0, 1).map((t) => <span key={t} className="badge1">{t}</span>)}{it.serves && <span>· {it.serves}</span>}</span>}
@@ -348,6 +367,7 @@ export function Storefront(props: StorefrontProps) {
   })();
 
   return (
+    <EngageCtx.Provider value={fxv}>
     <div className={`cw-sf${stuck ? " is-stuck" : ""}`} ref={rootRef} style={brandStyle} onPointerDown={touch}>
       {/* ================= cardápio ================= */}
       <div className={`screen${screen === "menu" ? "" : " off-left"}`} data-screen="menu" ref={menuRef} onScroll={onMenuScroll} aria-hidden={screen !== "menu"}>
@@ -382,7 +402,7 @@ export function Storefront(props: StorefrontProps) {
             <button onClick={(e) => { const ls0 = (menu.hero!.action as { lines: CartLineInput[] }).lines.filter((l) => menu.items[l.itemId]); ls0.forEach((l) => addLine({ itemId: l.itemId, qty: l.qty, selection: (l.selection || {}) as CartLine["selection"], notes: l.notes }, undefined, e.currentTarget)); showToast("Pedido de sempre na sacola"); }}>Pedir de novo</button>
           </div>
         ) : (
-          <div className="hero-card" id="t-hero">
+          <div className={`hero-card${(menu.hero as { personal?: boolean }).personal ? " personal" : ""}`} id="t-hero">
             <div className="t"><small>{menu.hero.kicker}</small><b>{menu.hero.title}</b>{menu.hero.sub && <span className="p">{menu.hero.sub}</span>}</div>
             <button className="btn-brand" onClick={() => openItem((menu.hero!.action as { itemId: string }).itemId)}>Montar</button>
           </div>
@@ -415,7 +435,7 @@ export function Storefront(props: StorefrontProps) {
         ))}
         <div className="footer-note"><span>{menu.tenant.settings.legalName || menu.tenant.name}{menu.tenant.settings.cnpj ? ` · CNPJ ${menu.tenant.settings.cnpj}` : ""}</span>{store?.phone && <span>Atendimento: +{store.phone}</span>}</div>
         {count > 0 && (
-          <button ref={bagbarRef} key={bump} className={`bagbar show${bump ? " bump" : ""}`} onClick={() => go("bag")}>
+          <button ref={bagbarRef} key={bump} className={`bagbar show${bump ? " bump" : ""}${bagGlow || nudge.on ? " fx-glow" : ""}`} onClick={() => go("bag")}>
             <span className="bb-l"><span className="cnt">{count}</span><span>Ver sacola{quote?.progress && <small className="bb-prog">Faltam {brl(quote.progress.missing)} {quote.progress.label}</small>}</span></span>
             <span>{brl(subtotal)}</span>
           </button>
@@ -428,7 +448,7 @@ export function Storefront(props: StorefrontProps) {
         {!cart.length ? (
           <div className="blk empty"><b>Sua sacola está vazia</b><button className="btn-brand" onClick={() => go("menu")}>Ver o cardápio</button></div>
         ) : (<>
-          {quote?.progress && <div className="blk"><Progress p={quote.progress} /></div>}
+          {quote?.progress && <div className="blk"><Progress p={quote.progress} cls={`${nudge.near ? " near" : ""}${nudge.on ? " fx-nudge" : ""}`} /></div>}
           {quote && quote.deliveryFee === 0 && quote.baseDeliveryFee > 0 && quote.deliveryLabel && <div className="blk"><div className="benefit">{quote.deliveryLabel} <s>{brl(quote.baseDeliveryFee)}</s></div></div>}
           {helpShown && <div className="blk"><div className="inline-help">Ficou com dúvida? O total aparece na revisão, sem surpresa, e o Pix é aprovado na hora. Pode editar qualquer item tocando em Editar.</div></div>}
           <div className="blk lines">
@@ -593,6 +613,7 @@ export function Storefront(props: StorefrontProps) {
       <div className={`screen${screen === "track" ? "" : " off-right"}`} data-screen="track" aria-hidden={screen !== "track"}>
         <div className="app-hd"><div><h2>Pedido #{order?.displayId}</h2><span>{menu.tenant.name}</span></div></div>
         {order && screen === "track" && <Tracking api={api} base={base} order={order} setOrder={setOrder} />}
+        {order && screen === "track" && <FeedbackCard menu={menu} api={api} base={base} sessionId={sessionId} order={order} />}
         {menu.banners.after_order && <div className="slot"><BannerView banner={menu.banners.after_order} onOpen={openBanner} /></div>}
         <div className="blk"><button className="btn-ghost" onClick={() => { setOrder(null); setHelpShown(false); loadMenu(); go("menu"); }}>Voltar ao cardápio</button></div>
       </div>
@@ -647,16 +668,31 @@ export function Storefront(props: StorefrontProps) {
         </div>
       )}
 
+      {/* ================= triagem de 1 toque ================= */}
+      {triageOpen && triageQ && screen === "menu" && (
+        <TriageSheet q={triageQ} name={menu.customer?.name || me?.name} api={api} base={base} sessionId={sessionId}
+          onDone={(msg, answered) => { ss.set(`cw:triage:${slug}:${(token || "").slice(-10)}`, "1"); setTriageOpen(false); if (answered) { loadMenu().then(() => menuRef.current?.scrollTo({ top: 0 })); if (msg) showToast(msg); } }} />
+      )}
+
+      {/* ================= antes de ir ================= */}
+      {exitVia && engageOf(menu) && (
+        <ExitSheet fx={engageOf(menu)!.effects} cartCount={count} subtotal={subtotal} name={menu.tenant.name}
+          onApply={(code) => { applyCoupon(code, "exit"); setExitVia(null); if (count) go("bag"); }}
+          onStay={() => { setExitVia(null); if (count && screen === "menu") { setBagGlow(true); setTimeout(() => setBagGlow(false), 2800); } }}
+          onLeave={() => { const v = exitVia; setExitVia(null); if (v === "back") { try { history.back(); } catch { /* sem history */ } } }} />
+      )}
+
       {toast && <div className="toast" role="status">{toast}</div>}
     </div>
+    </EngageCtx.Provider>
   );
 }
 
 /* ================= pedaços ================= */
 
-function Progress({ p }: { p: NonNullable<QuoteResp["progress"]> }) {
+function Progress({ p, cls = "" }: { p: NonNullable<QuoteResp["progress"]>; cls?: string }) {
   return (
-    <div className="prog"><span>Faltam {brl(p.missing)} {p.label}</span><span className="tr" aria-hidden="true"><i style={{ width: `${p.pct}%` }} /></span></div>
+    <div className={`prog${cls}`}><span>Faltam {brl(p.missing)} {p.label}</span><span className="tr" aria-hidden="true"><i style={{ width: `${p.pct}%` }} /></span></div>
   );
 }
 
@@ -731,6 +767,8 @@ function ItemSheet({ menu, draft, setDraft, groups, photos, onAdd, onClose, shak
   const halfUrls = halves.map((n) => photos[n]);
   const set = (sel: Draft["sel"]) => setDraft({ ...draft, sel, preset: undefined });
   const missGroup = miss ? groups.find((g) => g.id === miss.groupId) : undefined;
+  const readyGlow = useReadyGlow(!miss);
+  const presetGlow = useIdleGlow(!!item.presets?.length && draft.preset === undefined && !!miss, JSON.stringify(draft.sel));
   const missLabel = miss && missGroup ? `Falta${miss.need > 1 ? "m" : ""} ${miss.need} ${missGroup.max === 2 && missGroup.min === 2 ? (miss.need > 1 ? "sabores" : "sabor") : /doce/i.test(missGroup.name) ? "sabor doce" : miss.need > 1 ? "escolhas" : "escolha"}` : "";
 
   const toggle = (g: OptionGroup, oid: string, d: number) => {
@@ -759,7 +797,7 @@ function ItemSheet({ menu, draft, setDraft, groups, photos, onAdd, onClose, shak
         {item.presets?.length ? (
           <div className="presets"><div className="pre-h"><b>Mais pedidos aqui</b><span className="muted">1 toque e pronto</span></div>
             {item.presets.map((p, i) => (
-              <button key={p.id} className={`preset${draft.preset === i ? " on" : ""}`} onClick={() => setDraft({ ...draft, sel: JSON.parse(JSON.stringify(p.selection)), preset: i })}>
+              <button key={p.id} className={`preset${draft.preset === i ? " on" : ""}${presetGlow && i === 0 ? " fx-glow" : ""}`} onClick={() => setDraft({ ...draft, sel: JSON.parse(JSON.stringify(p.selection)), preset: i })}>
                 <span><small>{p.label}</small><span className="pt">{p.title}</span></span>
                 <span className="pp">{brl(priceLine(item, groups, { itemId: item.id, qty: 1, selection: p.selection }).unit)}</span>
               </button>))}
@@ -783,7 +821,7 @@ function ItemSheet({ menu, draft, setDraft, groups, photos, onAdd, onClose, shak
                 const head = (
                   <div className="o-l">
                     {o.imageUrl ? <img className="o-th" src={o.imageUrl} alt="" loading="lazy" /> : null}
-                    <div className="o-tx"><span className="o-n">{o.name}{o.popular && <span className="chip-pop">mais pedida</span>}{fl?.isBase && <span className="chip-base">preço base</span>}</span>
+                    <div className="o-tx"><span className="o-n">{o.name}{o.popular && <span className="chip-pop">mais pedida</span>}{(o as { avoidHit?: string }).avoidHit && <span className="chip-avoid">tem {(o as { avoidHit?: string }).avoidHit!.toLowerCase()}</span>}{fl?.isBase && <span className="chip-base">preço base</span>}</span>
                       {(o.description || (g.max > 1 && priceTxt)) && <span className="o-d">{g.max > 1 ? priceTxt : o.description}</span>}</div>
                   </div>
                 );
@@ -812,7 +850,7 @@ function ItemSheet({ menu, draft, setDraft, groups, photos, onAdd, onClose, shak
       </div>
       <div className="sheet-foot">
         <div className="qty"><button onClick={() => setDraft({ ...draft, qty: Math.max(1, draft.qty - 1) })} aria-label="Menos">−</button><b>{draft.qty}</b><button onClick={() => setDraft({ ...draft, qty: Math.min(50, draft.qty + 1) })} aria-label="Mais">+</button></div>
-        <button className={`cta${miss ? " blocked" : ""}`} id="cta-add" onClick={(e) => {
+        <button className={`cta${miss ? " blocked" : ""}${readyGlow ? " fx-glow" : ""}`} id="cta-add" onClick={(e) => {
           if (miss) {
             setDraft({ ...draft, tried: true });
             const el = scrollRef.current?.querySelector<HTMLElement>(`#g-${CSS.escape(miss.groupId)}`);
@@ -865,6 +903,7 @@ function Tracking({ api, base, order, setOrder }: { api: ReturnType<typeof creat
     const t = setInterval(poll, 4000);
     return () => { on = false; clearInterval(t); };
   }, [order.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  useStatusBuzz(order.status);
   const cancelled = order.status === "cancelled";
   const steps = order.status === "pos_error" ? ["created", "pos_error"] : cancelled ? [...new Set([...order.statusHistory.map((h) => h.status), "cancelled"])] : FLOW.filter((s) => s !== "sent_to_pos" || order.statusHistory.some((h) => h.status === "sent_to_pos"));
   const reached = new Set(order.statusHistory.map((h) => h.status));
