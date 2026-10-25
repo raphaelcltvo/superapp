@@ -1,28 +1,12 @@
 import postgres from "postgres";
-import type { Db, Doc, ListOpts, SalesLineRow, SalesQuery, Table } from "./types";
+import type { Db, Doc, ListOpts, Table } from "./types";
 
 const ident = (s: string) => { if (!/^[a-zA-Z0-9_.]+$/.test(s)) throw new Error("campo inválido: " + s); return s; };
 /** caminho "a.b" -> doc->'a'->>'b' */
 const jpath = (f: string) => { const p = ident(f).split("."); return p.length === 1 ? `doc->>'${p[0]}'` : `doc->${p.slice(0, -1).map((x) => `'${x}'`).join("->")}->>'${p[p.length - 1]}'`; };
 
-const num = (v: unknown) => (v == null ? undefined : Number(v));
-const iso = (v: unknown) => (v == null ? undefined : new Date(v as string).toISOString());
-const salesRow = (x: Record<string, unknown>): SalesLineRow => ({
-  id: x.id as string, fileId: x.file_id as string, channel: x.channel as string, isAggregate: !!x.is_aggregate,
-  externalOrderId: (x.external_order_id as string) ?? undefined, orderedAt: iso(x.ordered_at)!, periodFrom: iso(x.period_from),
-  customerKey: (x.customer_key as string) ?? undefined, customerId: (x.customer_id as string) ?? undefined,
-  itemRaw: x.item_raw as string, itemId: (x.item_id as string) ?? undefined, qty: Number(x.qty), unitPrice: num(x.unit_price),
-  lineTotal: num(x.line_total), discount: num(x.discount), orderTotal: num(x.order_total), deliveryFee: num(x.delivery_fee),
-  status: x.status as SalesLineRow["status"], district: (x.district as string) ?? undefined, postalCode: (x.postal_code as string) ?? undefined, atypical: !!x.atypical,
-});
-
 export function postgresDb(url: string): Db {
   const sql = postgres(url, { max: 10, idle_timeout: 20, prepare: false, onnotice: () => {} });
-  const salesWhere = (tenantId: string, q: SalesQuery = {}) => sql`tenant_id = ${tenantId}
-    ${q.includeCancelled ? sql`` : sql`and status <> 'cancelado'`}
-    ${q.from ? sql`and ordered_at >= ${q.from}` : sql``} ${q.to ? sql`and ordered_at <= ${q.to}` : sql``}
-    ${q.channel ? sql`and channel = ${q.channel}` : sql``} ${q.fileId ? sql`and file_id = ${q.fileId}` : sql``}
-    ${q.itemId === undefined ? sql`` : q.itemId === null ? sql`and item_id is null` : sql`and item_id = ${q.itemId}`}`;
   const where = (tenantId: string, o: ListOpts | undefined, params: unknown[]) => {
     params.push(tenantId);
     const parts = [`tenant_id = $${params.length}`];
@@ -83,73 +67,6 @@ export function postgresDb(url: string): Db {
           ${o.sessionId ? sql`and session_id = ${o.sessionId}` : sql``} ${o.customerId ? sql`and customer_id = ${o.customerId}` : sql``}
           order by ts asc ${o.limit ? sql`limit ${o.limit}` : sql``}`;
         return r.map((x) => ({ id: x.id, sessionId: x.session_id, customerId: x.customer_id ?? undefined, name: x.name, ts: new Date(x.ts).toISOString(), source: x.source ?? undefined, device: x.device ?? undefined, props: x.props ?? undefined }));
-      },
-    },
-    sales: {
-      async insert(tenantId, rows) {
-        for (let i = 0; i < rows.length; i += 2000) {
-          const chunk = rows.slice(i, i + 2000); if (!chunk.length) continue;
-          await sql`insert into sales_lines ${sql(chunk.map((r) => ({ id: r.id, tenant_id: tenantId, file_id: r.fileId, channel: r.channel, is_aggregate: !!r.isAggregate, external_order_id: r.externalOrderId ?? null, ordered_at: r.orderedAt, period_from: r.periodFrom ?? null, customer_key: r.customerKey ?? null, customer_id: r.customerId ?? null, item_raw: r.itemRaw, item_id: r.itemId ?? null, qty: r.qty, unit_price: r.unitPrice ?? null, line_total: r.lineTotal ?? null, discount: r.discount ?? null, order_total: r.orderTotal ?? null, delivery_fee: r.deliveryFee ?? null, status: r.status, district: r.district ?? null, postal_code: r.postalCode ?? null, atypical: !!r.atypical })) as never)} on conflict (id) do nothing`;
-        }
-      },
-      async list(tenantId, q) {
-        const r = await sql`select * from sales_lines where ${salesWhere(tenantId, q)} order by ordered_at desc ${q?.limit ? sql`limit ${q.limit}` : sql``}`;
-        return r.map((x) => salesRow(x));
-      },
-      async itemTotals(tenantId, q) {
-        const r = await sql`select item_id, min(item_raw) as item_raw, sum(qty) as qty,
-            sum(coalesce(line_total, coalesce(unit_price, 0) * qty)) as revenue,
-            count(distinct case when external_order_id is not null then channel || ':' || external_order_id end) as orders
-          from sales_lines where ${salesWhere(tenantId, q)}
-          group by item_id, case when item_id is null then lower(item_raw) end order by revenue desc`;
-        return r.map((x) => ({ itemId: (x.item_id as string) ?? null, itemRaw: x.item_raw as string, qty: Number(x.qty), revenue: Math.round(Number(x.revenue) * 100) / 100, orders: Number(x.orders) }));
-      },
-      async stats(tenantId, q) {
-        const r = await sql`with o as (select channel, external_order_id, bool_or(customer_key is not null) as ident from sales_lines where ${salesWhere(tenantId, q)} and external_order_id is not null group by 1, 2)
-          select (select count(*) from sales_lines where ${salesWhere(tenantId, q)})::int as lines,
-                 (select count(*) from o)::int as orders, (select count(*) from o where ident)::int as identified,
-                 (select count(*) from sales_lines where ${salesWhere(tenantId, q)} and is_aggregate)::int as agg,
-                 (select min(ordered_at) from sales_lines where ${salesWhere(tenantId, q)}) as first,
-                 (select max(ordered_at) from sales_lines where ${salesWhere(tenantId, q)}) as last`;
-        const x = r[0];
-        return { lines: x.lines, orders: x.orders, identifiedOrders: x.identified, aggregateLines: x.agg, first: iso(x.first), last: iso(x.last) };
-      },
-      async removeFile(tenantId, fileId) { const r = await sql`delete from sales_lines where tenant_id = ${tenantId} and file_id = ${fileId}`; return r.count; },
-      async patch(tenantId, ids, p) {
-        if (!ids.length) return 0;
-        const set: Record<string, unknown> = {};
-        if ("itemId" in p) set.item_id = p.itemId ?? null;
-        if ("atypical" in p) set.atypical = !!p.atypical;
-        if ("customerId" in p) set.customer_id = p.customerId ?? null;
-        if (!Object.keys(set).length) return 0;
-        const r = await sql`update sales_lines set ${sql(set as never)} where tenant_id = ${tenantId} and id in ${sql(ids)}`;
-        return r.count;
-      },
-    },
-    assignments: {
-      async assign(tenantId, row) {
-        await sql`insert into assignments (tenant_id, experiment_id, unit_id, arm, ts) values (${tenantId}, ${row.experimentId}, ${row.unitId}, ${row.arm}, ${row.ts}) on conflict do nothing`;
-        const r = await sql`select arm, ts from assignments where tenant_id = ${tenantId} and experiment_id = ${row.experimentId} and unit_id = ${row.unitId}`;
-        return { experimentId: row.experimentId, unitId: row.unitId, arm: r[0].arm, ts: iso(r[0].ts)! };
-      },
-      async list(tenantId, experimentId) {
-        const r = await sql`select unit_id, arm, ts from assignments where tenant_id = ${tenantId} and experiment_id = ${experimentId} order by ts`;
-        return r.map((x) => ({ experimentId, unitId: x.unit_id, arm: x.arm, ts: iso(x.ts)! }));
-      },
-    },
-    metrics: {
-      async upsert(tenantId, rows) {
-        for (let i = 0; i < rows.length; i += 2000) {
-          const chunk = rows.slice(i, i + 2000); if (!chunk.length) continue;
-          await sql`insert into metrics_daily ${sql(chunk.map((m) => ({ tenant_id: tenantId, day: m.day, metric: m.metric, segment: m.segment, dim: m.dim, value: m.value })) as never)}
-            on conflict (tenant_id, day, metric, segment, dim) do update set value = excluded.value`;
-        }
-      },
-      async list(tenantId, q) {
-        const r = await sql`select to_char(day, 'YYYY-MM-DD') as day, metric, segment, dim, value from metrics_daily where tenant_id = ${tenantId}
-          ${q.metric ? sql`and metric = ${q.metric}` : sql``} ${q.segment ? sql`and segment = ${q.segment}` : sql``}
-          ${q.from ? sql`and day >= ${q.from}` : sql``} ${q.to ? sql`and day <= ${q.to}` : sql``} order by day`;
-        return r.map((x) => ({ day: x.day, metric: x.metric, segment: x.segment, dim: x.dim, value: Number(x.value) }));
       },
     },
     async close() { await sql.end(); },

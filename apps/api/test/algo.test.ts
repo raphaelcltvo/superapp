@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { computeLadder, matchItem, pickArm, sessionOutcomes, evasion, markRecovered, prioritizeLeaks } from "@cw/core";
+import { computeLadder, matchItem, pickArm, sessionOutcomes, evasion, markRecovered, prioritizeLeaks } from "../../../packages/core/src/algo";
+import { algoDbOf, memoryAlgoDb, registerAlgoDb, type AlgoDb } from "../src/algo/db";
+import { postgresAlgoDb } from "../src/algo/db-postgres";
 import { createApp } from "../src/app";
 import { memoryDb } from "../src/db/memory";
 import { postgresDb } from "../src/db/postgres";
@@ -19,7 +21,7 @@ describe("algoritmo · regras puras", () => {
       ev("f", "visit"), ev("f", "checkout_start", 2), ev("f", "payment_declined", 3),
       ev("g", "visit"), ev("g", "add_to_cart", 1), ev("g", "order_placed", 4),
     ], () => "novato");
-    const by = Object.fromEntries(out.map((o) => [o.sessionId, o]));
+    const by = Object.fromEntries(out.map((o: any) => [o.sessionId, o]));
     expect(by.a.exit).toBe("chegada"); expect(by.a.intent).toBe(false);
     expect(by.b.exit).toBe("navegacao");
     expect(by.c.exit).toBe("item");
@@ -63,7 +65,7 @@ describe("algoritmo · regras puras", () => {
 });
 
 const PG = process.env.TEST_DATABASE_URL;
-const backends: [string, () => Promise<Db>][] = [["memória", async () => memoryDb()]];
+const backends: [string, () => Promise<Db>, () => AlgoDb][] = [["memória", async () => memoryDb(), () => memoryAlgoDb()]];
 if (PG) backends.push(["postgres", async () => {
   const { default: postgres } = await import("postgres");
   const sql = postgres(PG, { max: 1, onnotice: () => {} });
@@ -71,14 +73,15 @@ if (PG) backends.push(["postgres", async () => {
   const { readdirSync, readFileSync } = await import("node:fs");
   const dir = new URL("../migrations/", import.meta.url);
   for (const f of readdirSync(dir).filter((x) => x.endsWith(".sql")).sort()) await sql.unsafe(readFileSync(new URL(f, dir), "utf8"));
+  await sql.unsafe("drop schema if exists algo cascade");
   await sql.end();
   return postgresDb(PG);
-}]);
+}, () => postgresAlgoDb(PG)]);
 
 const csv = (rows: (string | number)[][]) => new TextEncoder().encode(rows.map((r) => r.join(";")).join("\n"));
 
-for (const [label, mk] of backends) describe(`Algoritmo · SETUP, agentes e ciclo (${label})`, () => {
-  let app: ReturnType<typeof createApp>; let db: Db; let token = ""; let runId = "";
+for (const [label, mk, mkAlgo] of backends) describe(`Algoritmo · SETUP, agentes e ciclo (${label})`, () => {
+  let app: ReturnType<typeof createApp>; let db: Db; let adb: AlgoDb; let token = ""; let runId = "";
   const T = "ten_forneria";
   const call = async (method: string, path: string, body?: unknown) => {
     const r = await app.request("/admin/algo" + path, { method, headers: { "content-type": "application/json", authorization: "Bearer " + token }, body: body === undefined ? undefined : JSON.stringify(body) });
@@ -93,6 +96,7 @@ for (const [label, mk] of backends) describe(`Algoritmo · SETUP, agentes e cicl
   beforeAll(async () => {
     db = await mk();
     const deps: Deps = { db, jwtSecret: "t", now: () => new Date(), storage: dataUrlStorage, messenger: { async send() { return { id: "m", status: "sent" }; } }, sendOtp: async () => {}, demo: true, publicUrl: "https://cardapio.test", cronSecret: "cron" };
+    adb = registerAlgoDb(deps, mkAlgo());
     app = createApp(deps);
     await seedForneria(db, { photo: () => undefined, media: {}, history: true });
     const r = await app.request("/auth/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: "demo@forneria.com.br", password: "forneria2026" }) });
@@ -123,10 +127,10 @@ for (const [label, mk] of backends) describe(`Algoritmo · SETUP, agentes e cicl
     expect(ing.body).toMatchObject({ duplicates: 1, cancelled: 1 });
     expect(ing.body.critiques.map((c: any) => c.checkup)).toEqual(expect.arrayContaining(["coerencia", "duplicados", "cancelados", "casamento"]));
     expect(await db.count("customers", T)).toBe(before); // marketplace: só pseudônimo
-    const lines = await db.sales.list(T, { fileId: up.body.id, includeCancelled: true });
+    const lines = await adb.sales.list(T, { fileId: up.body.id, includeCancelled: true });
     expect(lines.length).toBe(4);
-    expect(lines.find((l) => l.externalOrderId === "1001")!.customerKey).toMatch(/^ck_/);
-    expect(lines.find((l) => l.externalOrderId === "1001")!.itemId).toBeTruthy();
+    expect(lines.find((l: any) => l.externalOrderId === "1001")!.customerKey).toMatch(/^ck_/);
+    expect(lines.find((l: any) => l.externalOrderId === "1001")!.itemId).toBeTruthy();
     const req = await call("GET", "/requests?status=aberto");
     expect(req.body.some((r: any) => r.title.includes("não casaram") && r.items.some((i: any) => i.label.includes("Esfiha")))).toBe(true);
     const f = await call("GET", "/findings?agent=S");
@@ -139,8 +143,8 @@ for (const [label, mk] of backends) describe(`Algoritmo · SETUP, agentes e cicl
     await call("POST", `/setup/files/${up.body.id}/ingest`, {});
     const ana = await db.list<any>("customers", T, { where: { phone: "5521977770001" } });
     expect(ana.length).toBe(1);
-    const ls = await db.sales.list(T, { fileId: up.body.id });
-    expect(new Set(ls.map((l) => l.customerId)).size).toBe(1); // e-mail casou com o mesmo cliente
+    const ls = await adb.sales.list(T, { fileId: up.body.id });
+    expect(new Set(ls.map((l: any) => l.customerId)).size).toBe(1); // e-mail casou com o mesmo cliente
 
     const agg = await upload("99food-vendas-por-item-abril.csv", csv([["Produto", "Quantidade vendida", "Faturamento", "Data final"], ["Pizza Calabresa", 120, "12960,00", "30/04/2026"], ["Pizza Marguerita", 80, "8320,00", "30/04/2026"]]));
     expect(agg.body).toMatchObject({ channel: "99food", kind: "vendas_item" });
@@ -196,5 +200,38 @@ for (const [label, mk] of backends) describe(`Algoritmo · SETUP, agentes e cicl
     for (let i = 0; i < 3; i++) { const again = await call("POST", `/experiments/${e.body.id}/assign`, { unitId: "sess_abc123" }); expect(again.body.arm).toBe(first.arm); }
     const st = await call("GET", `/experiments/${e.body.id}`);
     expect(st.body.stats.length).toBe(2);
+  });
+
+  it("separação: nada do algoritmo nas tabelas do cardápio/CRM; agendadores independentes", async () => {
+    if (db.kind === "postgres") {
+      const { default: postgres } = await import("postgres");
+      const sql = postgres(PG!, { max: 1, onnotice: () => {} });
+      const pub = await sql`select table_name from information_schema.tables where table_schema = 'public' and table_name in ('setup_runs','sales_lines','agents','findings','experiments','metrics_daily','assignments')`;
+      const alg = await sql`select count(*)::int as n from information_schema.tables where table_schema = 'algo'`;
+      await sql.end();
+      expect(pub.length).toBe(0);
+      expect(alg[0].n).toBeGreaterThanOrEqual(12);
+    }
+    const tick = await app.request("/cron/tick", { method: "POST", headers: { "x-cron-secret": "cron" } });
+    expect(Object.values((await tick.json()) as Record<string, any>).every((v) => !("ciclo" in v))).toBe(true);
+    expect((await app.request("/cron/algo", { method: "POST" })).status).toBe(401);
+    const ca = await app.request("/cron/algo", { method: "POST", headers: { "x-cron-secret": "cron" } });
+    expect(ca.status).toBe(200);
+  });
+
+  it("custo (CMV) fica no banco do algoritmo e não altera o cadastro do item", async () => {
+    const item = (await db.list<any>("items", T, { limit: 1 }))[0];
+    const r = await call("PUT", "/costs", { costs: [{ itemId: item.id, cost: 31.5 }] });
+    expect(r.status).toBe(200);
+    expect((await db.get<any>("items", T, item.id)).cost).toBeUndefined();
+    expect((await call("GET", "/costs")).body.find((x: any) => x.id === item.id).cost).toBe(31.5);
+    expect((await call("PUT", "/costs", { costs: [{ itemId: "nao_existe", cost: 1 }] })).status).toBe(422);
+    if (PG) { // caminho de produção: conexão própria criada a partir da URL, carregada sob demanda
+      const prev = process.env.ALGO_DATABASE_URL; process.env.ALGO_DATABASE_URL = PG;
+      const lazy = algoDbOf({ db: { kind: "postgres" } } as never);
+      expect(lazy.kind).toBe("postgres");
+      expect((await lazy.get<any>("item_costs", T, item.id))?.cost).toBe(db.kind === "postgres" ? 31.5 : undefined);
+      await lazy.close!(); if (prev === undefined) delete process.env.ALGO_DATABASE_URL; else process.env.ALGO_DATABASE_URL = prev;
+    }
   });
 });

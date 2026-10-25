@@ -45,7 +45,7 @@ export const schemas = {
     kind: z.enum(["simple", "buildable", "combo", "offer"]), price: money, compareAt: money.optional(), groupIds: z.array(id),
     presets: z.array(z.object({ id, label: z.string(), title: z.string(), selection: z.record(z.record(z.number())) })).optional(),
     integrationCode: z.string().optional(), active: z.boolean(), available: z.boolean(), tags: z.array(z.string()).optional(), serves: z.string().optional(), position: z.number().int(),
-    likes: z.object({ pct: z.number(), n: z.number() }).optional(), isDrink: z.boolean().optional(), liters: z.number().optional(), cost: money.optional(),
+    likes: z.object({ pct: z.number(), n: z.number() }).optional(), isDrink: z.boolean().optional(), liters: z.number().optional(),
   }),
   strategies: z.object({
     name: z.string().min(1), description: z.string().optional(), active: z.boolean(), priority: z.number().int(),

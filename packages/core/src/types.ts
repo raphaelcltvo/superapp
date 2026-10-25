@@ -130,8 +130,6 @@ export interface Item {
   likes?: { pct: number; n: number };
   isDrink?: boolean;
   liters?: number;
-  /** custo unitário (CMV) — libera a matriz BCG e o guardrail de margem */
-  cost?: number;
 }
 
 /** groupId -> optionId -> quantidade */

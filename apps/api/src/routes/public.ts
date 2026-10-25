@@ -19,7 +19,6 @@ import { registerEngagePublic } from "./engage";
 import { issueOtp, consumeOtp } from "../services/otp";
 import { applyFirstVisit, mergeLead } from "../services/firstvisit";
 import { registerFirstVisitPublic, requireOnlineAuth } from "./firstvisit";
-import { assignArm } from "../services/algo";
 
 
 export function publicRoutes() {
@@ -47,11 +46,6 @@ export function publicRoutes() {
     return c.json(await applyFirstVisit(ctx, menu, snap, { customer: cust, leadId: c.req.header("x-lead-id"), source: c.req.query("source"), campaign: c.req.query("campaign"), content: c.req.query("content") }));
   });
 
-  /** Agente G: o cardápio pergunta qual versão mostrar a esta sessão (sorteio fixo por sessão). */
-  r.post("/experiments/:id/assign", async (c) => {
-    const i = await body(c, z.object({ sessionId: z.string().min(4) }));
-    return c.json(await assignArm(ctxOf(c), c.req.param("id"), i.sessionId));
-  });
   r.post("/events", async (c) => {
     const ev = await body(c, z.object({ sessionId: z.string().min(4), source: z.string().optional(), device: z.string().optional(), events: z.array(z.object({ name: z.string().max(40), ts: z.string().optional(), props: z.record(z.unknown()).optional() })).max(100) }));
     const now = c.get("deps").now().toISOString();
