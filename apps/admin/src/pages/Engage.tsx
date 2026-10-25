@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Coupon, EngagementSettings } from "@cw/core";
+import { PLAYBOOKS, type CampaignTarget, type Category, type Coupon, type EngagementSettings, type FvQuestion } from "@cw/core";
 import { BRL, Btn, Empty, Field, Num, Pill, Select, Tabs, Text, Tile, Toggle, dt, pct, useAction, useAdmin, useLoad } from "../ui";
 import { Bars } from "../charts";
 
@@ -22,11 +22,11 @@ const ANSWER: Record<string, string> = {
 const KIND_TXT: Record<string, string> = { party: "Pra quantas pessoas", mood: "Salgada ou doce", craving: "O de sempre ou novidade", avoid: "O que não come" };
 
 export function EngagePage() {
-  const [tab, setTab] = useState<"resultados" | "triagem" | "pos" | "efeitos">("resultados");
+  const [tab, setTab] = useState<"resultados" | "primeira" | "triagem" | "pos" | "efeitos">("resultados");
   return <>
     <div className="pagehead"><div><h1>Pesquisa e engajamento</h1><p>Uma pergunta de 1 toque antes de pedir, a avaliação depois da entrega e os sinais que chamam atenção na hora certa. Tudo volta para o cardápio de cada cliente.</p></div></div>
-    <Tabs value={tab} onChange={setTab} tabs={[{ value: "resultados", label: "Resultados" }, { value: "triagem", label: "Triagem" }, { value: "pos", label: "Pós-pedido" }, { value: "efeitos", label: "Efeitos na jornada" }]} />
-    {tab === "resultados" ? <Results /> : <SettingsTab tab={tab} />}
+    <Tabs value={tab} onChange={setTab} tabs={[{ value: "resultados", label: "Resultados" }, { value: "primeira", label: "Primeira visita" }, { value: "triagem", label: "Triagem (clientes)" }, { value: "pos", label: "Pós-pedido" }, { value: "efeitos", label: "Efeitos na jornada" }]} />
+    {tab === "resultados" ? <Results /> : tab === "primeira" ? <FirstVisitTab /> : <SettingsTab tab={tab} />}
   </>;
 }
 
@@ -191,5 +191,92 @@ function SettingsTab({ tab }: { tab: "triagem" | "pos" | "efeitos" }) {
         {[["Montagem", "Botão brilha 3 vezes quando completa; a sugestão “1 toque” brilha se a pessoa travar."], ["Sacola", "A barra do frete pulsa quando falta pouco; a barra da sacola brilha na volta ao app."], ["Saída", "“Antes de ir” com a sacola guardada e, se houver, o cupom."], ["Pedido", "Vibra a cada status e abre a avaliação quando sai para entrega."]].map(([a, b]) => <div className="li" key={a}><b style={{ minWidth: 80 }}>{a}</b><span className="grow small">{b}</span></div>)}
       </div>
     </section>
+  </div>;
+}
+
+/* ---------------- primeira visita ---------------- */
+type FvAdmin = {
+  source: "personas" | "playbook"; questions: FvQuestion[]; customers: number; ticketRange?: [number, number];
+  personas: { id: string; name: string; share: number; customers: number; avgTicket: number; top?: string }[];
+  report: { shown: number; answered: number; skipped: number; leads: number; coupons: number; converted: number };
+};
+
+function FirstVisitTab() {
+  const { api } = useAdmin(); const { run, busy } = useAction();
+  const s = useLoad<EngagementSettings>("/admin/engagement/settings");
+  const [days, setDays] = useState("30");
+  const fa = useLoad<FvAdmin>(`/admin/engagement/first-visit?days=${days}`, [days]);
+  const items = useLoad<{ id: string; name: string; active: boolean }[]>("/admin/items");
+  const cats = useLoad<(Category & { id: string })[]>("/admin/categories");
+  const coupons = useLoad<(Coupon & { id: string })[]>("/admin/coupons");
+  if (!s.data) return null;
+  const v = s.data; const F = v.firstVisit; const camps = v.campaigns || [];
+  const setF = (x: Partial<typeof F>) => s.setData({ ...v, firstVisit: { ...F, ...x } });
+  const setC = (list: CampaignTarget[]) => s.setData({ ...v, campaigns: list });
+  const save = <Btn kind="primary" disabled={busy} onClick={async () => { if (await run(() => api.put("/admin/engagement/settings", s.data), "Salvo. Já vale no cardápio.")) fa.reload(); }}>Salvar</Btn>;
+  const targetOpts = [...(cats.data || []).filter((c) => c.visible).map((c) => ({ value: `category:${c.id}`, label: `Categoria · ${c.name}` })), ...(items.data || []).filter((i) => i.active).map((i) => ({ value: `item:${i.id}`, label: i.name }))];
+  const tval = (t: CampaignTarget["target"]) => (t.kind === "item" ? `item:${t.itemId}` : `category:${t.categoryId}`);
+  const tparse = (x: string): CampaignTarget["target"] => { const [k, id] = x.split(":"); return k === "item" ? { kind: "item", itemId: id } : { kind: "category", categoryId: id }; };
+  const r = fa.data?.report; const rate = (a: number, b: number) => (b ? pct((a / b) * 100) : "—");
+  const setQ = (i: number, q: Partial<FvQuestion>) => setF({ playbook: F.playbook.map((x, j) => (j === i ? { ...x, ...q } : x)) });
+
+  return <div className="stack">
+    <div className="grid4">
+      <Tile k="Triagens abertas" v={r ? r.shown : "—"} d={<span className="muted">últimos {days} dias</span>} />
+      <Tile k="Responderam" v={r ? rate(r.answered, r.shown) : "—"} d={<span className="muted">{r?.answered ?? 0} visitantes · {r?.skipped ?? 0} pularam</span>} />
+      <Tile k="Deixaram contato" v={r ? rate(r.leads, r.answered) : "—"} d={<span className="muted">{r?.leads ?? 0} leads no CRM · {r?.coupons ?? 0} cupons liberados</span>} />
+      <Tile k="Viraram pedido" v={r ? rate(r.converted, r.answered) : "—"} d={<span className="muted">{r?.converted ?? 0} de quem respondeu, na mesma visita</span>} />
+    </div>
+    <div className="row"><span className="small muted">Período</span><div style={{ width: 140 }}><Select value={days} onChange={setDays} options={[{ value: "7", label: "7 dias" }, { value: "30", label: "30 dias" }, { value: "90", label: "90 dias" }]} /></div></div>
+    <div className="split">
+      <section className="panel">
+        <Toggle checked={F.enabled} onChange={(x) => setF({ enabled: x })} label="Triagem para quem entra pela primeira vez" />
+        <div className="grid2">
+          <Field label="Como o cupom aparece" hint={F.mode === "gate" ? "O cupom aparece primeiro e só libera com respostas + celular + e-mail" : "Responde e ganha; o contato é opcional"}><Select value={F.mode} onChange={(x) => setF({ mode: x })} options={[{ value: "reward", label: "Recompensa" }, { value: "gate", label: "Portão" }]} /></Field>
+          <Field label="Cupom de boas-vindas"><Select value={F.couponId || ""} onChange={(x) => setF({ couponId: x || undefined })} options={[{ value: "", label: "Sem cupom" }, ...(coupons.data || []).filter((c) => c.active).map((c) => ({ value: c.id, label: `${c.code} · ${c.name}` }))]} /></Field>
+          <Field label="De onde vêm as perguntas" hint={fa.data ? (fa.data.source === "personas" ? `Hoje: personas de ${fa.data.customers} clientes da base` : "Hoje: roteiro do segmento (base pequena ou desligada)") : undefined}><Select value={F.source} onChange={(x) => setF({ source: x })} options={[{ value: "auto", label: "Personas da base" }, { value: "playbook", label: "Só o roteiro" }]} /></Field>
+          <Field label="Perguntas por visita"><Num value={F.maxQuestions} onChange={(x) => setF({ maxQuestions: Math.max(1, Math.min(3, x ?? 3)) })} /></Field>
+          <Field label="Quem vem de campanha vê a triagem após (s)" hint="0 = nunca: quem clicou no anúncio vai direto ao produto"><Num value={F.afterCampaignSeconds} onChange={(x) => setF({ afterCampaignSeconds: x ?? 0 })} /></Field>
+          <Field label="Roteiro do segmento"><Select value={F.segment} onChange={(x) => setF({ segment: x })} options={[{ value: "pizza", label: "Pizzaria" }, { value: "generico", label: "Genérico" }]} /></Field>
+        </div>
+        <section className="panel"><header><h3>Roteiro (sem base, ou quando a base não separa bem)</h3><p>O que já funciona no segmento. Os títulos e as opções valem também quando as perguntas vêm das personas.</p></header>
+          {F.playbook.map((q, i) => <div key={q.id} className="stack" style={{ gap: 8, borderTop: i ? "1px solid var(--line)" : undefined, paddingTop: i ? 12 : 0 }}>
+            <div className="grid2" style={{ alignItems: "end" }}>
+              <Field label={q.dim === "party" ? "Pessoas / tamanho" : q.dim === "deal" ? "Oferta pronta ou montar" : "Doce"}><Text value={q.title} onChange={(x) => setQ(i, { title: x })} /></Field>
+              <Toggle checked={q.enabled !== false} onChange={(x) => setQ(i, { enabled: x })} label={q.enabled !== false ? "Ligada" : "Desligada"} />
+            </div>
+            <div className="grid3">{q.options.map((o, j) => <Field key={o.id} label={`Opção ${j + 1}`}><Text value={o.label} onChange={(x) => setQ(i, { options: q.options.map((y, k) => (k === j ? { ...y, label: x } : y)) })} /></Field>)}</div>
+          </div>)}
+          <div className="row"><Btn sm onClick={() => setF({ playbook: PLAYBOOKS[F.segment] })}>Voltar ao roteiro padrão do segmento</Btn></div>
+        </section>
+        <section className="panel"><header><h3>Topo por campanha</h3><p>Quem chega pelo anúncio vê primeiro o produto ou a categoria do criativo. Use os mesmos valores do link (utm_source, utm_campaign, utm_content).</p></header>
+          {camps.map((c, i) => <div key={c.id} className="stack" style={{ gap: 8, borderTop: i ? "1px solid var(--line)" : undefined, paddingTop: i ? 12 : 0 }}>
+            <div className="grid3">
+              <Field label="Origem (utm_source)"><Text value={c.source} placeholder="instagram" onChange={(x) => setC(camps.map((y, j) => (j === i ? { ...y, source: x || undefined } : y)))} /></Field>
+              <Field label="Campanha (utm_campaign)"><Text value={c.campaign} placeholder="qualquer" onChange={(x) => setC(camps.map((y, j) => (j === i ? { ...y, campaign: x || undefined } : y)))} /></Field>
+              <Field label="Criativo (utm_content)"><Text value={c.content} placeholder="qualquer" onChange={(x) => setC(camps.map((y, j) => (j === i ? { ...y, content: x || undefined } : y)))} /></Field>
+            </div>
+            <div className="grid3">
+              <Field label="Mostra no topo"><Select value={tval(c.target)} onChange={(x) => setC(camps.map((y, j) => (j === i ? { ...y, target: tparse(x) } : y)))} options={targetOpts.length ? targetOpts : [{ value: tval(c.target), label: "—" }]} /></Field>
+              <Field label="Chamada"><Text value={c.kicker} onChange={(x) => setC(camps.map((y, j) => (j === i ? { ...y, kicker: x } : y)))} /></Field>
+              <Field label="Linha de apoio"><Text value={c.sub} onChange={(x) => setC(camps.map((y, j) => (j === i ? { ...y, sub: x || undefined } : y)))} /></Field>
+            </div>
+            <div className="row"><Toggle checked={c.active} onChange={(x) => setC(camps.map((y, j) => (j === i ? { ...y, active: x } : y)))} label="Ativa" /><Btn sm kind="danger" onClick={() => setC(camps.filter((_, j) => j !== i))}>Remover</Btn></div>
+          </div>)}
+          <div className="row"><Btn sm onClick={() => setC([...camps, { id: `cp_${Date.now().toString(36)}`, active: true, source: "instagram", target: targetOpts[0] ? tparse(targetOpts[0].value) : { kind: "category", categoryId: "" }, kicker: "Você veio pelo anúncio" }])}>Adicionar campanha</Btn></div>
+        </section>
+        <div>{save}</div>
+      </section>
+      <section className="panel" style={{ position: "sticky", top: 70 }}>
+        <header><h2>Personas da base</h2><p>{fa.data?.customers ? `${fa.data.customers} clientes, agrupados por como pedem` : "A base ainda não tem clientes suficientes (30+). Vale o roteiro."}</p></header>
+        {fa.data?.personas.length ? <div className="list">{fa.data.personas.map((p) => <div key={p.id} className="li" style={{ alignItems: "flex-start" }}>
+          <Pill tone="accent">{pct(p.share * 100)}</Pill>
+          <span className="grow"><b>{p.name}</b><span className="small muted" style={{ display: "block" }}>{p.customers} clientes · ticket médio {BRL(p.avgTicket)}</span>{p.top && <span className="small" style={{ display: "block" }}>Mais pede: {p.top}</span>}</span>
+        </div>)}</div> : <Empty title="Sem personas ainda" />}
+        <header style={{ marginTop: 12 }}><h3>Perguntas da vez</h3><p>{fa.data?.source === "personas" ? "Escolhidas pelo que mais separa as personas" : "Do roteiro do segmento"}</p></header>
+        <ol className="small" style={{ margin: 0, paddingLeft: 18 }}>{(fa.data?.questions || []).map((q) => <li key={q.id}>{q.title} <span className="muted">({q.options.map((o) => o.label).join(" · ")})</span></li>)}</ol>
+        <p className="small muted">Ninguém cria senha aqui: o celular é confirmado por código só na hora de pedir, e a senha só aparece para quem paga online.</p>
+      </section>
+    </div>
   </div>;
 }

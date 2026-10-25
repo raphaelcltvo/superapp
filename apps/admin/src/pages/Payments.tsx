@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { GatewayId } from "@cw/core";
 import { BRL, Btn, Empty, Field, Num, Pill, Select, Text, Tile, Toggle, dt, pct, useAction, useAdmin, useLoad } from "../ui";
 
-type Cfg = { enabled: boolean; gateway: GatewayId; env: "sandbox" | "production"; accessToken?: string; publicKey?: string; secretKey?: string; apiKey?: string; webhookSecret?: string; methods: { pix: boolean; card: boolean }; pixExpiresMinutes: number; maxInstallments: number; softDescriptor?: string; captureOnlyIfStoreOpen?: boolean; fakeAutoPaySeconds?: number };
+type Cfg = { enabled: boolean; gateway: GatewayId; env: "sandbox" | "production"; accessToken?: string; publicKey?: string; secretKey?: string; apiKey?: string; webhookSecret?: string; methods: { pix: boolean; card: boolean }; pixExpiresMinutes: number; maxInstallments: number; softDescriptor?: string; captureOnlyIfStoreOpen?: boolean; fakeAutoPaySeconds?: number; requirePassword?: boolean };
 type Row = { orderId: string; displayId: string; createdAt: string; total: number; orderStatus: string; gateway: string; method: "pix" | "card"; status: string; card?: { brand?: string; last4?: string; installments?: number }; failureReason?: string; chargeId: string; refundedAt?: string };
 type Rep = { totals: { paid: { count: number; amount: number }; refunded: { count: number; amount: number }; failed: { count: number; amount: number }; pending: { count: number; amount: number }; approvalRate: number; pix: { count: number; amount: number }; card: { count: number; amount: number } }; rows: Row[] };
 
@@ -59,6 +59,8 @@ export function PaymentsPage() {
           {c.gateway === "fake" && <Field label="Pix se paga sozinho em (s)" hint="Só no gateway de teste"><Num value={c.fakeAutoPaySeconds} onChange={(v) => set({ fakeAutoPaySeconds: v })} /></Field>}
         </div>
         <div className="row"><Toggle checked={c.enabled} onChange={(v) => set({ enabled: v })} label="Ligar pagamento online" /><Toggle checked={!!c.captureOnlyIfStoreOpen} onChange={(v) => set({ captureOnlyIfStoreOpen: v })} label="Só cobrar com a loja recebendo pedidos" /></div>
+        <Toggle checked={c.requirePassword !== false} onChange={(v) => set({ requirePassword: v })} label="Pedir senha, CPF e data de nascimento para pagar online" />
+        <p className="small muted">Na primeira compra online o cliente informa CPF e data de nascimento e cria uma senha; nas próximas, só a senha (esqueceu: código no WhatsApp). Pagamento na entrega continua sem senha. Conferir se o CPF é daquela data de nascimento exige um serviço pago (Serpro ou bureau de crédito) plugado em <code>verifyIdentity</code>; sem ele, só o formato do CPF é validado.</p>
         <div className="row">
           <Btn kind="primary" disabled={busy} onClick={async () => { if (await run(() => api.put("/admin/integrations/payments", c), "Pagamentos salvos")) { setEdit(null); cur.reload(); } }}>Salvar</Btn>
           <Btn disabled={busy} onClick={async () => { const r = await run(() => api.post<{ ok: boolean; message: string }>("/admin/integrations/payments/test")); if (r) toast(r.message, !r.ok); }}>Testar conexão</Btn>

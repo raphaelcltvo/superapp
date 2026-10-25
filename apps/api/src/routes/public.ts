@@ -16,8 +16,10 @@ import { fakeProviders, waConfig } from "../services/messaging";
 import { MetaWhatsApp } from "../integrations/messaging/whatsapp";
 import { personalizeMenu } from "../services/engagement";
 import { registerEngagePublic } from "./engage";
+import { issueOtp, consumeOtp } from "../services/otp";
+import { applyFirstVisit, mergeLead } from "../services/firstvisit";
+import { registerFirstVisitPublic, requireOnlineAuth } from "./firstvisit";
 
-const otps = new Map<string, { code: string; exp: number; tries: number }>();
 
 export function publicRoutes() {
   const r = new Hono<Env>();
@@ -40,7 +42,8 @@ export function publicRoutes() {
     const ctx = ctxOf(c);
     const snap = await snapshotFor(ctx, await isPreview(c));
     const cust = await me(c);
-    return c.json(await personalizeMenu(ctx, await resolveMenu(ctx, snap, { storeId: c.req.query("store"), source: c.req.query("source"), customer: cust }), cust));
+    const menu = await personalizeMenu(ctx, await resolveMenu(ctx, snap, { storeId: c.req.query("store"), source: c.req.query("source"), customer: cust }), cust);
+    return c.json(await applyFirstVisit(ctx, menu, snap, { customer: cust, leadId: c.req.header("x-lead-id"), source: c.req.query("source"), campaign: c.req.query("campaign"), content: c.req.query("content") }));
   });
 
   r.post("/events", async (c) => {
@@ -86,8 +89,7 @@ export function publicRoutes() {
     const { phone } = await body(c, z.object({ phone: z.string() }));
     const p = normPhone(phone); if (!p) throw new HttpError(422, "Telefone inválido");
     const deps = c.get("deps");
-    const code = deps.demo ? "1234" : String(Math.floor(1000 + Math.random() * 9000));
-    otps.set(`${c.get("tenantId")}|${p}`, { code, exp: Date.now() + 10 * 60e3, tries: 0 });
+    const code = issueOtp(c.get("tenantId"), p, deps.demo);
     const wa = await waConfig(ctxOf(c));
     if (wa?.enabled && wa.otpTemplate?.name) {
       // código pelo modelo de autenticação aprovado na Meta (botão "copiar código")
@@ -98,15 +100,14 @@ export function publicRoutes() {
     return c.json({ ok: true, demoCode: deps.demo ? code : undefined, known: !!(await findByPhone(ctxOf(c), p)) });
   });
   r.post("/auth/verify", async (c) => {
-    const i = await body(c, z.object({ phone: z.string(), code: z.string(), name: z.string().optional(), optinWhatsapp: z.boolean().optional() }));
-    const p = normPhone(i.phone)!; const key = `${c.get("tenantId")}|${p}`; const o = otps.get(key);
-    if (!o || o.exp < Date.now()) throw new HttpError(422, "Código expirado, peça outro");
-    if (++o.tries > 5) { otps.delete(key); throw new HttpError(429, "Muitas tentativas"); }
-    if (o.code !== i.code) throw new HttpError(422, "Código incorreto");
-    otps.delete(key);
+    const i = await body(c, z.object({ phone: z.string(), code: z.string(), name: z.string().optional(), optinWhatsapp: z.boolean().optional(), leadId: z.string().max(40).optional() }));
+    const p = normPhone(i.phone); if (!p) throw new HttpError(422, "Telefone inválido");
+    consumeOtp(c.get("tenantId"), p, i.code);
     const ctx = ctxOf(c);
     const existed = await findByPhone(ctx, p);
-    const cust = await upsertCustomer(ctx, { phone: p, name: i.name || existed?.name, optinWhatsapp: i.optinWhatsapp ?? existed?.optinWhatsapp });
+    let cust = await upsertCustomer(ctx, { phone: p, name: i.name || existed?.name, optinWhatsapp: i.optinWhatsapp ?? existed?.optinWhatsapp });
+    // o lead da primeira visita (respostas, origem, consentimento) passa para o cliente agora que o telefone foi confirmado
+    if (i.leadId) cust = (await mergeLead(ctx, i.leadId, cust)) || cust;
     if (!existed) await emit(ctx, "customer.created", cust);
     return c.json({ token: await signCustomer({ cid: cust.id, tid: c.get("tenantId") }, c.get("deps").jwtSecret), customer: { id: cust.id, name: cust.name, orders: cust.orders } });
   });
@@ -120,6 +121,7 @@ export function publicRoutes() {
 
   r.post("/orders", async (c) => {
     const input = await body(c, checkoutSchema);
+    await requireOnlineAuth(c, input.payment.code);
     const { order, customer } = await placeOrder(ctxOf(c), input, await me(c));
     return c.json({ order, customerToken: await signCustomer({ cid: customer.id, tid: c.get("tenantId") }, c.get("deps").jwtSecret) }, 201);
   });
@@ -170,5 +172,6 @@ export function publicRoutes() {
     return c.json({ ok: true, thankYou: p.thankYou || "Obrigado!" }, 201);
   });
   registerEngagePublic(r);
+  registerFirstVisitPublic(r);
   return r;
 }

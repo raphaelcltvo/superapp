@@ -1,4 +1,4 @@
-import { detectProfile, pickBanner, walletBalance, hasVariablePrice, type Customer, type Order, type ProfileKey, type Store, type Weekday } from "@cw/core";
+import { favoriteOrder, detectProfile, pickBanner, walletBalance, hasVariablePrice, type Customer, type Order, type ProfileKey, type Store, type Weekday } from "@cw/core";
 import type { Ctx } from "./ctx";
 import type { Snapshot } from "./catalog";
 import { customerContext, ledgerOf } from "./customers";
@@ -58,8 +58,11 @@ export async function resolveMenu(ctx: Ctx, snap: Snapshot, v: VisitorInput) {
   const rule = snap.merch.heroRules.filter((r) => r.active && (r.profile === profile || r.profile === "qualquer")).sort((a, b) => a.priority - b.priority)[0];
   if (rule) {
     if (rule.action.kind === "reorder" && v.customer) {
-      const last = (await ctx.deps.db.list<Order & { id: string }>("orders", ctx.tenantId, { where: { customerId: v.customer.id }, limit: 1 }))[0];
-      if (last) hero = { kicker: rule.kicker, title: last.lines.map((l) => (l.qty > 1 ? `${l.qty}× ` : "") + l.name).join(" + "), sub: rule.sub, action: { kind: "reorder", orderId: last.id, lines: last.lines.map((l) => ({ itemId: l.itemId, qty: l.qty, selection: l.choices.reduce<Record<string, Record<string, number>>>((s, c) => { (s[c.groupId] ||= {})[c.optionId] = c.qty; return s; }, {}), notes: l.notes })) } };
+      // o que ele MAIS pede (item + combinação de sabores), não só o último pedido
+      const mine = await ctx.deps.db.list<Order & { id: string }>("orders", ctx.tenantId, { where: { customerId: v.customer.id }, limit: 200 });
+      const fav = favoriteOrder(mine, { items: snap.items.map((i) => ({ id: i.id, name: i.name, categoryId: i.categoryId, kind: i.kind, price: i.price, isDrink: i.isDrink })), categories: snap.categories.map((c) => ({ id: c.id, name: c.name, pricingLocked: c.pricingLocked })) });
+      const live = fav?.lines.filter((l) => snap.items.some((i) => i.id === l.itemId && i.active));
+      if (fav && live?.length) hero = { kicker: rule.kicker, title: fav.title, sub: fav.times > 1 ? `Você pediu ${fav.times} vezes · 1 toque e vai pra sacola` : rule.sub || "1 toque e vai pra sacola", action: { kind: "reorder", lines: live } };
     } else if (rule.action.kind === "open_item") hero = { kicker: rule.kicker, title: rule.title, sub: rule.sub, action: rule.action };
   }
 

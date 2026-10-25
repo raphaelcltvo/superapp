@@ -5,6 +5,7 @@ import { effectiveRule, fractionLabel, groupCount, pickPopup, priceLine, validat
 import { Bottle, BannerView, ItemArt, PageView, PizzaPhoto, brl, nextOpening, optionPhotos } from "./parts";
 import type { CartLine, Menu, MenuItem, MenuStrategy, QuoteResp } from "./types";
 import "./storefront.css";
+import { FirstVisitSheet, OnlineAuth, ONLINE_AUTH_INIT, onlineAuthReady, onlineToken, type FvResult, type OnlineAuthState } from "./firstvisit";
 import { EngageCtx, ExitSheet, FeedbackCard, TriageSheet, engageOf, useExitAndReturn, useFxValue, useIdleGlow, useNudge, useReadyGlow, useStatusBuzz, type EngageMenu } from "./engage";
 
 export interface StorefrontProps {
@@ -17,6 +18,9 @@ export interface StorefrontProps {
   adminToken?: () => string | null;
   /** onde guardar o token do cliente; padrão: localStorage */
   customer?: { get(): string | null; set(t: string | null): void };
+  /** campanha do link (utm_campaign / utm_content): o anúncio decide o topo */
+  campaign?: string;
+  content?: string;
   /** só para teste: troca o tempo de "parado sem adicionar" dos pop-ups (segundos) */
   idleOverrideSeconds?: number;
 }
@@ -50,7 +54,11 @@ export function Storefront(props: StorefrontProps) {
   const [token, setTokenState] = useState<string | null>(() => custStore.get());
   const tokenRef = useRef(token); tokenRef.current = token;
   const setToken = (t: string | null) => { custStore.set(t); setTokenState(t); };
-  const api = useMemo(() => createClient(transport, { customer: () => tokenRef.current, admin: preview ? props.adminToken : undefined }), [transport, preview, props.adminToken]);
+  // lead da primeira visita: só personaliza (nunca identifica); vira cliente ao confirmar o telefone
+  const [leadId, setLeadIdState] = useState<string | null>(() => ls.get(`cw:lead:${slug}`));
+  const leadRef = useRef(leadId); leadRef.current = leadId;
+  const setLeadId = (id: string | null) => { ls.set(`cw:lead:${slug}`, id); leadRef.current = id; setLeadIdState(id); };
+  const api = useMemo(() => createClient(transport, { customer: () => tokenRef.current, admin: preview ? props.adminToken : undefined, headers: (): Record<string, string> => (!tokenRef.current && leadRef.current ? { "x-lead-id": leadRef.current } : {}) }), [transport, preview, props.adminToken]);
   const q = preview ? "?preview=1" : "";
   const base = `/public/${slug}`;
 
@@ -84,6 +92,8 @@ export function Storefront(props: StorefrontProps) {
   const [activeCat, setActiveCat] = useState<string>("");
   const [exitVia, setExitVia] = useState<string | null>(null);
   const [triageOpen, setTriageOpen] = useState(false);
+  const [fvOpen, setFvOpen] = useState(false);
+  const [oa, setOa] = useState<OnlineAuthState>(ONLINE_AUTH_INIT);
   const [bagGlow, setBagGlow] = useState(false);
   const [stuck, setStuck] = useState(false);
   const [bump, setBump] = useState(0);
@@ -117,10 +127,12 @@ export function Storefront(props: StorefrontProps) {
     const qs = new URLSearchParams();
     if (props.storeId) qs.set("store", props.storeId);
     if (props.source) qs.set("source", props.source);
+    if (props.campaign) qs.set("campaign", props.campaign);
+    if (props.content) qs.set("content", props.content);
     if (preview) qs.set("preview", "1");
     try { const m = await api.get<Menu>(`${base}/menu?${qs}`); setMenu(m); setLoadErr(null); return m; }
     catch (e) { setLoadErr(e instanceof ApiError ? e.message : "Não foi possível abrir o cardápio"); return null; }
-  }, [api, base, props.storeId, props.source, preview]);
+  }, [api, base, props.storeId, props.source, props.campaign, props.content, preview]);
   useEffect(() => { loadMenu().then((m) => { if (m) track("visit", { profile: m.profile, source: props.source }); }); }, [loadMenu]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { ls.set(`cw:cart:${slug}`, JSON.stringify(cart)); }, [cart, slug]);
@@ -172,7 +184,7 @@ export function Storefront(props: StorefrontProps) {
   useEffect(() => {
     if (!menu) return;
     const tick = setInterval(() => {
-      if (screen !== "menu" || draft || search.open || page || popup || exitVia || triageOpen || fxv.couponOffered()) return;
+      if (screen !== "menu" || draft || search.open || page || popup || exitVia || triageOpen || fvOpen || (menu.firstVisit && !token) || fxv.couponOffered()) return;
       const shown = (s: MenuStrategy) => {
         const a = s.action as { frequency?: string };
         if (a.frequency === "day") return ls.get(`cw:pop:${s.id}`) === new Date().toISOString().slice(0, 10);
@@ -197,7 +209,7 @@ export function Storefront(props: StorefrontProps) {
       }
     }, 1000);
     return () => clearInterval(tick);
-  }, [menu, screen, draft, search.open, page, popup, subtotal, priced, mode, props.source, props.idleOverrideSeconds, track, exitVia, triageOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [menu, screen, draft, search.open, page, popup, subtotal, priced, mode, props.source, props.idleOverrideSeconds, track, exitVia, triageOpen, fvOpen, token]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ---------------- hesitação na sacola e na revisão (uma ajuda, sem pop-up) ---------------- */
   useEffect(() => {
@@ -217,12 +229,12 @@ export function Storefront(props: StorefrontProps) {
     requestAnimationFrame(() => rootRef.current?.querySelector<HTMLElement>(`[data-screen="${s}"]`)?.scrollTo({ top: 0 }));
   };
 
-  const openItem = (itemId: string, editKey?: string) => {
+  const openItem = (itemId: string, editKey?: string, preset?: Record<string, Record<string, number>>) => {
     if (!menu?.items[itemId]) return;
     const line = editKey ? cart.find((l) => l.key === editKey) : undefined;
     const item = menu.items[itemId];
-    const sel: Draft["sel"] = line ? JSON.parse(JSON.stringify(line.selection)) : {};
-    if (!line) for (const g of groupsOf(itemId)) if (g.max === 1 && g.min === 1) { const d = g.options.find((o) => o.popular) || g.options[0]; if (d) sel[g.id] = { [d.id]: 1 }; }
+    const sel: Draft["sel"] = line ? JSON.parse(JSON.stringify(line.selection)) : preset ? JSON.parse(JSON.stringify(preset)) : {};
+    if (!line) for (const g of groupsOf(itemId)) if (g.max === 1 && g.min === 1 && !sel[g.id]) { const d = g.options.find((o) => o.popular) || g.options[0]; if (d) sel[g.id] = { [d.id]: 1 }; }
     setDraft({ itemId, sel, qty: line?.qty || 1, notes: line?.notes ? line.notes.split(", ").filter((n) => NOTE_CHIPS.includes(n)) : [], editKey, tried: false });
     setSearch({ open: false, q: "" });
     track("item_view", { itemId, name: item.name });
@@ -304,9 +316,17 @@ export function Storefront(props: StorefrontProps) {
     if (!triageQ || !token || screen !== "menu" || preview || ss.get(`cw:triage:${slug}:${(token || "").slice(-10)}`)) return;
     const t = setTimeout(() => setTriageOpen(true), 700); return () => clearTimeout(t);
   }, [triageQ, token, screen]); // eslint-disable-line react-hooks/exhaustive-deps
+  // primeira visita: abre logo ao entrar; quem veio de campanha só depois de N s sem adicionar (se a marca quiser)
+  const fv = menu?.firstVisit;
+  useEffect(() => {
+    if (!fv || token || screen !== "menu" || preview || fvOpen) return;
+    if (!fv.afterSeconds) { const t = setTimeout(() => setFvOpen(true), 900); return () => clearTimeout(t); }
+    const t = setInterval(() => { if ((Date.now() - lastAddAt.current) / 1000 >= fv.afterSeconds && !draft) setFvOpen(true); }, 1000);
+    return () => clearInterval(t);
+  }, [fv, token, screen, draft]); // eslint-disable-line react-hooks/exhaustive-deps
   useExitAndReturn({
     slug, enabled: !!engageOf(menu)?.effects.exitIntent.enabled && !preview, menuReady: !!menu, cartCount: count,
-    busy: !!draft || placing || screen === "pix" || screen === "track" || !!page || triageOpen || search.open,
+    busy: !!draft || placing || screen === "pix" || screen === "track" || !!page || triageOpen || fvOpen || search.open,
     onExit: (via) => setExitVia(via),
     onReturn: () => { showToast("Sua sacola continua aqui"); setBagGlow(true); setTimeout(() => setBagGlow(false), 2800); },
   });
@@ -408,7 +428,9 @@ export function Storefront(props: StorefrontProps) {
         ) : (
           <div className={`hero-card${(menu.hero as { personal?: boolean }).personal ? " personal" : ""}`} id="t-hero">
             <div className="t"><small>{menu.hero.kicker}</small><b>{menu.hero.title}</b>{menu.hero.sub && <span className="p">{menu.hero.sub}</span>}</div>
-            <button className="btn-brand" onClick={() => openItem((menu.hero!.action as { itemId: string }).itemId)}>Montar</button>
+            {menu.hero.action.kind === "category"
+              ? <button className="btn-brand" onClick={() => { track("hero_click", { kind: "category" }); scrollToCat((menu.hero!.action as { categoryId: string }).categoryId); }}>Ver</button>
+              : <button className="btn-brand" onClick={() => { const a = menu.hero!.action as { itemId: string; selection?: Record<string, Record<string, number>> }; track("hero_click", { kind: "item", itemId: a.itemId, campaign: menu.hero!.campaign }); openItem(a.itemId, undefined, a.selection); }}>{(menu.hero.action as { selection?: unknown }).selection ? "Pedir este" : "Montar"}</button>}
           </div>
         ))}
 
@@ -520,9 +542,13 @@ export function Storefront(props: StorefrontProps) {
               </button>
             ))}
             {pay === "CARD_ONLINE" && menu.onlinePayments && <CardForm card={cc} setCard={setCc} max={menu.onlinePayments.maxInstallments} total={quote?.total || 0} />}
-            {(pay === "CARD_ONLINE" || pay === "PIX_ONLINE") && menu.onlinePayments?.requiresDocument && (pay === "PIX_ONLINE" ? menu.onlinePayments.gateway !== "mercadopago" : true) && <div className="field"><label htmlFor="cw-cpf">CPF do pagador</label><input id="cw-cpf" inputMode="numeric" autoComplete="off" placeholder="000.000.000-00" value={cpf} onChange={(e) => setCpf(fmtCpf(e.target.value))} />{cpf.length >= 14 && !validCpf(cpf) && <span className="err">CPF inválido</span>}</div>}
+            {(pay === "CARD_ONLINE" || pay === "PIX_ONLINE") && menu.onlinePayments?.requiresDocument && oa.status !== "new" && (pay === "PIX_ONLINE" ? menu.onlinePayments.gateway !== "mercadopago" : true) && <div className="field"><label htmlFor="cw-cpf">CPF do pagador</label><input id="cw-cpf" inputMode="numeric" autoComplete="off" placeholder="000.000.000-00" value={cpf} onChange={(e) => setCpf(fmtCpf(e.target.value))} />{cpf.length >= 14 && !validCpf(cpf) && <span className="err">CPF inválido</span>}</div>}
             {pay === "CASH" && <div className="field"><label htmlFor="cw-change">Troco para quanto?</label><input id="cw-change" inputMode="decimal" placeholder="Ex.: 200" value={changeFor} onChange={(e) => setChangeFor(e.target.value.replace(/[^\d,.]/g, ""))} /></div>}
           </div>
+
+          {(pay === "CARD_ONLINE" || pay === "PIX_ONLINE") && menu.onlinePayments?.requirePassword && me && token && (
+            <OnlineAuth key={token} api={api} base={base} phone={me.phone} state={oa} setState={(x) => { setOa(x); if (x.status === "new" && x.cpf !== cpf) setCpf(x.cpf); }} />
+          )}
 
           <div className="blk"><h4>Cupom</h4>
             <div className="coupon-row">
@@ -553,7 +579,7 @@ export function Storefront(props: StorefrontProps) {
                 <label className="check"><input type="checkbox" id="cw-optin" checked={ident.optin} onChange={(e) => setIdent({ ...ident, optin: e.target.checked })} /><span>Quero receber avisos do pedido e ofertas da {menu.tenant.name} no WhatsApp</span></label>
                 <button className="btn-ghost" disabled={ident.busy || ident.code.length < 4} onClick={async () => {
                   setIdent((s) => ({ ...s, busy: true, err: "" }));
-                  try { const r = await api.post<{ token: string }>(`${base}/auth/verify`, { phone: ident.phone, code: ident.code, name: ident.name, optinWhatsapp: ident.optin }); setToken(r.token); setIdent((s) => ({ ...s, busy: false })); }
+                  try { const r = await api.post<{ token: string }>(`${base}/auth/verify`, { phone: ident.phone, code: ident.code, name: ident.name, optinWhatsapp: ident.optin, leadId: leadId || undefined }); setToken(r.token); setLeadId(null); setIdent((s) => ({ ...s, busy: false })); }
                   catch (e) { setIdent((s) => ({ ...s, busy: false, err: (e as Error).message })); }
                 }}>Confirmar código</button>
               </>)}
@@ -584,12 +610,20 @@ export function Storefront(props: StorefrontProps) {
               const op = menu.onlinePayments;
               const needDoc = !!op?.requiresDocument && (pay === "CARD_ONLINE" || (pay === "PIX_ONLINE" && op.gateway !== "mercadopago")) && !validCpf(cpf);
               const cardErr = pay === "CARD_ONLINE" ? validateCard(cc) : null;
-              const label = closed ? "Loja fechada agora" : needAddr ? "Informe o endereço" : needId ? "Confirme seu telefone" : !pay ? "Escolha o pagamento" : cardErr ? "Preencha o cartão" : needDoc ? "Informe o CPF" : placing ? (pay === "CARD_ONLINE" ? "Processando pagamento…" : "Enviando…") : pay === "CARD_ONLINE" ? "Pagar e fazer pedido" : "Fazer pedido";
-              const blocked = closed || needAddr || needId || !pay || !!cardErr || needDoc || placing || !quote;
+              const needAuth = (pay === "CARD_ONLINE" || pay === "PIX_ONLINE") && !!op?.requirePassword && !needId && !onlineAuthReady(oa);
+              const label = closed ? "Loja fechada agora" : needAddr ? "Informe o endereço" : needId ? "Confirme seu telefone" : !pay ? "Escolha o pagamento" : cardErr ? "Preencha o cartão" : needDoc ? "Informe o CPF" : needAuth ? (oa.status === "new" ? "Confirme CPF, nascimento e senha" : "Digite sua senha") : placing ? (pay === "CARD_ONLINE" ? "Processando pagamento…" : "Enviando…") : pay === "CARD_ONLINE" ? "Pagar e fazer pedido" : "Fazer pedido";
+              const blocked = closed || needAddr || needId || !pay || !!cardErr || needDoc || needAuth || placing || !quote;
               return (
                 <button className={`cta${blocked ? " blocked" : ""}`} disabled={blocked} onClick={async () => {
                   setPlacing(true); setOrderErr(null);
                   try {
+                    // senha só no pagamento online: token curto antes de cobrar
+                    let ot: string | undefined;
+                    if ((pay === "CARD_ONLINE" || pay === "PIX_ONLINE") && op?.requirePassword) {
+                      try { ot = await onlineToken(api, base, oa); }
+                      catch (e) { setOa({ ...oa, err: (e as Error).message }); setOrderErr((e as Error).message); return; }
+                      if (oa.status === "new" || oa.status === "reset") setOa({ ...oa, status: "existing", password: "", code: "" });
+                    }
                     let cardPay: { cardToken: string; installments: number; cardBrand: string; cardLast4: string; issuerId?: string } | undefined;
                     if (pay === "CARD_ONLINE" && op) {
                       const t = await tokenizeCard(op, { ...cc, document: cpf || undefined });
@@ -604,7 +638,7 @@ export function Storefront(props: StorefrontProps) {
                       couponCode: couponCode || undefined, useCashback,
                       customer: { name: me?.name || ident.name, phone: me?.phone || ident.phone, optinWhatsapp: ident.optin || undefined },
                     };
-                    const r = await api.post<{ order: TrackOrder; customerToken: string }>(`${base}/orders${q}`, body);
+                    const r = await api.post<{ order: TrackOrder; customerToken: string }>(`${base}/orders${q}`, body, ot ? { "x-online-token": ot } : undefined);
                     if (cardPay) setCc({ number: "", name: "", expiry: "", cvv: "", installments: 1 });
                     setToken(r.customerToken); setOrder(r.order); setCart([]); setCouponCode(""); ss.set(`cw:coupon:${slug}`, ""); setUseCashback(false);
                     go(r.order.payment?.online ? (r.order.payment.online.method === "pix" ? "pix" : "track") : pay === "PIX_ONLINE" ? "pix" : "track");
@@ -684,6 +718,14 @@ export function Storefront(props: StorefrontProps) {
           {popup.coupon?.code && <code>{popup.coupon.code}</code>}
           <div className="pop-acts"><button className="btn-brand" onClick={() => { applyCoupon(popup.coupon!.code!, "popup"); setPopup(null); }}>Aplicar</button><button className="link muted" onClick={() => setPopup(null)}>Agora não</button></div>
         </div>
+      )}
+
+      {/* ================= primeira visita ================= */}
+      {fvOpen && fv && !token && (
+        <FirstVisitSheet fv={fv} brand={menu.tenant.name} api={api} base={base} sessionId={sessionId} source={props.source} campaign={props.campaign} leadId={leadId}
+          onLead={(id) => setLeadId(id)} track={track}
+          onApply={(code) => { fxv.markCoupon(); applyCoupon(code, "firstvisit"); }}
+          onClose={(r: FvResult | null) => { setFvOpen(false); if (r && !r.skipped) loadMenu().then(() => menuRef.current?.scrollTo({ top: 0 })); else loadMenu(); }} />
       )}
 
       {/* ================= triagem de 1 toque ================= */}

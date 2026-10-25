@@ -5,8 +5,10 @@ const OUT = process.env.OUT || ".";
   const pg = await b.newPage({ viewport: { width: 1500, height: 920 }, ignoreHTTPSErrors: true });
   const errs = []; pg.on("pageerror", (e) => errs.push(e.message)); pg.on("console", (m) => { if (m.type() === "error") errs.push(m.text()); });
   const ok = (c, m) => console.log((c ? "ok: " : "FALHOU: ") + m);
-  await pg.goto("http://localhost:8811/index.html");
+  await pg.goto("http://localhost:" + (process.env.PORT || 8811) + "/index.html");
   await pg.waitForSelector(".cw-sf .store-name", { timeout: 60000 });
+  const fvSkip = async () => { try { await pg.locator(".demo-screen .fv-sheet").waitFor({ timeout: 4000 }); await pg.locator('.demo-screen .fv-sheet button:has-text("Pular"), .demo-screen .fv-sheet button:has-text("Agora não")').first().click(); await pg.waitForTimeout(600); } catch { /* sem triagem */ } };
+  await fvSkip();
   const sf = pg.locator(".demo-screen");
   // novo: sem triagem
   await pg.waitForTimeout(1200);

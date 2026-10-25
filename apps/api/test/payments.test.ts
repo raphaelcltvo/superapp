@@ -68,7 +68,7 @@ describe("pagamento online", () => {
     storeId: "sto_leblon", mode: "DELIVERY", address: { street: "Rua Dias Ferreira", number: "100", district: "Leblon", city: "Rio de Janeiro", state: "RJ", postalCode: "22431050", lat: -22.984, lng: -43.225 },
     lines: [{ itemId: "c1", qty: 1, selection: { g_massa40: { gourmet: 1 }, g_sab99: { marguerita: 1, mucarela: 1 } } }], payment, customer: { name: "Paga Online", phone, optinWhatsapp: true }, ...extra,
   });
-  const configure = async (cfg: Record<string, unknown>) => { await asAdmin(); const r = await call("PUT", "/admin/integrations/payments", { enabled: true, env: "sandbox", pixExpiresMinutes: 15, maxInstallments: 3, methods: { pix: true, card: true }, ...cfg }); admin = ""; return r; };
+  const configure = async (cfg: Record<string, unknown>) => { await asAdmin(); const r = await call("PUT", "/admin/integrations/payments", { enabled: true, env: "sandbox", pixExpiresMinutes: 15, maxInstallments: 3, methods: { pix: true, card: true }, requirePassword: false, ...cfg }); admin = ""; return r; };
   const webhookToken = async () => { await asAdmin(); const u = (await call("GET", "/admin/integrations/payments")).body.webhookUrl as string; admin = ""; return u.split("token=")[1]; };
 
   beforeAll(async () => {

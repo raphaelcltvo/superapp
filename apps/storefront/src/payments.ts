@@ -2,7 +2,7 @@
  * Cartão online: o número é digitado aqui e vira token no próprio gateway. Só o token sai para a nossa API.
  * Nada aqui pode ir para console, analytics ou storage.
  */
-export interface OnlineCfg { gateway: "mercadopago" | "pagarme" | "asaas" | "fake"; env: string; methods: { pix: boolean; card: boolean }; maxInstallments: number; publicKey?: string; sdkUrl?: string; tokenizeUrl?: string; requiresDocument: boolean }
+export interface OnlineCfg { gateway: "mercadopago" | "pagarme" | "asaas" | "fake"; env: string; methods: { pix: boolean; card: boolean }; maxInstallments: number; publicKey?: string; sdkUrl?: string; tokenizeUrl?: string; requiresDocument: boolean; requirePassword?: boolean }
 export interface CardFields { number: string; name: string; expiry: string; cvv: string; document?: string }
 export interface CardToken { token: string; brand: string; last4: string; issuerId?: string }
 

@@ -13,9 +13,9 @@ export function httpTransport(baseUrl: string): Transport {
   };
 }
 
-export function createClient(transport: Transport, auth: { admin?: () => string | null; customer?: () => string | null } = {}) {
+export function createClient(transport: Transport, auth: { admin?: () => string | null; customer?: () => string | null; headers?: () => Record<string, string> } = {}) {
   const call = async <T>(method: string, path: string, body?: unknown, extra: Record<string, string> = {}): Promise<T> => {
-    const h: Record<string, string> = { ...extra };
+    const h: Record<string, string> = { ...(auth.headers?.() || {}), ...extra };
     const a = auth.admin?.(); if (a) h.authorization = "Bearer " + a;
     const c = auth.customer?.(); if (c) h["x-customer-token"] = c;
     const r = await transport(method, path, body, h);
@@ -24,7 +24,7 @@ export function createClient(transport: Transport, auth: { admin?: () => string 
   };
   return {
     get: <T>(p: string) => call<T>("GET", p),
-    post: <T>(p: string, b?: unknown) => call<T>("POST", p, b ?? {}),
+    post: <T>(p: string, b?: unknown, headers?: Record<string, string>) => call<T>("POST", p, b ?? {}, headers),
     put: <T>(p: string, b: unknown) => call<T>("PUT", p, b),
     patch: <T>(p: string, b: unknown) => call<T>("PATCH", p, b),
     del: <T>(p: string) => call<T>("DELETE", p),

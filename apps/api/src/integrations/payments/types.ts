@@ -20,6 +20,8 @@ export interface PaymentsConfig {
   captureOnlyIfStoreOpen?: boolean;
   baseUrl?: string; // sobrescreve a URL da API (testes/proxy)
   fakeAutoPaySeconds?: number; // gateway de teste: Pix se paga sozinho depois de N segundos
+  /** senha + CPF + data de nascimento para pagar online (padrão: sim) */
+  requirePassword?: boolean;
 }
 
 export const DEFAULT_PAYMENTS_CONFIG: Omit<PaymentsConfig, "webhookToken"> = {
@@ -50,6 +52,8 @@ export interface PublicPaymentsConfig {
   sdkUrl?: string;
   tokenizeUrl?: string;
   requiresDocument: boolean; // gateway exige CPF do pagador
+  /** o cliente confirma senha, CPF e data de nascimento antes de pagar online */
+  requirePassword?: boolean;
 }
 
 export interface Gateway {

@@ -9,3 +9,4 @@ export * from "./merch";
 export * from "./ids";
 export * from "./checkout";
 export * from "./engagement";
+export * from "./firstvisit";
