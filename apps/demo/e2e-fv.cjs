@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 8833;
   ok(/pessoas/i.test(await sf.locator(".fv-sheet").textContent()), "primeira pergunta: pra quantas pessoas");
   let n = 0;
   while (await sf.locator(".fv-sheet .eg-opt").count() && n < 4) { await sf.locator(".fv-sheet .eg-opt").last().click(); n++; await pg.waitForTimeout(250); if (n === 1) await shot("fv-a2-segunda"); }
-  ok(n >= 2, `respondeu ${n} perguntas`);
+  ok(n >= 1 && n <= 2, `respondeu ${n} pergunta(s): a 2ª só aparece quando a 1ª não basta`);
   await shot("fv-a3-contato");
   await sf.locator("#fv-name").fill("Ana Teste"); await sf.locator("#fv-phone").fill("21987651234"); await sf.locator("#fv-email").fill("ana@teste.com");
   await sf.locator('.fv-sheet button[type="submit"]').click(); await pg.waitForTimeout(700);
