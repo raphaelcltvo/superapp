@@ -1,0 +1,34 @@
+// "Copiar do iFood" na demonstração: cola o link da loja, vê a prévia e mescla no rascunho.
+const { chromium } = require("playwright");
+const OUT = process.env.OUT || ".";
+(async () => {
+  const b = await chromium.launch({ proxy: { server: process.env.HTTPS_PROXY, bypass: "<-loopback>,localhost,127.0.0.1" }, args: ["--ignore-certificate-errors"] });
+  const pg = await b.newPage({ viewport: { width: 1500, height: 920 }, ignoreHTTPSErrors: true });
+  const errs = []; pg.on("pageerror", (e) => errs.push(e.message)); pg.on("console", (m) => { if (m.type() === "error" && !/Failed to load resource/.test(m.text())) errs.push(m.text()); });
+  const ok = (c, m) => console.log((c ? "ok: " : "FALHOU: ") + m);
+  await pg.goto("http://localhost:" + (process.env.PORT || 8811) + "/index.html");
+  await pg.waitForSelector(".cw-ad .navbtn", { timeout: 60000 });
+  await pg.click('.cw-ad .navbtn:has-text("Importar do iFood")');
+  await pg.fill("#ifood-url", "https://exemplo.com/minha-loja-sem-codigo");
+  await pg.click("#ifood-go"); await pg.waitForTimeout(400);
+  ok(/link da loja no iFood/i.test(await pg.locator(".cw-ad .content").textContent()), "link que não é do iFood pede o link certo");
+  await pg.fill("#ifood-url", "https://www.ifood.com.br/delivery/rio-de-janeiro-rj/forneria-original-pizza---barra-barra-da-tijuca/5d4c3a2b-1f0e-4d9c-8b7a-6f5e4d3c2b1a");
+  await pg.click("#ifood-go");
+  await pg.waitForSelector("#import-preview", { timeout: 20000 });
+  const prev = await pg.locator("#import-preview").textContent();
+  ok(/Forneria Original Pizza - Barra/.test(prev), "prévia mostra a loja");
+  ok(/Pizzaria/.test(await pg.locator("#import-cuisine").evaluate((s) => s.options[s.selectedIndex].text)), "culinária detectada: Pizzaria");
+  ok(/Pizzas Veganas/.test(prev) && /a partir de/.test(prev), "categorias e itens montáveis na prévia");
+  await pg.screenshot({ path: OUT + "/imp-1-previa.png", fullPage: false });
+  ok((await pg.locator("#import-mode").inputValue()) === "merge", "com cardápio existente o padrão é mesclar");
+  await pg.click("#import-commit");
+  await pg.waitForSelector("#import-result", { timeout: 20000 });
+  const res = await pg.locator("#import-result").textContent();
+  ok(/itens novos/.test(res) && /atualizados/.test(res), "mesclou: " + res.replace(/\s+/g, " ").slice(0, 120));
+  await pg.screenshot({ path: OUT + "/imp-2-resultado.png" });
+  await pg.click('#import-result button:has-text("Revisar itens")');
+  await pg.waitForTimeout(800);
+  ok(/Pizzas Veganas/i.test(await pg.locator(".cw-ad .content").textContent()), "itens importados aparecem em Itens e categorias");
+  console.log(errs.length ? "erros: " + errs.join(" | ") : "sem erros");
+  await b.close();
+})();

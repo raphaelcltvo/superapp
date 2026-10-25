@@ -12,3 +12,4 @@ export * from "./engagement";
 export * from "./firstvisit";
 export * from "./cuisines";
 export * from "./setup";
+export * from "./ifood";

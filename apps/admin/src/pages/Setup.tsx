@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { CARD_BRANDS, OFFLINE_PAYMENTS, VOUCHER_BRANDS, FEATURE_INFO, brandPalette, measureLabel, tagLabel, type CuisineFeature, type CuisineId, type PaymentCode, type SetupStepId, type Store, type Tenant } from "@cw/core";
 import { WhatsAppConnect, OrderNotifications } from "./WhatsAppConnect";
+import { IfoodImport } from "./MenuImport";
 import { BRL, Btn, Chips, Field, MediaInput, Num, Pill, Text, Toggle, errMsg, useAction, useAdmin, useLoad } from "../ui";
 
 type Step = { id: SetupStepId; label: string; hint: string; optional?: boolean; done: boolean; detail: string; skipped: boolean };
@@ -169,7 +170,7 @@ function MenuStep(p: { status: Status; onSaved: () => void; onNext: () => void; 
     <div className="su-src" role="radiogroup" aria-label="Como montar o cardápio">
       {([["ifood", "Copiar do iFood", "Cole o link da sua loja no iFood: categorias, itens, fotos, complementos e preços vêm juntos."], ["modelo", "Começar pelo modelo", "Estrutura pronta da sua culinária com itens de exemplo para editar."], ["zero", "Montar do zero", "Crie categorias, itens e complementos à mão."]] as const).map(([id, label, txt]) => <button key={id} type="button" role="radio" aria-checked={src === id} className="su-cu" data-src={id} onClick={() => { setSrc(id); api.put("/admin/setup/state", { menuSource: id }).catch(() => {}); }}><b>{label}</b><span>{txt}</span></button>)}
     </div>
-    {src === "ifood" && (p.ifood ? p.ifood(() => { dirty(); p.onSaved(); }) : <div className="su-have"><span>Importação do iFood</span><Btn sm onClick={() => go("importar")}>Abrir importação</Btn></div>)}
+    {src === "ifood" && (p.ifood ? p.ifood(() => { dirty(); p.onSaved(); }) : <IfoodImport compact onDone={() => { dirty(); p.onSaved(); }} />)}
     {src === "modelo" && t && <div className="stack">
       <div className="row"><b>Modelo:</b><select aria-label="Modelo de culinária" value={t.id} onChange={(e) => setCz(e.target.value as CuisineId)}>{(list.data || []).map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}</select><Toggle checked={samples} onChange={setSamples} label="Incluir itens de exemplo" /></div>
       <div className="su-tpl">

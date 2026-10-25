@@ -6,6 +6,10 @@ import type { SaiposCatalogRow } from "../../api/src/integrations/saipos/types";
 import { seedForneria } from "../../api/src/seed/forneria";
 import { signCustomer } from "../../api/src/auth";
 import photoIndex from "../../api/src/seed/photos/index.json";
+import { buildRaw } from "../../api/src/seed/ifood-barra/barra-raw.mjs";
+import barraItens from "../../api/src/seed/ifood-barra/itens.txt?raw";
+import barraGrupos from "../../api/src/seed/ifood-barra/grupos.txt?raw";
+import barraOpcoes from "../../api/src/seed/ifood-barra/opcoes.txt?raw";
 import type { Transport } from "@cw/client";
 import type { Customer, Item, OptionGroup, Order, Store } from "@cw/core";
 
@@ -15,6 +19,7 @@ import type { Customer, Item, OptionGroup, Order, Store } from "@cw/core";
  */
 const DB_NAME = "superapp-demo", KEY = "snapshot-v8"; // v7: primeira visita, leads e senha do pagamento online
 const SLUG = "forneria-original";
+let barraRaw: unknown; // cardápio da Forneria Barra no formato do iFood, montado na primeira importação
 const media = (f: string) => `media/${f}`;
 
 function idb<T>(mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRequest<T>): Promise<T | undefined> {
@@ -49,6 +54,15 @@ export async function startDemo(onProgress: (msg: string) => void): Promise<Demo
     db, jwtSecret: "demo-superapp", now, storage: dataUrlStorage, demo: true, publicUrl: "https://cardapio.superapp.demo",
     messenger: { async send() { return { id: crypto.randomUUID(), status: "sent" }; } },
     sendOtp: async () => {}, saiposFetch: (u, i) => saipos.fetch(u, i),
+    // "Copiar do iFood" na demonstração: qualquer link de loja do iFood devolve o cardápio lido da Forneria Barra
+    ifoodFetch: async (u) => {
+      const raw = (barraRaw ||= buildRaw({ itens: barraItens, grupos: barraGrupos, opcoes: barraOpcoes })) as { catalog: unknown; details: Record<string, unknown> };
+      const json = (x: unknown) => new Response(JSON.stringify(x), { status: 200, headers: { "content-type": "application/json" } });
+      const m = u.match(/\/items\/([^/?]+)$/);
+      if (m) return raw.details[m[1]] ? json(raw.details[m[1]]) : new Response("", { status: 404 });
+      return /\/catalog$/.test(u) ? json(raw.catalog) : new Response("", { status: 404 });
+    },
+    ifoodPaceMs: 0,
   };
   const app = createApp(deps);
   const req = async (method: string, path: string, body?: unknown, headers: Record<string, string> = {}) => {

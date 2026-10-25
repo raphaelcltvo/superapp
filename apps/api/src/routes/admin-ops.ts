@@ -31,7 +31,7 @@ export function opsRoutes() {
 
   /* ---------- importação de bases ---------- */
   r.get("/imports/fields", (c) => c.json(FIELDS));
-  r.get("/imports", async (c) => c.json((await c.get("deps").db.list<{ id: string; rows?: unknown }>("imports", c.get("tenantId"), { limit: 50 })).map(({ rows: _r, ...x }) => x)));
+  r.get("/imports", async (c) => c.json((await c.get("deps").db.list<{ id: string; rows?: unknown; kind?: string }>("imports", c.get("tenantId"), { limit: 50 })).filter((x) => x.kind !== "ifood_menu").map(({ rows: _r, ...x }) => x)));
   r.post("/imports", async (c) => {
     const form = await c.req.formData(); const f = form.get("file"); const kind = String(form.get("kind") || "customers") as ImportKind;
     if (!(f instanceof File)) throw new HttpError(400, "Envie o arquivo no campo file");

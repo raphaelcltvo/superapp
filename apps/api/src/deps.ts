@@ -33,6 +33,12 @@ export interface Deps {
   geocode?: (q: { street: string; number: string; district: string; city: string; state: string; postalCode: string }) => Promise<{ lat: number; lng: number } | null>;
   /** confere se o CPF pertence a essa data de nascimento (Serpro, bureau de crédito). Sem ele, só o formato do CPF é validado. */
   verifyIdentity?: (cpf: string, birthDate: string) => Promise<boolean | null>;
+  /** fetch usado para ler o cardápio público do iFood (sem ele, a importação usa o bookmarklet no navegador do dono) */
+  ifoodFetch?: Fetch;
+  /** pausa entre leituras de itens no iFood (padrão 3,5 s; 0 nos testes) */
+  ifoodPaceMs?: number;
+  /** termina a busca do iFood na mesma requisição (testes); em produção ela segue em segundo plano */
+  ifoodSync?: boolean;
   demo?: boolean;
   publicUrl: string;
   log?: (msg: string, extra?: unknown) => void;

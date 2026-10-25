@@ -20,10 +20,12 @@ import { PublishPage } from "./pages/Publish";
 import { EngagePage } from "./pages/Engage";
 import { SetupPage } from "./pages/Setup";
 
-export type Route = "setup" | "inicio" | "cardapio" | "complementos" | "vitrine" | "paginas" | "estrategias" | "cupons" | "pagamentos" | "cashback" | "pedidos" | "crm" | "clientes" | "segmentos" | "automacoes" | "mensagens" | "pesquisa" | "lojas" | "integracoes" | "publicar";
+import { MenuImportPage } from "./pages/MenuImport";
+
+export type Route = "setup" | "inicio" | "cardapio" | "complementos" | "importar" | "vitrine" | "paginas" | "estrategias" | "cupons" | "pagamentos" | "cashback" | "pedidos" | "crm" | "clientes" | "segmentos" | "automacoes" | "mensagens" | "pesquisa" | "lojas" | "integracoes" | "publicar";
 const NAV: { group: string; items: { id: Route; label: string }[] }[] = [
   { group: "Visão", items: [{ id: "setup", label: "Setup da marca" }, { id: "inicio", label: "Início" }] },
-  { group: "Cardápio", items: [{ id: "cardapio", label: "Itens e categorias" }, { id: "complementos", label: "Complementos" }, { id: "vitrine", label: "Vitrine e sugestões" }, { id: "paginas", label: "Páginas e pesquisas" }] },
+  { group: "Cardápio", items: [{ id: "cardapio", label: "Itens e categorias" }, { id: "complementos", label: "Complementos" }, { id: "importar", label: "Importar do iFood" }, { id: "vitrine", label: "Vitrine e sugestões" }, { id: "paginas", label: "Páginas e pesquisas" }] },
   { group: "Vendas", items: [{ id: "estrategias", label: "Estratégias" }, { id: "cupons", label: "Cupons" }, { id: "pagamentos", label: "Pagamentos" }, { id: "cashback", label: "Cashback" }, { id: "pedidos", label: "Pedidos" }] },
   { group: "CRM", items: [{ id: "crm", label: "Painel e funil" }, { id: "clientes", label: "Clientes" }, { id: "segmentos", label: "Segmentos" }, { id: "automacoes", label: "Automações" }, { id: "mensagens", label: "WhatsApp e e-mail" }, { id: "pesquisa", label: "Pesquisa e engajamento" }] },
   { group: "Operação", items: [{ id: "lojas", label: "Lojas e entrega" }, { id: "integracoes", label: "Integrações e bases" }, { id: "publicar", label: "Publicar" }] },
@@ -98,7 +100,7 @@ function Shell(p: AdminProps & { api: ReturnType<typeof createClient>; onLogout:
   const go = useCallback((r: string) => { setRoute(r as Route); try { history.replaceState(null, "", "#" + r); } catch { /* moldura sem histórico */ } window.scrollTo?.(0, 0); }, []);
   const ctx: AdminCtx = useMemo(() => ({ api: p.api, toast: (m, bad) => setToast({ m, bad }), go, dirty: () => { setDraftTick((x) => x + 1); p.onChange?.("draft"); }, storeId, setStoreId, onPublished: () => { setDraftTick((x) => x + 1); p.onChange?.("published"); } }), [p.api, go, storeId, p.onChange]); // eslint-disable-line
   const pages: Record<Route, ReactNode> = {
-    setup: <SetupPage />, inicio: <Home tick={draftTick} />, cardapio: <MenuPage />, complementos: <GroupsPage />, vitrine: <ShowcasePage />, paginas: <PagesPage />,
+    setup: <SetupPage />, inicio: <Home tick={draftTick} />, cardapio: <MenuPage />, complementos: <GroupsPage />, importar: <MenuImportPage />, vitrine: <ShowcasePage />, paginas: <PagesPage />,
     estrategias: <StrategiesPage />, cupons: <CouponsPage />, pagamentos: <PaymentsPage />, cashback: <LoyaltyPage />, pedidos: <OrdersPage />,
     crm: <CrmPage />, clientes: <CustomersPage />, segmentos: <SegmentsPage />, automacoes: <AutomationsPage />, mensagens: <MessagingPage />, pesquisa: <EngagePage />,
     lojas: <StoresPage />, integracoes: <IntegrationsPage />, publicar: <PublishPage />,

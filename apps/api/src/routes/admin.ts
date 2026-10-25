@@ -13,6 +13,7 @@ import { messagingAdminRoutes } from "./admin-messaging";
 import { engageAdminRoutes } from "./engage";
 import { setupRoutes } from "./setup";
 import { boardRoutes } from "./admin-board";
+import { menuImportAdminRoutes } from "./menuimport";
 
 const CRUD = Object.keys(schemas) as CrudTable[];
 const slugTables = new Set(["categories", "stores"]);
@@ -133,6 +134,7 @@ export function adminRoutes() {
   r.route("/engagement", engageAdminRoutes());
   r.route("/setup", setupRoutes());
   r.route("/", boardRoutes()); // antes de /orders/:id
+  r.route("/menu-import", menuImportAdminRoutes());
   r.route("/", opsRoutes());
   r.route("/", paymentsAdminRoutes());
 
