@@ -2,8 +2,8 @@ import { uid, type Coupon, type Customer, type OnlinePayment, type OnlinePayment
 import type { Ctx } from "./ctx";
 import { HttpError } from "./ctx";
 import { GATEWAYS, DEFAULT_PAYMENTS_CONFIG, PaymentError, type CardInput, type PaymentsConfig, type PublicPaymentsConfig, type Fetch } from "../integrations/payments";
-import { changeStatus, sendToPos } from "./orders";
-import { saiposConfig, emit } from "./integrations";
+import { changeStatus, fireOrderStatus, releaseOrder } from "./orders";
+import { emit } from "./integrations";
 
 type O = Order & { id: string };
 const http = (ctx: Ctx): Fetch => ctx.deps.paymentsFetch || ((u, i) => fetch(u, i));
@@ -66,8 +66,9 @@ export async function markPaid(ctx: Ctx, orderId: string, by: string) {
   await ctx.deps.db.events.insert(ctx.tenantId, [{ id: uid("ev"), sessionId: o.sessionId || o.id, customerId: o.customerId, name: "payment_paid", ts: at, props: { orderId, method: o.payment.online.method, gateway: o.payment.online.gateway } }]);
   await emit(ctx, "order.status", { id: orderId, status: "paid" });
   if (releasing) {
-    const sc = await saiposConfig(ctx, o.storeId);
-    if (sc?.enabled && sc.autoSend) return sendToPos(ctx, orderId);
+    const fresh = await ctx.deps.db.get<O>("orders", ctx.tenantId, orderId);
+    if (fresh) await fireOrderStatus(ctx, fresh, "created", o.status);
+    return releaseOrder(ctx, orderId); // SAIPOS (envio automático) ou aceite automático do gestor
   }
   return ctx.deps.db.get<O>("orders", ctx.tenantId, orderId);
 }

@@ -9,6 +9,31 @@ import { activePayments, chargeNewOrder, isOnlineCode, refundOrder } from "./pay
 import { SaiposClient } from "../integrations/saipos/client";
 import { toSaiposOrder, EVENT_TO_STATUS } from "../integrations/saipos/mapper";
 import { SaiposError, type SaiposEvent } from "../integrations/saipos/types";
+import { ordersSettings } from "./ordersettings";
+
+/**
+ * Ouvintes de mudança de status (avisos ao cliente por WhatsApp, painéis ao vivo, integrações).
+ * Chamados depois de cada mudança gravada, inclusive a criação ("created"/"awaiting_payment"). Erros são engolidos.
+ */
+export type OrderStatusListener = (ctx: Ctx, order: Order & { id: string }, status: OrderStatus, prev?: OrderStatus) => unknown | Promise<unknown>;
+export const onOrderStatus: OrderStatusListener[] = [];
+export async function fireOrderStatus(ctx: Ctx, order: Order & { id: string }, status: OrderStatus, prev?: OrderStatus) {
+  for (const l of onOrderStatus) { try { await l(ctx, order, status, prev); } catch (e) { ctx.deps.log?.("ouvinte de status falhou", String(e)); } }
+}
+
+/**
+ * Pedido liberado para a cozinha (criado sem pagamento online, ou pagamento aprovado):
+ * com a SAIPOS ligada e envio automático vai para o PDV; senão, com aceite automático, já entra em preparo.
+ */
+export async function releaseOrder(ctx: Ctx, orderId: string) {
+  const o = await ctx.deps.db.get<Order & { id: string }>("orders", ctx.tenantId, orderId);
+  if (!o || o.status !== "created") return o;
+  const cfg = await saiposConfig(ctx, o.storeId);
+  if (cfg?.enabled && cfg.autoSend) return sendToPos(ctx, orderId);
+  const st = await ordersSettings(ctx);
+  if (st.autoAccept) return changeStatus(ctx, orderId, "confirmed", "auto", "Aceite automático");
+  return o;
+}
 
 export async function snapshotFor(ctx: Ctx, preview = false): Promise<Snapshot> {
   const s = preview ? await draftSnapshot(ctx) : await publishedSnapshot(ctx);
@@ -77,10 +102,9 @@ export async function placeOrder(ctx: Ctx, input: CheckoutInput, customerFromTok
   await recomputeStats(ctx, customer.id);
   await ctx.deps.db.events.insert(ctx.tenantId, [{ id: uid("ev"), sessionId: input.sessionId || order.id, customerId: customer.id, name: "order_placed", ts: order.createdAt, source: input.source, props: { orderId: order.id, total: order.total } }]);
   await emit(ctx, "order.created", order);
-  if (order.status === "awaiting_payment") return { order, customer }; // a SAIPOS só recebe depois do pagamento
-  const cfg = await saiposConfig(ctx, store.id);
-  if (cfg?.enabled && cfg.autoSend) return { order: await sendToPos(ctx, order.id), customer };
-  return { order, customer };
+  await fireOrderStatus(ctx, order as Order & { id: string }, order.status);
+  if (order.status === "awaiting_payment") return { order, customer }; // a SAIPOS e a cozinha só recebem depois do pagamento
+  return { order: (await releaseOrder(ctx, order.id)) || order, customer };
 }
 
 export async function sendToPos(ctx: Ctx, orderId: string) {
@@ -136,6 +160,7 @@ export async function changeStatus(ctx: Ctx, orderId: string, status: OrderStatu
     try { await new SaiposClient(cfg, ctx.deps.saiposFetch).cancel(order.id); } catch (e) { ctx.deps.log?.("saipos cancel-order falhou", String(e)); }
   }
   await emit(ctx, "order.status", { id: orderId, status });
+  if (upd) await fireOrderStatus(ctx, upd, status, order.status);
   return upd;
 }
 
