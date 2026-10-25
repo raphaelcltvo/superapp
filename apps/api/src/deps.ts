@@ -21,6 +21,8 @@ export interface Deps {
   paymentsFetch?: Fetch;
   /** fetch usado para WhatsApp e e-mail (injetável para testes) */
   messagingFetch?: Fetch;
+  /** espera entre mensagens (WhatsApp por QR code); injetável para testes */
+  sleep?: (ms: number) => Promise<void>;
   /** segredo do agendador: header x-cron-secret em POST /cron/tick */
   cronSecret?: string;
   storage: Storage;

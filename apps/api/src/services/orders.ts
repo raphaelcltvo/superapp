@@ -9,6 +9,7 @@ import { activePayments, chargeNewOrder, isOnlineCode, refundOrder } from "./pay
 import { SaiposClient } from "../integrations/saipos/client";
 import { toSaiposOrder, EVENT_TO_STATUS } from "../integrations/saipos/mapper";
 import { SaiposError, type SaiposEvent } from "../integrations/saipos/types";
+import { notifyOrderStatus } from "./notify";
 
 export async function snapshotFor(ctx: Ctx, preview = false): Promise<Snapshot> {
   const s = preview ? await draftSnapshot(ctx) : await publishedSnapshot(ctx);
@@ -136,6 +137,8 @@ export async function changeStatus(ctx: Ctx, orderId: string, status: OrderStatu
     try { await new SaiposClient(cfg, ctx.deps.saiposFetch).cancel(order.id); } catch (e) { ctx.deps.log?.("saipos cancel-order falhou", String(e)); }
   }
   await emit(ctx, "order.status", { id: orderId, status });
+  // aviso ao cliente pelo WhatsApp (vale também para os status que chegam da SAIPOS, que passam por aqui)
+  if (upd) await notifyOrderStatus(ctx, upd, status).catch(() => undefined);
   return upd;
 }
 

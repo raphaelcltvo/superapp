@@ -12,8 +12,8 @@ import { walletBalance } from "@cw/core";
 import { emit } from "../services/integrations";
 import { publicPayments, renewPix, sweepPayment, markPaid, activePayments } from "../services/payments";
 import { fakeState } from "../integrations/payments/fake";
-import { fakeProviders, waConfig } from "../services/messaging";
-import { MetaWhatsApp } from "../integrations/messaging/whatsapp";
+import { waConfig, waProvider } from "../services/messaging";
+import { isQrProvider } from "../integrations/messaging/types";
 import { personalizeMenu } from "../services/engagement";
 import { registerEngagePublic } from "./engage";
 import { issueOtp, consumeOtp } from "../services/otp";
@@ -91,10 +91,10 @@ export function publicRoutes() {
     const deps = c.get("deps");
     const code = issueOtp(c.get("tenantId"), p, deps.demo);
     const wa = await waConfig(ctxOf(c));
-    if (wa?.enabled && wa.otpTemplate?.name) {
-      // código pelo modelo de autenticação aprovado na Meta (botão "copiar código")
-      const prov = wa.provider === "fake" ? fakeProviders(c.get("tenantId")).wa : new MetaWhatsApp(wa, deps.messagingFetch);
-      try { await prov.send(p, { kind: "otp", name: wa.otpTemplate.name, language: wa.otpTemplate.language || "pt_BR", code }); }
+    if (wa?.enabled && (wa.otpTemplate?.name || isQrProvider(wa.provider))) {
+      // API oficial: modelo de autenticação aprovado (botão "copiar código"); QR code: texto com o código
+      const prov = waProvider(ctxOf(c), wa);
+      try { await prov.send(p, { kind: "otp", name: wa.otpTemplate?.name || "codigo", language: wa.otpTemplate?.language || "pt_BR", code }); }
       catch { throw new HttpError(502, "Não conseguimos enviar o código pelo WhatsApp agora. Tente de novo em instantes."); }
     } else await deps.sendOtp(c.get("tenantId"), p, code);
     return c.json({ ok: true, demoCode: deps.demo ? code : undefined, known: !!(await findByPhone(ctxOf(c), p)) });

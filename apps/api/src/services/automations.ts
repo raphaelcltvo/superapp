@@ -23,7 +23,7 @@ export async function runAutomations(ctx: Ctx) {
   const byCustomer = new Map<string, Order[]>();
   for (const o of orders) if (o.customerId && o.status !== "cancelled") { if (!byCustomer.has(o.customerId)) byCustomer.set(o.customerId, []); byCustomer.get(o.customerId)!.push(o); }
   const seen = new Set(messages.map((m) => `${m.automationId}|${m.customerId}|${m.ref}`));
-  const weekCount = (cid: string) => messages.filter((m) => m.customerId === cid && m.group === "envio" && +now - +new Date(m.createdAt) < 7 * 864e5).length;
+  const weekCount = (cid: string) => messages.filter((m) => m.customerId === cid && m.group === "envio" && !(m as { transactional?: boolean }).transactional && +now - +new Date(m.createdAt) < 7 * 864e5).length;
   const hour = now.getHours();
   let created = 0, controle = 0;
   const events = await db.events.list(t, { since: new Date(+now - 2 * 864e5).toISOString() });

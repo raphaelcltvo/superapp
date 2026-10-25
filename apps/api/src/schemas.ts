@@ -151,9 +151,21 @@ export const paymentsConfigSchema = z.object({
   softDescriptor: z.string().max(13).optional(), captureOnlyIfStoreOpen: z.boolean().optional(), baseUrl: z.string().optional(), fakeAutoPaySeconds: z.number().int().min(0).max(600).optional(), requirePassword: z.boolean().optional(),
 });
 export const whatsappConfigSchema = z.object({
-  enabled: z.boolean(), provider: z.enum(["meta", "fake"]), phoneNumberId: z.string(), wabaId: z.string().optional(), token: z.string(), appSecret: z.string(), verifyToken: z.string(),
+  enabled: z.boolean(), provider: z.enum(["meta", "zapi", "evolution", "fake"]),
+  phoneNumberId: z.string().optional(), wabaId: z.string().optional(), token: z.string().optional(), appSecret: z.string().optional(), verifyToken: z.string().optional(),
   graphVersion: z.string().optional(), otpTemplate: z.object({ name: z.string(), language: z.string() }).optional(), costPerMessage: z.number().optional(),
+  zapi: z.object({ instanceId: z.string().min(1), instanceToken: z.string().min(1), clientToken: z.string().optional(), baseUrl: z.string().url().optional() }).optional(),
+  evolution: z.object({ baseUrl: z.string().url(), apiKey: z.string().min(1), instance: z.string().min(1).max(60) }).optional(),
+  webhookToken: z.string().optional(),
+  dailyCap: z.number().int().min(1).max(5000).optional(), perTick: z.number().int().min(1).max(60).optional(),
+}).superRefine((c, x) => {
+  const need = (ok: unknown, msg: string) => { if (!ok) x.addIssue({ code: "custom", message: msg }); };
+  if (c.provider === "meta") need(c.phoneNumberId && c.token && c.appSecret && c.verifyToken, "API oficial: informe ID do número, token, App Secret e token de verificação");
+  if (c.provider === "zapi") need(c.zapi, "Z-API: informe o ID e o token da instância");
+  if (c.provider === "evolution") need(c.evolution, "Evolution API: informe a URL, a chave e o nome da instância");
 });
+const notifyRule = z.object({ enabled: z.boolean(), text: z.string().min(3).max(1000), waName: z.string().max(120).optional().or(z.literal("")), waLanguage: z.string().max(10).optional() });
+export const notificationsSchema = z.object({ enabled: z.boolean(), events: z.object({ confirmed: notifyRule, ready: notifyRule, dispatched: notifyRule, concluded: notifyRule, cancelled: notifyRule }) });
 export const emailConfigSchema = z.object({
   enabled: z.boolean(), provider: z.enum(["resend", "brevo", "fake"]), apiKey: z.string(), fromName: z.string().min(1), fromEmail: z.string().email(), replyTo: z.string().email().optional().or(z.literal("")), webhookToken: z.string().optional(),
 });

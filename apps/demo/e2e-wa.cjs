@@ -1,0 +1,32 @@
+// WhatsApp por QR code no painel da demonstração: gerar QR (teste), simular leitura, conectado, avisos de pedido.
+const { chromium } = require("playwright");
+const OUT = process.env.OUT || ".";
+(async () => {
+  const b = await chromium.launch({ proxy: { server: process.env.HTTPS_PROXY, bypass: "<-loopback>,localhost,127.0.0.1" }, args: ["--ignore-certificate-errors"] });
+  const pg = await b.newPage({ viewport: { width: 1500, height: 920 }, ignoreHTTPSErrors: true });
+  const errs = []; pg.on("pageerror", (e) => errs.push(e.message)); pg.on("console", (m) => { if (m.type() === "error") errs.push(m.text()); });
+  const ok = (c, m) => console.log((c ? "ok: " : "FALHOU: ") + m);
+  await pg.goto("http://localhost:" + (process.env.PORT || 8811) + "/index.html");
+  await pg.waitForSelector(".cw-sf .store-name", { timeout: 60000 });
+  await pg.click('.cw-ad .navbtn:has-text("WhatsApp e e-mail")'); await pg.waitForTimeout(800);
+  await pg.click('.cw-ad .tabs button:has-text("Canais"), .cw-ad [role=tab]:has-text("Canais")'); await pg.waitForTimeout(800);
+  const box = pg.locator(".cw-ad .wa-connect");
+  await box.waitFor({ timeout: 8000 });
+  ok(/não conectado/.test(await box.textContent()), "começa não conectado");
+  await box.locator('select').first().selectOption("fake");
+  await box.locator("#wa-qr").click();
+  await box.locator('img[alt^="QR code"]').waitFor({ timeout: 8000 });
+  await pg.screenshot({ path: OUT + "/wa-1-qr.png" });
+  ok(true, "QR de teste aparece com o passo a passo");
+  await box.locator('button:has-text("Simular leitura")').click();
+  await pg.waitForFunction(() => /conectado ·/.test(document.querySelector(".cw-ad .wa-connect")?.textContent || ""), null, { timeout: 8000 });
+  await pg.screenshot({ path: OUT + "/wa-2-conectado.png" });
+  ok(true, "conectado com o número depois da leitura");
+  const notif = pg.locator('.cw-ad .panel:has(h2:text-is("Avisos do pedido"))');
+  ok(await notif.count() === 1 && /Saiu para entrega/.test(await notif.textContent()), "painel de avisos do pedido");
+  await notif.locator('button:has-text("Editar texto")').first().click();
+  ok(/Ana/.test(await notif.textContent()), "prévia preenche as variáveis");
+  await pg.screenshot({ path: OUT + "/wa-3-avisos.png", fullPage: true });
+  console.log(errs.length ? "erros: " + errs.join(" | ") : "sem erros");
+  await b.close();
+})();
