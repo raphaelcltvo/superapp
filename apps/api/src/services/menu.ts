@@ -1,4 +1,4 @@
-import { favoriteOrder, detectProfile, pickBanner, walletBalance, hasVariablePrice, minPrice, type Customer, type Order, type ProfileKey, type Store, type Weekday } from "@cw/core";
+import { availableAt, favoriteOrder, detectProfile, pickBanner, walletBalance, hasVariablePrice, minPrice, type Customer, type Order, type ProfileKey, type Store, type Weekday } from "@cw/core";
 import type { Ctx } from "./ctx";
 import type { Snapshot } from "./catalog";
 import { customerContext, ledgerOf } from "./customers";
@@ -94,7 +94,7 @@ export async function resolveMenu(ctx: Ctx, snap: Snapshot, v: VisitorInput) {
     banners,
     mostOrdered: snap.merch.mostOrdered.enabled ? { title: snap.merch.mostOrdered.title, itemIds: mostIds.filter((id) => items.some((i) => i.id === id)) } : null,
     categories: cats.map((c) => ({ id: c.id, name: c.name, description: c.description, pricingLocked: !!c.pricingLocked, itemIds: items.filter((i) => i.categoryId === c.id).sort((a, b) => a.position - b.position).map((i) => i.id) })).filter((c) => c.itemIds.length),
-    items: Object.fromEntries(items.map((i) => [i.id, { ...i, fromPrice: hasVariablePrice(i, i.groupIds.map((g) => G[g]).filter(Boolean)), minPrice: minPrice(i, i.groupIds.map((g) => G[g]).filter(Boolean)) }])),
+    items: Object.fromEntries(items.map((i) => [i.id, { ...i, soon: [i.availability, snap.categories.find((c) => c.id === i.categoryId)?.availability].map((a) => availableAt(a, now, snap.tenant.settings.timezone)).find((r) => !r.ok)?.label, fromPrice: hasVariablePrice(i, i.groupIds.map((g) => G[g]).filter(Boolean)), minPrice: minPrice(i, i.groupIds.map((g) => G[g]).filter(Boolean)) }])),
     groups: Object.fromEntries([...usedGroups].filter((g) => G[g]).map((g) => [g, { ...G[g], options: G[g].options.filter((o) => o.active) }])),
     crossSell: snap.merch.crossSell.filter((r) => r.active),
     strategies: clientStrategies,

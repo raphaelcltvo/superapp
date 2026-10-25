@@ -398,7 +398,7 @@ const slug = (s: string) => norm(s).replace(/&/g, "e").replace(/[^a-z0-9]+/g, "-
 /** Gera categorias, grupos e itens de exemplo do modelo, prontos para gravar no rascunho. */
 export function applyTemplate(t: CuisineTemplate, opts: { withSamples?: boolean; prefix?: string } = {}) {
   const pre = opts.prefix || t.id;
-  const categories: Category[] = t.categories.map((c, i) => ({ id: `cat_${pre}_${slug(c.name)}`, name: c.name, slug: slug(c.name), position: i, visible: true, ...(c.locked ? { pricingLocked: true } : {}), ...(c.description ? { description: c.description } : {}) }));
+  const categories: Category[] = t.categories.map((c, i) => ({ id: `cat_${pre}_${slug(c.name)}`, name: c.name, slug: slug(c.name), position: i, visible: true, ...(c.locked ? { pricingLocked: true } : {}), ...(c.description ? { description: c.description } : {}), ...(c.availability ? { availability: c.availability } : {}) }));
   const groups: OptionGroup[] = t.groups.map((gr) => ({
     id: `grp_${pre}_${gr.key}`, name: gr.name, min: gr.min, max: gr.max, rule: gr.rule || "sum", allowRepeat: !!gr.allowRepeat, role: gr.role,
     ...(gr.freeQuota ? { freeQuota: gr.freeQuota } : {}),

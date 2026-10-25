@@ -116,5 +116,5 @@ export async function publishedSnapshot(ctx: Ctx): Promise<Snapshot | null> {
   return v.snapshot;
 }
 export function catalogOf(s: Snapshot) {
-  return { items: Object.fromEntries(s.items.map((i) => [i.id, i])), groups: Object.fromEntries(s.groups.map((g) => [g.id, g])) };
+  return { items: Object.fromEntries(s.items.map((i) => [i.id, i])), groups: Object.fromEntries(s.groups.map((g) => [g.id, g])), categories: Object.fromEntries(s.categories.map((c) => [c.id, c])) };
 }

@@ -38,7 +38,7 @@ export const schemas = {
     status: z.enum(["draft", "live", "paused"]),
     pausedReason: z.string().optional(),
   }),
-  categories: z.object({ name: z.string().min(1), slug: z.string().min(1), position: z.number().int(), visible: z.boolean(), description: z.string().optional(), pricingLocked: z.boolean().optional() }),
+  categories: z.object({ name: z.string().min(1), slug: z.string().min(1), position: z.number().int(), visible: z.boolean(), description: z.string().optional(), pricingLocked: z.boolean().optional(), availability: availability.optional() }),
   option_groups: z.object({
     name: z.string().min(1), min: z.number().int().min(0), max: z.number().int().min(1), rule: z.enum(["sum", "fraction"]), allowRepeat: z.boolean(), liters: z.number().optional(), freeQuota: z.number().int().min(0).max(50).optional(), role: groupRole.optional(),
     options: z.array(z.object({ id, name: z.string().min(1), description: z.string().optional(), price: money, fullPrice: money.optional(), imageUrl: z.string().optional(), integrationCode: z.string().optional(), active: z.boolean(), popular: z.boolean().optional(), tags: z.array(z.string()).optional(), measure: measure.optional() })),

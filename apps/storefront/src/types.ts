@@ -1,7 +1,7 @@
 import type { OnlineCfg } from "./payments";
 import type { Banner, CartLineInput, CrossSellRule, Item, OptionGroup, Page, PaymentCode, Strategy, Tenant } from "@cw/core";
 
-export type MenuItem = Item & { fromPrice: boolean; minPrice?: number };
+export type MenuItem = Item & { fromPrice: boolean; minPrice?: number; /** fora da janela de venda: "volta sábado", "a partir das 11:00" */ soon?: string };
 /** Preço exibido no card: o menor preço possível do item. */
 export const shownPrice = (it: { price: number; minPrice?: number }) => it.minPrice ?? it.price;
 export type MenuStrategy = Strategy & { coupon?: { id?: string; name?: string; code?: string; type?: string; value?: number; maxDiscount?: number; minSubtotal?: number } };

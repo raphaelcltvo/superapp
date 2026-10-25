@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { fractionBase, fractionLabel, type Item, type Option, type OptionGroup } from "@cw/core";
+import { fractionBase, fractionLabel, type GroupRole, type Item, type Option, type OptionGroup } from "@cw/core";
 import { BRL, Btn, ConfirmBtn, Drawer, Field, Num, Pill, Select, Text, Toggle, errMsg, useAction, useAdmin, useLoad } from "../ui";
 
 export function GroupsPage() {
@@ -17,6 +17,8 @@ export function GroupsPage() {
       const noPdv = g.options.filter((o) => o.active && !o.integrationCode).length;
       return <div key={g.id} className="li click" onClick={() => setEdit(g)} role="button" tabIndex={0}>
         <div className="grow"><b>{g.name}</b><span className="small muted">{g.options.length} opções · {g.min === g.max ? `escolhe ${g.min}` : `${g.min} a ${g.max}`} · usado em {used.length} {used.length === 1 ? "item" : "itens"}</span></div>
+        {g.role && <Pill>{ROLES.find((r) => r.value === g.role)?.label}</Pill>}
+        {g.freeQuota ? <Pill tone="good">{g.freeQuota} grátis</Pill> : null}
         {g.rule === "fraction" && <Pill tone="accent">meio a meio · base {BRL(fractionBase(g))}</Pill>}
         {noPdv > 0 && <Pill tone="warn">{noPdv} sem PDV</Pill>}
         <span className="muted">›</span>
@@ -40,6 +42,10 @@ function GroupEditor(p: { g: Partial<OptionGroup>; onClose: () => void; onSaved:
       <Field label="Mínimo"><Num id="g-min" value={g.min} onChange={(v) => setG({ ...g, min: v ?? 0 })} /></Field>
       <Field label="Máximo"><Num id="g-max" value={g.max} onChange={(v) => setG({ ...g, max: v ?? 1 })} /></Field>
       <Field label="Regra de preço"><Select id="g-rule" value={(g.rule || "sum") as "sum" | "fraction"} onChange={(v) => setG({ ...g, rule: v, allowRepeat: v === "fraction" ? true : g.allowRepeat })} options={[{ value: "sum", label: "Soma o acréscimo" }, { value: "fraction", label: "Meio a meio (diferença proporcional)" }]} /></Field>
+    </div>
+    <div className="grid2">
+      <Field label="Papel no item" hint="Organiza a tela de montar e os relatórios"><Select id="g-role" value={(g.role || "") as GroupRole | ""} onChange={(v) => setG({ ...g, role: (v || undefined) as GroupRole | undefined })} options={[{ value: "", label: "—" }, ...ROLES]} /></Field>
+      {!fraction && <Field label="Unidades grátis" hint={g.freeQuota ? `As ${g.freeQuota} escolhas mais caras saem de graça; o resto cobra o acréscimo` : "Açaí, poke, marmita: “3 complementos grátis”"}><Num id="g-quota" value={g.freeQuota} onChange={(v) => setG({ ...g, freeQuota: v || undefined })} /></Field>}
     </div>
     <div className="row"><Toggle checked={!!g.allowRepeat} onChange={(v) => setG({ ...g, allowRepeat: v })} label="Pode repetir a mesma opção (2× = inteira)" /><Field label="Litros por unidade (preço por litro)"><Num value={g.liters} onChange={(v) => setG({ ...g, liters: v })} /></Field></div>
     {fraction && opts.length > 0 && <p className="sentence">Preço base do grupo: <b>{BRL(fractionBase(g as OptionGroup))}</b>. Uma metade cobra (inteira − base) ÷ {g.max || 2}. Em combos e ofertas a regra é ignorada.</p>}
@@ -66,3 +72,9 @@ function GroupEditor(p: { g: Partial<OptionGroup>; onClose: () => void; onSaved:
     <div><Btn onClick={() => setG({ ...g, options: [...opts, { id: "o" + Date.now().toString(36), name: "", price: 0, fullPrice: fraction ? 0 : undefined, active: true }] })}>Adicionar opção</Btn></div>
   </Drawer>;
 }
+
+const ROLES: { value: GroupRole; label: string }[] = [
+  { value: "size", label: "Tamanho" }, { value: "base", label: "Base, massa ou borda" }, { value: "flavor", label: "Sabor" }, { value: "protein", label: "Proteína" },
+  { value: "addon", label: "Adicional" }, { value: "side", label: "Acompanhamento" }, { value: "sauce", label: "Molho" }, { value: "instruction", label: "Instrução (ponto, talheres)" },
+  { value: "drink", label: "Bebida" }, { value: "dessert", label: "Sobremesa" },
+];

@@ -29,7 +29,7 @@ export async function quoteFor(ctx: Ctx, input: Omit<CheckoutInput, "payment"> &
   // usos atuais do cupom ficam no rascunho (contador vivo)
   const liveCoupon = coupon ? ((await ctx.deps.db.get<Coupon & { id: string }>("coupons", ctx.tenantId, coupon.id)) || coupon) : undefined;
   const cctx = await customerContext(ctx, customer, coupon?.id);
-  const q = quote({ now: ctx.deps.now(), lines: input.lines, catalog: catalogOf(snap), mode: input.mode, zone, strategies: snap.strategies, coupon: liveCoupon, customer: cctx, loyalty: snap.loyalty, useCashback: input.useCashback, source: input.source });
+  const q = quote({ now: ctx.deps.now(), lines: input.lines, catalog: catalogOf(snap), mode: input.mode, zone, strategies: snap.strategies, coupon: liveCoupon, customer: cctx, loyalty: snap.loyalty, useCashback: input.useCashback, source: input.source, scheduledFor: input.scheduledFor, tz: snap.tenant.settings.timezone });
   return { q, snap, store, zone, coupon: liveCoupon };
 }
 
@@ -46,6 +46,7 @@ export async function placeOrder(ctx: Ctx, input: CheckoutInput, customerFromTok
   const { q, store, zone } = await quoteFor(ctx, input, customer);
   if (q.issues.length) throw new HttpError(422, "Revise os itens", q.issues);
   if (input.mode === "DELIVERY" && !input.address) throw new HttpError(422, "Informe o endereço de entrega");
+  if (input.scheduledFor && (isNaN(+new Date(input.scheduledFor)) || +new Date(input.scheduledFor) < +now - 10 * 60e3)) throw new HttpError(422, "Horário agendado inválido ou já passou");
   if (input.mode === "DELIVERY" && q.outOfArea) throw new HttpError(422, "Endereço fora da área de entrega");
   if (input.couponCode && q.coupon && !q.coupon.ok) throw new HttpError(422, q.coupon.reason || "Cupom inválido");
   const pay = await activePayments(ctx);

@@ -11,6 +11,7 @@ import { opsRoutes } from "./admin-ops";
 import { paymentsAdminRoutes } from "./admin-payments";
 import { messagingAdminRoutes } from "./admin-messaging";
 import { engageAdminRoutes } from "./engage";
+import { setupRoutes } from "./setup";
 
 const CRUD = Object.keys(schemas) as CrudTable[];
 const slugTables = new Set(["categories", "stores"]);
@@ -129,6 +130,7 @@ export function adminRoutes() {
   r.route("/crm", crmRoutes());
   r.route("/messaging", messagingAdminRoutes());
   r.route("/engagement", engageAdminRoutes());
+  r.route("/setup", setupRoutes());
   r.route("/", opsRoutes());
   r.route("/", paymentsAdminRoutes());
 

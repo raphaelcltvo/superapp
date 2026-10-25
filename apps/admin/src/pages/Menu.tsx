@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { suggestBasePrice, type Category, type Item, type ItemKind, type OptionGroup, type Preset } from "@cw/core";
+import { DIET_TAGS, availabilityLabel, leadTimeLabel, measureLabel, pricePerMeasure, suggestBasePrice, tagLabel, type Category, type Item, type ItemKind, type Measure, type OptionGroup, type Preset, type Weekday } from "@cw/core";
 import { BRL, Btn, Chips, ConfirmBtn, Drawer, Empty, Field, MediaInput, Num, Pill, Select, Text, Toggle, useAction, useAdmin, useLoad } from "../ui";
 
 const KIND: Record<ItemKind, { label: string; hint: string }> = {
@@ -43,9 +43,12 @@ export function MenuPage() {
         return <div key={it.id} className="li click" onClick={() => setEditItem(it)} role="button" tabIndex={0}>
           {img ? <img className="thumb" src={img} alt="" /> : <span className="thumb" />}
           <div className="grow"><b>{it.name}</b><span className="small muted">{KIND[it.kind].label} · {gs.map((g) => g.name).join(", ") || "sem complementos"}{it.integrationCode && <> · PDV <span className="mono">{it.integrationCode}</span></>}</span></div>
+          {it.leadTimeHours ? <Pill tone="accent">encomenda {it.leadTimeHours} h</Pill> : null}
+          {it.availability && <Pill>{availabilityLabel(it.availability)}</Pill>}
+          {(it.tags || []).filter((t) => DIET_TAGS.some((d) => d.id === t)).slice(0, 2).map((t) => <Pill key={t} tone="good">{tagLabel(t)}</Pill>)}
           {wrong && <Pill tone="bad">preço base errado</Pill>}
           {!it.active && <Pill>desativado</Pill>}{it.active && !it.available && <Pill tone="warn">esgotado</Pill>}
-          <span className="num" style={{ fontWeight: 650 }}>{it.kind === "buildable" ? "a partir de " : ""}{BRL(it.price)}</span>
+          <span className="num" style={{ fontWeight: 650, textAlign: "right" }}>{it.kind === "buildable" ? "a partir de " : ""}{BRL(it.price)}{it.measure && <span className="small muted" style={{ display: "block", fontWeight: 400 }}>{measureLabel(it.measure)}{pricePerMeasure(it.price, it.measure) ? ` · ${pricePerMeasure(it.price, it.measure)}` : ""}</span>}</span>
           <span className="row" onClick={(e) => e.stopPropagation()}><Btn sm kind="ghost" onClick={() => move(arr, ii, -1, "/admin/items/reorder")} title="Subir">↑</Btn><Btn sm kind="ghost" onClick={() => move(arr, ii, 1, "/admin/items/reorder")} title="Descer">↓</Btn></span>
         </div>;
       })}</div> : <Empty title="Nenhum item nesta categoria" />}
@@ -91,9 +94,9 @@ function ItemEditor(p: { item: Partial<Item>; cats: Category[]; groups: OptionGr
       </Field>
       <Field label="Preço “de” (riscado)" hint="Opcional: mostra a economia"><Num id="it-compare" value={it.compareAt} onChange={(v) => set({ compareAt: v })} /></Field>
       <Field label="Código PDV (SAIPOS)"><Text id="it-pdv" mono value={it.integrationCode} onChange={(v) => set({ integrationCode: v })} /></Field>
-      <Field label="Serve"><Text id="it-serves" value={it.serves} placeholder="serve 3" onChange={(v) => set({ serves: v })} /></Field>
     </div>
     <div className="row"><Toggle checked={it.active !== false} onChange={(v) => set({ active: v })} label="Ativo" /><Toggle checked={it.available !== false} onChange={(v) => set({ available: v })} label="Disponível (desligue para esgotar)" /><Toggle checked={!!it.isDrink} onChange={(v) => set({ isDrink: v })} label="É bebida" /></div>
+    <SaleRules it={it} set={set} />
     <section className="panel">
       <header><h3>Complementos</h3><p>A ordem aqui é a ordem no item</p></header>
       <Chips value={it.groupIds || []} onChange={(v) => set({ groupIds: v })} options={p.groups.map((g) => ({ value: g.id, label: `${g.name} · ${g.rule === "fraction" ? "meio a meio" : `${g.min}–${g.max}`}` }))} />
@@ -121,5 +124,32 @@ function Presets(p: { presets: Preset[]; groups: OptionGroup[]; onChange: (v: Pr
       <div><Btn sm kind="danger" onClick={() => p.onChange(p.presets.filter((_, j) => j !== i))}>Remover combinação</Btn></div>
     </div>)}
     <div><Btn sm onClick={() => p.onChange([...p.presets, { id: "p" + Date.now(), label: "#1 · mais pedido", title: "", selection: {} }])}>Adicionar combinação</Btn></div>
+  </section>;
+}
+
+const UNITS: { value: Measure["unit"]; label: string }[] = [{ value: "g", label: "gramas" }, { value: "kg", label: "kg" }, { value: "ml", label: "ml" }, { value: "l", label: "litros" }, { value: "un", label: "unidades" }];
+const WDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+/** Particularidades de venda que valem para qualquer culinária: medida, encomenda, janela de venda e selos. */
+function SaleRules(p: { it: Partial<Item>; set: (k: Partial<Item>) => void }) {
+  const { it, set } = p;
+  const av = it.availability || {};
+  const setAv = (x: Partial<NonNullable<Item["availability"]>>) => { const n = { ...av, ...x }; const empty = !n.weekdays?.length && !n.from && !n.to; set({ availability: empty ? undefined : n }); };
+  const per = pricePerMeasure(it.price || 0, it.measure);
+  return <section className="panel">
+    <header><h3>Como é vendido</h3><p>Medida, encomenda, dias de venda e selos. Use o que fizer sentido para o item.</p></header>
+    <div className="grid3">
+      <Field label="Quantidade vendida" hint={per ? `Cliente vê ${per}` : "Ex.: 500 g, 350 ml, 12 un"}>
+        <div className="row" style={{ flexWrap: "nowrap" }}><Num id="it-measure" value={it.measure?.amount} onChange={(v) => set({ measure: v ? { unit: it.measure?.unit || "g", amount: v } : undefined })} /><Select value={it.measure?.unit || "g"} onChange={(u) => set({ measure: it.measure ? { ...it.measure, unit: u } : undefined })} options={UNITS} /></div>
+      </Field>
+      <Field label="Encomenda: antecedência (horas)" hint={it.leadTimeHours ? leadTimeLabel(it.leadTimeHours) : "Vazio = sai na hora"}><Num id="it-lead" value={it.leadTimeHours} onChange={(v) => set({ leadTimeHours: v || undefined })} /></Field>
+      <Field label="Serve" hint="Usado na triagem “pra quantas pessoas?”"><Text value={it.serves} placeholder="serve 2" onChange={(v) => set({ serves: v || undefined })} /></Field>
+    </div>
+    <Field label="Dias de venda" hint={av.weekdays?.length ? "Fora desses dias aparece como “volta …”" : "Todos os dias"}><Chips value={(av.weekdays || []) as Weekday[]} onChange={(v) => setAv({ weekdays: v.length ? (v as Weekday[]).sort() : undefined })} options={WDAYS.map((l, i) => ({ value: i as Weekday, label: l }))} /></Field>
+    <div className="grid2">
+      <Field label="Vende a partir de" hint="hh:mm"><Text id="it-from" value={av.from} placeholder="11:00" onChange={(v) => setAv({ from: /^\d{2}:\d{2}$/.test(v) ? v : v ? av.from : undefined })} /></Field>
+      <Field label="Vende até" hint="hh:mm"><Text id="it-to" value={av.to} placeholder="15:00" onChange={(v) => setAv({ to: /^\d{2}:\d{2}$/.test(v) ? v : v ? av.to : undefined })} /></Field>
+    </div>
+    <Field label="Selos" hint="Viram filtros no cardápio"><Chips value={(it.tags || []).filter((t) => DIET_TAGS.some((d) => d.id === t))} onChange={(v) => set({ tags: [...(it.tags || []).filter((t) => !DIET_TAGS.some((d) => d.id === t)), ...v] })} options={DIET_TAGS.map((d) => ({ value: d.id, label: d.label }))} /></Field>
   </section>;
 }

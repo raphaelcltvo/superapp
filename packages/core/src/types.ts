@@ -76,6 +76,8 @@ export interface Category {
   description?: string;
   /** combos e ofertas têm preço fechado: a regra de meio a meio nunca se aplica. */
   pricingLocked?: boolean;
+  /** janela de venda da categoria inteira (café da manhã até 11h, almoço) */
+  availability?: Availability;
 }
 
 /* ---------------- culinária ---------------- */

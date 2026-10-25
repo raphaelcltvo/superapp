@@ -2,9 +2,10 @@ import { priceLine, r2, validateSelection, type ValidationIssue } from "./pricin
 import { evaluateCoupon, type CouponResult } from "./offers";
 import { applyStrategies, type FeeOutcome } from "./strategies";
 import { cashbackEarn, cashbackRedeemable } from "./loyalty";
-import type { CartLineInput, Coupon, DeliveryZone, Item, LoyaltyProgram, OptionGroup, PricedLine, Strategy } from "./types";
+import { availableAt } from "./cuisines";
+import type { CartLineInput, Category, Coupon, DeliveryZone, Item, LoyaltyProgram, OptionGroup, PricedLine, Strategy } from "./types";
 
-export interface Catalog { items: Record<string, Item>; groups: Record<string, OptionGroup> }
+export interface Catalog { items: Record<string, Item>; groups: Record<string, OptionGroup>; categories?: Record<string, Category> }
 
 export interface QuoteInput {
   now: Date;
@@ -18,6 +19,9 @@ export interface QuoteInput {
   loyalty?: LoyaltyProgram;
   useCashback?: boolean;
   source?: string;
+  /** pedido agendado (ISO): janela de venda e encomenda são conferidas nessa data */
+  scheduledFor?: string;
+  tz?: string;
 }
 
 export interface Quote {
@@ -46,6 +50,14 @@ export function quote(q: QuoteInput): Quote {
     const item = q.catalog.items[l.itemId];
     if (!item || !item.active || !item.available) { issues.push({ line: i, issues: [{ groupId: "", need: 0, message: "Item indisponível" }] }); return; }
     const groups = item.groupIds.map((g) => q.catalog.groups[g]).filter(Boolean);
+    const when = q.scheduledFor ? new Date(q.scheduledFor) : q.now;
+    const win = [item.availability, q.catalog.categories?.[item.categoryId]?.availability].map((a) => availableAt(a, when, q.tz)).find((r) => !r.ok);
+    if (win) { issues.push({ line: i, issues: [{ groupId: "", need: 0, message: `${item.name}: ${win.label}` }] }); return; }
+    if (item.leadTimeHours && +when < +q.now + item.leadTimeHours * 3600e3 - 60e3) {
+      const first = new Date(+q.now + item.leadTimeHours * 3600e3);
+      issues.push({ line: i, issues: [{ groupId: "", need: 0, message: `${item.name} é encomenda: agende para ${first.toLocaleString("pt-BR", { timeZone: q.tz || "America/Sao_Paulo", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })} ou depois` }] });
+      return;
+    }
     const v = validateSelection(item, groups, l.selection);
     if (v.length) issues.push({ line: i, issues: v });
     lines.push(priceLine(item, groups, l));

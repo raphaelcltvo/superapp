@@ -1,9 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { ApiError, createClient, type Transport } from "@cw/client";
 import { CardError, detectBrand, fmtCardNumber, fmtCpf, fmtExpiry, tokenizeCard, validateCard, validCpf, type CardFields } from "./payments";
-import { effectiveRule, fractionLabel, groupCount, pickPopup, priceLine, validateSelection, type Banner, type CartLineInput, type OptionGroup, type Page, type PageBlock, type PaymentCode, type PricedLine, type StrategyContext } from "@cw/core";
+import { DIET_TAGS, effectiveRule, freeUnits, fractionLabel, groupCount, leadTimeLabel, measureLabel, pickPopup, pricePerMeasure, tagLabel, priceLine, validateSelection, type Banner, type CartLineInput, type OptionGroup, type Page, type PageBlock, type PaymentCode, type PricedLine, type StrategyContext } from "@cw/core";
 import { Bottle, BannerView, ItemArt, PageView, PizzaPhoto, brl, nextOpening, optionPhotos } from "./parts";
 import type { CartLine, Menu, MenuItem, MenuStrategy, QuoteResp } from "./types";
+
+const isDiet = (t: string) => DIET_TAGS.some((d) => d.id === t);
+/** "500 g · R$ 139,80/kg" */
+const measureTxt = (it: { price: number; minPrice?: number; measure?: MenuItem["measure"] }) => it.measure ? [measureLabel(it.measure), pricePerMeasure(shownPrice(it), it.measure)].filter(Boolean).join(" · ") : "";
+/** datetime-local no fuso do navegador, arredondado para a próxima meia hora */
+function localInput(d: Date) { const x = new Date(Math.ceil(+d / 1800e3) * 1800e3); const z = (n: number) => String(n).padStart(2, "0"); return `${x.getFullYear()}-${z(x.getMonth() + 1)}-${z(x.getDate())}T${z(x.getHours())}:${z(x.getMinutes())}`; }
 import { shownPrice } from "./types";
 import "./storefront.css";
 import { FirstVisitSheet, OnlineAuth, ONLINE_AUTH_INIT, onlineAuthReady, onlineToken, type FvResult, type OnlineAuthState } from "./firstvisit";
@@ -91,6 +97,8 @@ export function Storefront(props: StorefrontProps) {
   const [order, setOrder] = useState<TrackOrder | null>(null);
   const [helpShown, setHelpShown] = useState(false);
   const [activeCat, setActiveCat] = useState<string>("");
+  const [diet, setDiet] = useState<string | null>(null);
+  const [when, setWhen] = useState("");
   const [exitVia, setExitVia] = useState<string | null>(null);
   const [triageOpen, setTriageOpen] = useState(false);
   const [fvOpen, setFvOpen] = useState(false);
@@ -172,13 +180,13 @@ export function Storefront(props: StorefrontProps) {
   useEffect(() => {
     if (!menu?.store || !cart.length) { setQuote(null); return; }
     const t = setTimeout(() => {
-      const body = { storeId: menu.store!.id, mode, source: props.source, lines: cart.map(({ itemId, qty, selection, notes }) => ({ itemId, qty, selection, notes })), couponCode: couponCode || undefined, useCashback, address: mode === "DELIVERY" ? addressForQuote : undefined };
+      const body = { storeId: menu.store!.id, mode, source: props.source, lines: cart.map(({ itemId, qty, selection, notes }) => ({ itemId, qty, selection, notes })), couponCode: couponCode || undefined, useCashback, address: mode === "DELIVERY" ? addressForQuote : undefined, scheduledFor: when ? new Date(when).toISOString() : undefined };
       api.post<QuoteResp>(`${base}/quote${q}`, body).then((r) => setQuote(r)).catch((e) => {
         if (e instanceof ApiError && couponCode && /cupom/i.test(e.message)) { track("coupon_error", { code: couponCode, reason: e.message }); showToast(e.message); setCouponCode(""); ss.set(`cw:coupon:${slug}`, ""); }
       });
     }, 250);
     return () => clearTimeout(t);
-  }, [cart, mode, couponCode, useCashback, geo, menu, token]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [cart, mode, couponCode, useCashback, geo, menu, token, when]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (quote?.coupon && !quote.coupon.ok && couponCode) track("coupon_error", { code: couponCode, reason: quote.coupon.reason }); }, [quote?.coupon?.ok, couponCode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ---------------- pop-up de cupom por comportamento ---------------- */
@@ -359,17 +367,17 @@ export function Storefront(props: StorefrontProps) {
     const simple = !it.groupIds.length; const n = cardsInCart(id);
     const line = simple ? cart.find((l) => l.itemId === id && !Object.keys(l.selection).length) : undefined;
     return (
-      <div className="card" key={id} data-id={id}>
+      <div className={`card${it.soon ? " soon" : ""}`} key={id} data-id={id}>
         <button className="tap info" onClick={() => openItem(id)} aria-label={`Abrir ${it.name}`}>
           <span className="nm">{it.name}{(it as { avoidHit?: string }).avoidHit && <span className="chip-avoid">tem {(it as { avoidHit?: string }).avoidHit!.toLowerCase()}</span>}</span>
           {it.description && <span className="ds">{it.description}</span>}
-          <span className="pr">{it.fromPrice ? "a partir de " : ""}{brl(shownPrice(it))}{it.compareAt ? <s>{brl(it.compareAt)}</s> : null}</span>
-          {(it.likes || it.serves || it.tags?.length) && <span className="proof">{it.likes && <>👍 {it.likes.pct}% ({it.likes.n})</>}{it.tags?.slice(0, 1).map((t) => <span key={t} className="badge1">{t}</span>)}{it.serves && <span>· {it.serves}</span>}</span>}
+          <span className="pr">{it.fromPrice ? "a partir de " : ""}{brl(shownPrice(it))}{it.compareAt ? <s>{brl(it.compareAt)}</s> : null}{it.measure && <small className="per">{measureTxt(it)}</small>}</span>
+          {(it.likes || it.serves || it.tags?.some(isDiet) || it.leadTimeHours || it.soon) && <span className="proof">{it.soon && <span className="badge-soon">{it.soon}</span>}{it.leadTimeHours ? <span className="badge-lead">Encomenda {it.leadTimeHours % 24 === 0 ? `${it.leadTimeHours / 24}d` : `${it.leadTimeHours}h`}</span> : null}{it.likes && <>👍 {it.likes.pct}% ({it.likes.n})</>}{it.tags?.filter(isDiet).slice(0, 2).map((t) => <span key={t} className="badge1">{tagLabel(t)}</span>)}{it.serves && <span>· {it.serves}</span>}</span>}
         </button>
         <div className="thumb">
           <ItemArt item={it} photos={photos} />
           <span className={`qtyb${n ? " show" : ""}`} aria-hidden="true">{n}</span>
-          {simple && (line ? (
+          {simple && !it.soon && (line ? (
             <span className="qadd exp" role="group" aria-label={`Quantidade de ${it.name}`}>
               <button onClick={() => setQty(line.key, line.qty - 1)} aria-label="Diminuir">−</button><b>{line.qty}</b><button onClick={(e) => { setQty(line.key, line.qty + 1); fly(e.currentTarget); lastAddAt.current = Date.now(); track("add_to_cart", { itemId: id, qty: 1 }); }} aria-label="Aumentar">+</button>
             </span>
@@ -454,12 +462,18 @@ export function Storefront(props: StorefrontProps) {
             </div>
           </div>
         )}
-        {menu.categories.map((c) => (
+        {(() => {
+          const present = DIET_TAGS.filter((d) => Object.values(menu.items).filter((i) => i.tags?.includes(d.id)).length >= 2);
+          return present.length > 0 && <div className="diet-row" role="group" aria-label="Filtrar por selo">{present.map((d) => <button key={d.id} className={`dchip${diet === d.id ? " on" : ""}`} aria-pressed={diet === d.id} onClick={() => { setDiet(diet === d.id ? null : d.id); track("diet_filter", { tag: d.id }); }}>{d.label}</button>)}</div>;
+        })()}
+        {menu.categories.map((c) => {
+          const ids = diet ? c.itemIds.filter((id) => menu.items[id]?.tags?.includes(diet)) : c.itemIds;
+          return ids.length > 0 && (
           <section key={c.id} className="sec" id={`cat-${c.id}`} aria-labelledby={`h-${c.id}`}>
             <h2 id={`h-${c.id}`}>{c.name}</h2>{c.description && <div className="sec-sub">{c.description}</div>}
-            {c.itemIds.map(card)}
-          </section>
-        ))}
+            {ids.map(card)}
+          </section>);
+        })}
         <div className="footer-note"><span>{menu.tenant.settings.legalName || menu.tenant.name}{menu.tenant.settings.cnpj ? ` · CNPJ ${menu.tenant.settings.cnpj}` : ""}</span>{store?.phone && <span>Atendimento: +{store.phone}</span>}</div>
         {count > 0 && (
           <button ref={bagbarRef} key={bump} className={`bagbar show${bump ? " bump" : ""}${bagGlow || nudge.on ? " fx-glow" : ""}`} onClick={() => go("bag")}>
@@ -536,6 +550,16 @@ export function Storefront(props: StorefrontProps) {
             <div className="blk"><h4>Retirada</h4><p className="muted">{store.address.street}, {store.address.number} · {store.address.district}</p></div>
           )}
 
+          {(() => {
+            const lead = Math.max(0, ...cart.map((l) => menu.items[l.itemId]?.leadTimeHours || 0));
+            if (!lead) return null;
+            const min = localInput(new Date(Date.now() + lead * 3600e3));
+            return <div className="blk sched"><h4>Quando entregar</h4>
+              <p className="muted">Sua sacola tem encomenda: {leadTimeLabel(lead)}.</p>
+              <div className="field"><label htmlFor="cw-when">Data e horário</label><input id="cw-when" type="datetime-local" min={min} step={1800} value={when} onChange={(e) => setWhen(e.target.value)} /></div>
+              {!when && <button className="link" onClick={() => setWhen(min)}>Primeiro horário disponível</button>}
+            </div>;
+          })()}
           <div className="blk"><h4>Pagamento</h4>
             {store.payments.map((p) => (
               <button key={p.code} className={`payopt${pay === p.code ? " on" : ""}`} role="radio" aria-checked={pay === p.code} onClick={() => { setPay(p.code); touch(); }}>
@@ -608,12 +632,13 @@ export function Storefront(props: StorefrontProps) {
             {(() => {
               const needAddr = mode === "DELIVERY" && !(geo?.ok && addr.street && addr.number);
               const needId = !(me && token);
+              const needWhen = cart.some((l) => menu.items[l.itemId]?.leadTimeHours) && !when;
               const op = menu.onlinePayments;
               const needDoc = !!op?.requiresDocument && (pay === "CARD_ONLINE" || (pay === "PIX_ONLINE" && op.gateway !== "mercadopago")) && !validCpf(cpf);
               const cardErr = pay === "CARD_ONLINE" ? validateCard(cc) : null;
               const needAuth = (pay === "CARD_ONLINE" || pay === "PIX_ONLINE") && !!op?.requirePassword && !needId && !onlineAuthReady(oa);
-              const label = closed ? "Loja fechada agora" : needAddr ? "Informe o endereço" : needId ? "Confirme seu telefone" : !pay ? "Escolha o pagamento" : cardErr ? "Preencha o cartão" : needDoc ? "Informe o CPF" : needAuth ? (oa.status === "new" ? "Confirme CPF, nascimento e senha" : "Digite sua senha") : placing ? (pay === "CARD_ONLINE" ? "Processando pagamento…" : "Enviando…") : pay === "CARD_ONLINE" ? "Pagar e fazer pedido" : "Fazer pedido";
-              const blocked = closed || needAddr || needId || !pay || !!cardErr || needDoc || needAuth || placing || !quote;
+              const label = closed ? "Loja fechada agora" : needWhen ? "Escolha a data da encomenda" : needAddr ? "Informe o endereço" : needId ? "Confirme seu telefone" : !pay ? "Escolha o pagamento" : cardErr ? "Preencha o cartão" : needDoc ? "Informe o CPF" : needAuth ? (oa.status === "new" ? "Confirme CPF, nascimento e senha" : "Digite sua senha") : placing ? (pay === "CARD_ONLINE" ? "Processando pagamento…" : "Enviando…") : pay === "CARD_ONLINE" ? "Pagar e fazer pedido" : "Fazer pedido";
+              const blocked = closed || needWhen || needAddr || needId || !pay || !!cardErr || needDoc || needAuth || placing || !quote;
               return (
                 <button className={`cta${blocked ? " blocked" : ""}`} disabled={blocked} onClick={async () => {
                   setPlacing(true); setOrderErr(null);
@@ -636,7 +661,7 @@ export function Storefront(props: StorefrontProps) {
                       address: mode === "DELIVERY" ? { ...addr, complement: addr.complement || undefined, reference: addr.reference || undefined, lat: geo?.lat, lng: geo?.lng } : undefined,
                       payment: { code: pay!, changeFor: pay === "CASH" && changeFor ? Number(changeFor.replace(",", ".")) : undefined, ...cardPay },
                       customerDocument: (pay === "CARD_ONLINE" || pay === "PIX_ONLINE") && cpf ? cpf.replace(/\D/g, "") : undefined,
-                      couponCode: couponCode || undefined, useCashback,
+                      couponCode: couponCode || undefined, useCashback, scheduledFor: when ? new Date(when).toISOString() : undefined,
                       customer: { name: me?.name || ident.name, phone: me?.phone || ident.phone, optinWhatsapp: ident.optin || undefined },
                     };
                     const r = await api.post<{ order: TrackOrder; customerToken: string }>(`${base}/orders${q}`, body, ot ? { "x-online-token": ot } : undefined);
@@ -853,7 +878,9 @@ function ItemSheet({ menu, draft, setDraft, groups, photos, onAdd, onClose, shak
         <div className="item-hd">
           <h3>{item.name}</h3>
           {item.description && <p>{item.description}</p>}
-          <div className="proof"><b className="pbig">{item.fromPrice ? "a partir de " : ""}{brl(shownPrice(item))}</b>{item.compareAt ? <s>{brl(item.compareAt)}</s> : null}{item.likes && <span>· 👍 {item.likes.pct}% ({item.likes.n})</span>}{item.liters && <span>· {brl(item.price / item.liters)}/L</span>}</div>
+          <div className="proof"><b className="pbig">{item.fromPrice ? "a partir de " : ""}{brl(shownPrice(item))}</b>{item.compareAt ? <s>{brl(item.compareAt)}</s> : null}{item.likes && <span>· 👍 {item.likes.pct}% ({item.likes.n})</span>}{item.liters && <span>· {brl(item.price / item.liters)}/L</span>}{item.measure && <span>· {measureTxt(item)}</span>}{item.serves && <span>· {item.serves}</span>}</div>
+          {(item.soon || item.leadTimeHours) && <div className="item-note">{item.soon ? `Disponível ${item.soon}` : leadTimeLabel(item.leadTimeHours)}</div>}
+          {item.tags?.some(isDiet) && <div className="proof">{item.tags.filter(isDiet).map((t) => <span key={t} className="badge1">{tagLabel(t)}</span>)}</div>}
         </div>
         {item.presets?.length ? (
           <div className="presets"><div className="pre-h"><b>Mais pedidos aqui</b><span className="muted">1 toque e pronto</span></div>
@@ -868,7 +895,8 @@ function ItemSheet({ menu, draft, setDraft, groups, photos, onAdd, onClose, shak
         {groups.map((g) => {
           const c = groupCount(draft.sel, g.id); const done = c >= g.min; const req = g.min > 0;
           const rule = effectiveRule(item, g);
-          const ruleTxt = g.min === 2 && g.max === 2 ? "Escolha 2 metades (pode repetir para inteira)" : g.max === 1 ? "Escolha 1" : `${req ? `Escolha ${g.min === g.max ? g.min : `de ${g.min} a ${g.max}`}` : `Opcional · até ${g.max}`}`;
+          const quotaLeft = g.freeQuota ? Math.max(0, g.freeQuota - c) : 0;
+          const ruleTxt = g.freeQuota ? (quotaLeft ? `${quotaLeft} ${quotaLeft === 1 ? "grátis restante" : "grátis restantes"} · até ${g.max}` : `cota grátis usada · até ${g.max}`) : g.min === 2 && g.max === 2 ? "Escolha 2 metades (pode repetir para inteira)" : g.max === 1 ? "Escolha 1" : `${req ? `Escolha ${g.min === g.max ? g.min : `de ${g.min} a ${g.max}`}` : `Opcional · até ${g.max}`}`;
           return (
             <div className={`grp${shake === g.id ? " shake" : ""}`} key={g.id} id={`g-${g.id}`}>
               <div className={`grp-h${req && !done && draft.tried && miss?.groupId === g.id ? " need" : ""}`}>
@@ -878,7 +906,8 @@ function ItemSheet({ menu, draft, setDraft, groups, photos, onAdd, onClose, shak
               {g.options.map((o) => {
                 const v = draft.sel[g.id]?.[o.id] || 0;
                 const fl = rule === "fraction" ? fractionLabel(g, o) : null;
-                const priceTxt = fl ? (fl.half ? `+ ${brl(fl.half)} a metade · inteira ${brl(fl.full)}` : `sem acréscimo · inteira ${brl(fl.full)}`) : o.price ? `+ ${brl(o.price)}${g.liters ? ` · ${brl(o.price / g.liters)}/L` : ""}` : "";
+                const isFree = !!g.freeQuota && (quotaLeft > 0 || (freeUnits(g, draft.sel[g.id] || {})[o.id] || 0) >= v && v > 0);
+                const priceTxt = fl ? (fl.half ? `+ ${brl(fl.half)} a metade · inteira ${brl(fl.full)}` : `sem acréscimo · inteira ${brl(fl.full)}`) : isFree && o.price ? `grátis · depois + ${brl(o.price)}` : o.price ? `+ ${brl(o.price)}${g.liters ? ` · ${brl(o.price / g.liters)}/L` : ""}` : "";
                 const head = (
                   <div className="o-l">
                     {o.imageUrl ? <img className="o-th" src={o.imageUrl} alt="" loading="lazy" /> : null}
@@ -911,7 +940,7 @@ function ItemSheet({ menu, draft, setDraft, groups, photos, onAdd, onClose, shak
       </div>
       <div className="sheet-foot">
         <div className="qty"><button onClick={() => setDraft({ ...draft, qty: Math.max(1, draft.qty - 1) })} aria-label="Menos">−</button><b>{draft.qty}</b><button onClick={() => setDraft({ ...draft, qty: Math.min(50, draft.qty + 1) })} aria-label="Mais">+</button></div>
-        <button className={`cta${miss ? " blocked" : ""}${readyGlow ? " fx-glow" : ""}`} id="cta-add" onClick={(e) => {
+        <button className={`cta${miss || item.soon ? " blocked" : ""}${readyGlow && !item.soon ? " fx-glow" : ""}`} id="cta-add" disabled={!!item.soon} onClick={(e) => {
           if (miss) {
             setDraft({ ...draft, tried: true });
             const el = scrollRef.current?.querySelector<HTMLElement>(`#g-${CSS.escape(miss.groupId)}`);
@@ -920,7 +949,7 @@ function ItemSheet({ menu, draft, setDraft, groups, photos, onAdd, onClose, shak
           }
           onAdd(e.currentTarget);
         }}>
-          <span>{miss ? <><small>Para adicionar</small>{missLabel}</> : draft.editKey ? "Atualizar" : "Adicionar"}</span>
+          <span>{item.soon ? <><small>Indisponível agora</small>{item.soon}</> : miss ? <><small>Para adicionar</small>{missLabel}</> : draft.editKey ? "Atualizar" : "Adicionar"}</span>
           <span className="cta-price">{brl(priced.total)}</span>
         </button>
       </div>

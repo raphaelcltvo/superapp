@@ -353,3 +353,15 @@
 .cw-sf .pix-wait .spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: cw-spin .9s linear infinite; }
 @keyframes cw-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .cw-sf .pix-wait .spin { animation: none; } }
+
+/* particularidades por culinária: medida, selos, janela de venda, encomenda */
+.cw-sf .pr small.per { display: block; font-size: 11px; font-weight: 500; color: var(--a-muted); margin-top: 1px; }
+.cw-sf .card.soon .info, .cw-sf .card.soon .thumb { opacity: .55; }
+.cw-sf .badge-soon { background: var(--a-line, #eee); color: var(--a-ink, #222); font-weight: 650; border-radius: 6px; padding: 1px 6px; }
+.cw-sf .badge-lead { background: #FFF2D6; color: #7A4B00; font-weight: 650; border-radius: 6px; padding: 1px 6px; }
+.cw-sf .item-note { margin-top: 6px; font-size: 13px; font-weight: 600; color: #7A4B00; background: #FFF6E2; border-radius: 8px; padding: 6px 10px; display: inline-block; }
+.cw-sf .diet-row { display: flex; gap: 8px; overflow-x: auto; padding: 10px 16px 2px; scrollbar-width: none; }
+.cw-sf .diet-row::-webkit-scrollbar { display: none; }
+.cw-sf .dchip { flex: none; border: 1px solid var(--a-line, #ddd); background: transparent; color: inherit; border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; min-height: 34px; }
+.cw-sf .dchip.on { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+.cw-sf .sched input[type="datetime-local"] { width: 100%; }
