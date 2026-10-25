@@ -23,6 +23,11 @@ export interface Tenant {
     legalName?: string;
     cnpj?: string;
     priceParity?: boolean; // "mesmo preço do balcão"
+    /** culinária principal: define modelo de cardápio, regras e perguntas da triagem */
+    cuisine?: CuisineId;
+    /** outras culinárias da marca (ex.: pizzaria que vende esfiha) */
+    cuisines?: CuisineId[];
+    instagram?: string;
   };
 }
 
@@ -45,7 +50,7 @@ export interface DeliveryZone {
 }
 
 export type PaymentCode = "PIX_ONLINE" | "CARD_ONLINE" | "CARD_ON_DELIVERY" | "CREDIT_ON_DELIVERY" | "DEBIT_ON_DELIVERY" | "VR_VA" | "CASH";
-export interface PaymentMethod { code: PaymentCode; label: string; active: boolean; saiposCode: string; saiposComplement?: string; online: boolean }
+export interface PaymentMethod { code: PaymentCode; label: string; active: boolean; saiposCode: string; saiposComplement?: string; online: boolean; /** bandeiras aceitas na maquininha (Visa, Mastercard, Elo, Alelo…) */ brands?: string[] }
 
 export interface Store {
   id: ID;
@@ -73,6 +78,20 @@ export interface Category {
   pricingLocked?: boolean;
 }
 
+/* ---------------- culinária ---------------- */
+export type CuisineId =
+  | "pizza" | "hamburguer" | "japonesa" | "acai" | "confeitaria" | "churrasco" | "marmita" | "arabe"
+  | "salgados" | "poke" | "padaria" | "saudavel" | "italiana" | "mexicana" | "bar" | "generico";
+
+/** Medida para exibir preço por kg, litro ou unidade ("R$ 89,90/kg"). */
+export interface Measure { unit: "g" | "kg" | "ml" | "l" | "un"; amount: number }
+
+/** Janela em que o item (ou categoria) pode ser pedido: prato do dia, café da manhã, almoço. */
+export interface Availability { weekdays?: Weekday[]; from?: string; to?: string }
+
+/** Papel do grupo no item: ajuda a montar a tela e a ler os dados (tamanho, sabor, adicional, ponto da carne…). */
+export type GroupRole = "size" | "base" | "flavor" | "protein" | "addon" | "side" | "sauce" | "instruction" | "drink" | "dessert";
+
 /** sum = cada opção soma o seu preço; fraction = meio a meio (cada fração cobra a diferença proporcional ao sabor inteiro). */
 export type GroupRule = "sum" | "fraction";
 
@@ -89,6 +108,7 @@ export interface Option {
   active: boolean;
   popular?: boolean;
   tags?: string[];
+  measure?: Measure;
 }
 
 export interface OptionGroup {
@@ -100,6 +120,9 @@ export interface OptionGroup {
   allowRepeat: boolean;
   /** exibe preço por litro quando a opção é bebida (ex.: 1,5). */
   liters?: number;
+  /** as N unidades mais caras saem grátis; as demais cobram o preço da opção (açaí, poke, marmita) */
+  freeQuota?: number;
+  role?: GroupRole;
   options: Option[];
 }
 
@@ -130,6 +153,14 @@ export interface Item {
   likes?: { pct: number; n: number };
   isDrink?: boolean;
   liters?: number;
+  /** quantidade vendida (500 g, 1 kg, 12 un) para exibir o preço por medida */
+  measure?: Measure;
+  /** encomenda: antecedência mínima em horas (bolo, torta, kit festa). O pedido vira agendado. */
+  leadTimeHours?: number;
+  /** quando pode ser pedido (dias e horário); fora disso aparece como "disponível a partir de…" */
+  availability?: Availability;
+  /** origem da importação (iFood) para reimportar sem duplicar */
+  importedFrom?: { source: "ifood"; id: string };
 }
 
 /** groupId -> optionId -> quantidade */
@@ -137,7 +168,7 @@ export type Selection = Record<ID, Record<ID, number>>;
 
 export interface CartLineInput { itemId: ID; qty: number; selection?: Selection; notes?: string }
 
-export interface PricedChoice { groupId: ID; optionId: ID; name: string; qty: number; unitDelta: number; fraction?: string; integrationCode?: string }
+export interface PricedChoice { groupId: ID; optionId: ID; name: string; qty: number; unitDelta: number; fraction?: string; integrationCode?: string; /** unidades dentro da cota grátis do grupo */ free?: boolean }
 export interface PricedLine { itemId: ID; name: string; qty: number; unit: number; total: number; base: number; choices: PricedChoice[]; notes?: string; integrationCode?: string }
 
 /* ---------------- estratégias (regras de frete, taxas, pop-ups) ---------------- */

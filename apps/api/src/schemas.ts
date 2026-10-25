@@ -5,6 +5,9 @@ const id = z.string().min(1);
 const money = z.number().min(0).max(100000);
 const weekday = z.number().int().min(0).max(6);
 const hhmm = z.string().regex(/^\d{2}:\d{2}$/);
+const measure = z.object({ unit: z.enum(["g", "kg", "ml", "l", "un"]), amount: z.number().positive().max(100000) });
+const availability = z.object({ weekdays: z.array(weekday).optional(), from: hhmm.optional(), to: hhmm.optional() });
+const groupRole = z.enum(["size", "base", "flavor", "protein", "addon", "side", "sauce", "instruction", "drink", "dessert"]);
 
 export const linkTarget = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("item"), itemId: id }),
@@ -31,14 +34,14 @@ export const schemas = {
     hours: z.array(z.object({ weekday, open: hhmm, close: hhmm })),
     zones: z.array(z.object({ id, name: z.string(), kind: z.enum(["polygon", "radius"]), polygon: z.array(z.tuple([z.number(), z.number()])).optional(), radiusKm: z.number().optional(), color: z.string(), fee: money, etaMin: z.number().int(), etaMax: z.number().int(), active: z.boolean() })),
     modes: z.object({ delivery: z.boolean(), takeout: z.boolean() }),
-    payments: z.array(z.object({ code: z.enum(["PIX_ONLINE", "CARD_ONLINE", "CARD_ON_DELIVERY", "CREDIT_ON_DELIVERY", "DEBIT_ON_DELIVERY", "VR_VA", "CASH"]), label: z.string(), active: z.boolean(), saiposCode: z.string(), saiposComplement: z.string().optional(), online: z.boolean() })),
+    payments: z.array(z.object({ code: z.enum(["PIX_ONLINE", "CARD_ONLINE", "CARD_ON_DELIVERY", "CREDIT_ON_DELIVERY", "DEBIT_ON_DELIVERY", "VR_VA", "CASH"]), label: z.string(), active: z.boolean(), saiposCode: z.string(), saiposComplement: z.string().optional(), online: z.boolean(), brands: z.array(z.string().max(30)).max(20).optional() })),
     status: z.enum(["draft", "live", "paused"]),
     pausedReason: z.string().optional(),
   }),
   categories: z.object({ name: z.string().min(1), slug: z.string().min(1), position: z.number().int(), visible: z.boolean(), description: z.string().optional(), pricingLocked: z.boolean().optional() }),
   option_groups: z.object({
-    name: z.string().min(1), min: z.number().int().min(0), max: z.number().int().min(1), rule: z.enum(["sum", "fraction"]), allowRepeat: z.boolean(), liters: z.number().optional(),
-    options: z.array(z.object({ id, name: z.string().min(1), description: z.string().optional(), price: money, fullPrice: money.optional(), imageUrl: z.string().optional(), integrationCode: z.string().optional(), active: z.boolean(), popular: z.boolean().optional(), tags: z.array(z.string()).optional() })),
+    name: z.string().min(1), min: z.number().int().min(0), max: z.number().int().min(1), rule: z.enum(["sum", "fraction"]), allowRepeat: z.boolean(), liters: z.number().optional(), freeQuota: z.number().int().min(0).max(50).optional(), role: groupRole.optional(),
+    options: z.array(z.object({ id, name: z.string().min(1), description: z.string().optional(), price: money, fullPrice: money.optional(), imageUrl: z.string().optional(), integrationCode: z.string().optional(), active: z.boolean(), popular: z.boolean().optional(), tags: z.array(z.string()).optional(), measure: measure.optional() })),
   }).refine((g) => g.max >= g.min, "máximo menor que mínimo").refine((g) => g.rule === "sum" || g.options.every((o) => o.fullPrice != null), "no meio a meio todo sabor precisa do preço da pizza inteira"),
   items: z.object({
     categoryId: id, name: z.string().min(1), description: z.string().optional(), imageUrl: z.string().optional(), heroOptionNames: z.array(z.string()).optional(),
@@ -46,6 +49,7 @@ export const schemas = {
     presets: z.array(z.object({ id, label: z.string(), title: z.string(), selection: z.record(z.record(z.number())) })).optional(),
     integrationCode: z.string().optional(), active: z.boolean(), available: z.boolean(), tags: z.array(z.string()).optional(), serves: z.string().optional(), position: z.number().int(),
     likes: z.object({ pct: z.number(), n: z.number() }).optional(), isDrink: z.boolean().optional(), liters: z.number().optional(),
+    measure: measure.optional(), leadTimeHours: z.number().min(0).max(24 * 30).optional(), availability: availability.optional(), importedFrom: z.object({ source: z.literal("ifood"), id: z.string() }).optional(),
   }),
   strategies: z.object({
     name: z.string().min(1), description: z.string().optional(), active: z.boolean(), priority: z.number().int(),
@@ -109,7 +113,9 @@ export const merchSchema = z.object({
 export const brandSchema = z.object({
   name: z.string().min(1),
   branding: z.object({ name: z.string(), logoUrl: z.string().optional(), coverUrl: z.string().optional(), colors: z.object({ brand: z.string(), brandDeep: z.string(), brandSoft: z.string(), ink: z.string() }), fontDisplay: z.string().optional(), fontText: z.string().optional() }),
-  settings: z.object({ currency: z.literal("BRL"), timezone: z.string(), whatsapp: z.string().optional(), legalName: z.string().optional(), cnpj: z.string().optional(), priceParity: z.boolean().optional() }),
+  settings: z.object({ currency: z.literal("BRL"), timezone: z.string(), whatsapp: z.string().optional(), legalName: z.string().optional(), cnpj: z.string().optional(), priceParity: z.boolean().optional(),
+    cuisine: z.enum(["pizza", "hamburguer", "japonesa", "acai", "confeitaria", "churrasco", "marmita", "arabe", "salgados", "poke", "padaria", "saudavel", "italiana", "mexicana", "bar", "generico"]).optional(),
+    cuisines: z.array(z.string()).max(6).optional(), instagram: z.string().max(60).optional() }),
 });
 
 export const saiposConfigSchema = z.object({

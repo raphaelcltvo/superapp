@@ -27,7 +27,7 @@ export function suggestBasePrice(item: Item, groups: OptionGroup[]): number {
   let v = 0;
   for (const g of groups) {
     if (g.rule === "fraction") v += fractionBase(g);
-    else if (g.min > 0) v += active(g).map((o) => o.price).sort((a, b) => a - b).slice(0, g.min).reduce((a, b) => a + b, 0);
+    else if (g.min > (g.freeQuota || 0)) v += active(g).map((o) => o.price).sort((a, b) => a - b).slice(0, g.min - (g.freeQuota || 0)).reduce((a, b) => a + b, 0);
   }
   return r2(v);
 }
@@ -61,6 +61,16 @@ export function validateSelection(item: Item, groups: OptionGroup[], sel: Select
   return issues;
 }
 
+/** Cota grátis: distribui as N unidades grátis pelas opções mais caras escolhidas. Devolve optionId -> unidades grátis. */
+export function freeUnits(g: OptionGroup, s: Record<string, number>): Record<string, number> {
+  const out: Record<string, number> = {};
+  let left = g.freeQuota || 0;
+  if (!left) return out;
+  const chosen = Object.entries(s).filter(([, q]) => q > 0).map(([id, q]) => ({ id, q, price: g.options.find((o) => o.id === id)?.price ?? 0 })).sort((a, b) => b.price - a.price);
+  for (const c of chosen) { if (!left) break; const k = Math.min(c.q, left); out[c.id] = k; left -= k; }
+  return out;
+}
+
 const FRACTIONS: Record<number, string> = { 1: "inteira", 2: "1/2", 3: "1/3", 4: "1/4" };
 
 /** Calcula o preço unitário e o detalhamento de uma linha da sacola. */
@@ -72,21 +82,20 @@ export function priceLine(item: Item, groups: OptionGroup[], input: CartLineInpu
     const s = sel[g.id] || {};
     const units = groupCount(sel, g.id);
     const rule = effectiveRule(item, g);
+    const free = rule === "sum" ? freeUnits(g, s) : {};
     for (const [oid, q] of Object.entries(s)) {
       if (!q) continue;
       const o = g.options.find((x) => x.id === oid);
       if (!o) continue;
       const unitDelta = rule === "fraction" ? fractionDelta(g, o, units) : r2(o.price);
-      unit += unitDelta * q;
-      choices.push({
-        groupId: g.id,
-        optionId: o.id,
-        name: o.name,
-        qty: q,
-        unitDelta,
-        fraction: rule === "fraction" ? (q === units ? FRACTIONS[1] : `${q}/${units}`) : undefined,
-        integrationCode: o.integrationCode,
-      });
+      const f = Math.min(q, free[oid] || 0);
+      const base = { groupId: g.id, optionId: o.id, name: o.name, integrationCode: o.integrationCode };
+      // cota grátis: as unidades grátis saem numa linha própria com acréscimo zero (comanda e PDV mostram "grátis")
+      if (f) choices.push({ ...base, qty: f, unitDelta: 0, free: true });
+      if (q - f > 0) {
+        unit += unitDelta * (q - f);
+        choices.push({ ...base, qty: q - f, unitDelta, fraction: rule === "fraction" ? (q === units ? FRACTIONS[1] : `${q}/${units}`) : undefined });
+      }
     }
   }
   unit = r2(unit);
@@ -105,9 +114,10 @@ export function hasVariablePrice(item: Item, groups: OptionGroup[]) {
 export function minPrice(item: Item, groups: OptionGroup[]): number {
   let v = item.price;
   for (const g of groups) {
-    if (g.min <= 0 || effectiveRule(item, g) === "fraction") continue;
+    const need = g.min - (g.freeQuota || 0);
+    if (need <= 0 || effectiveRule(item, g) === "fraction") continue;
     const prices = active(g).map((o) => o.price).sort((a, b) => a - b);
-    v += g.allowRepeat ? (prices[0] ?? 0) * g.min : prices.slice(0, g.min).reduce((a, b) => a + b, 0);
+    v += g.allowRepeat ? (prices[0] ?? 0) * need : prices.slice(0, need).reduce((a, b) => a + b, 0);
   }
   return r2(v);
 }
