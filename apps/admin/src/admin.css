@@ -173,3 +173,8 @@
   .cw-ad .rulebox { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { .cw-ad *, .cw-ad *::before, .cw-ad *::after { animation: none !important; transition: none !important; } }
+
+/* importar do iFood */
+.cw-ad details.panel > summary { cursor: pointer; list-style-position: inside; }
+.cw-ad details.panel[open] > summary { margin-bottom: 10px; }
+.cw-ad #ifood-bookmarklet a.btn { cursor: grab; }
