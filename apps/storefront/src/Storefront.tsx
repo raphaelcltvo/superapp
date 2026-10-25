@@ -49,9 +49,9 @@ interface Draft { itemId: string; sel: Record<string, Record<string, number>>; q
 interface Addr { postalCode: string; street: string; number: string; complement: string; district: string; city: string; state: string; reference: string }
 interface Geo { ok: boolean; lat?: number; lng?: number; zone?: { name: string; fee: number; etaMin: number; etaMax: number }; reason?: string }
 interface OnlineInfo { gateway: string; method: "pix" | "card"; status: "pending" | "paid" | "failed" | "expired" | "refunded"; pix?: { qrText: string; qrImage?: string; expiresAt: string }; card?: { brand?: string; last4?: string; installments?: number }; failureReason?: string; paidAt?: string }
-interface TrackOrder { id: string; displayId: string; status: string; feedback?: { nps: number } | null; statusHistory: { status: string; at: string; note?: string }[]; total: number; cashbackEarned: number; mode: string; lines: PricedLine[]; payment?: { code: string; online?: OnlineInfo } }
+interface TrackOrder { id: string; displayId: string; scheduledFor?: string; status: string; feedback?: { nps: number } | null; statusHistory: { status: string; at: string; note?: string }[]; total: number; cashbackEarned: number; mode: string; lines: PricedLine[]; payment?: { code: string; online?: OnlineInfo } }
 
-const NOTE_CHIPS = ["Bem assada", "Cortar em 12", "Sem orégano", "Pouca cebola"];
+const DEFAULT_NOTES = ["Sem cebola", "Molho à parte", "Bem quente"];
 const STATUS: Record<string, string> = { awaiting_payment: "Aguardando pagamento", payment_failed: "Pagamento não concluído", created: "Pedido recebido", sent_to_pos: "Enviado para a cozinha", pos_error: "Estamos confirmando com a loja", confirmed: "Confirmado pela loja", ready: "Pronto", dispatched: "Saiu para entrega", concluded: "Entregue", cancelled: "Cancelado" };
 const FLOW = ["created", "sent_to_pos", "confirmed", "ready", "dispatched", "concluded"];
 
@@ -244,7 +244,7 @@ export function Storefront(props: StorefrontProps) {
     const item = menu.items[itemId];
     const sel: Draft["sel"] = line ? JSON.parse(JSON.stringify(line.selection)) : preset ? JSON.parse(JSON.stringify(preset)) : {};
     if (!line) for (const g of groupsOf(itemId)) if (g.max === 1 && g.min === 1 && !sel[g.id]) { const d = g.options.find((o) => o.popular) || g.options[0]; if (d) sel[g.id] = { [d.id]: 1 }; }
-    setDraft({ itemId, sel, qty: line?.qty || 1, notes: line?.notes ? line.notes.split(", ").filter((n) => NOTE_CHIPS.includes(n)) : [], editKey, tried: false });
+    setDraft({ itemId, sel, qty: line?.qty || 1, notes: line?.notes ? line.notes.split(", ").filter((n) => (cuisineById(menu?.tenant.settings.cuisine).notes || DEFAULT_NOTES).includes(n)) : [], editKey, tried: false });
     setSearch({ open: false, q: "" });
     track("item_view", { itemId, name: item.name });
   };
@@ -416,7 +416,7 @@ export function Storefront(props: StorefrontProps) {
               <span className="store-sub">{cuisineById(menu.tenant.settings.cuisine).id === "generico" ? "" : `${cuisineById(menu.tenant.settings.cuisine).label} · `}{store?.name || ""} · {store?.open || preview ? <span className="open-pill">Aberto</span> : <span className="closed-pill">Fechado</span>}</span>
             </div>
           </div>
-          {closed && store && <div className="closed-bar" role="status">Fechado agora · {nextOpening(store.hours)}. Você pode montar a sacola e pedir quando abrir.</div>}
+          {closed && store && <div className="closed-bar" role="status">Fechado agora · {nextOpening(store.hours)}. Você pode montar a sacola e pedir quando abrir{Object.values(menu.items).some((i) => i.leadTimeHours) ? "; encomendas podem ser agendadas agora" : ""}.</div>}
           {store && (
             <div className="facts">
               <div className="fact"><span>Chega em</span><b>{store.eta ? `${store.eta[0]}–${store.eta[1]} min` : "—"}</b></div>
@@ -637,8 +637,9 @@ export function Storefront(props: StorefrontProps) {
               const needDoc = !!op?.requiresDocument && (pay === "CARD_ONLINE" || (pay === "PIX_ONLINE" && op.gateway !== "mercadopago")) && !validCpf(cpf);
               const cardErr = pay === "CARD_ONLINE" ? validateCard(cc) : null;
               const needAuth = (pay === "CARD_ONLINE" || pay === "PIX_ONLINE") && !!op?.requirePassword && !needId && !onlineAuthReady(oa);
-              const label = closed ? "Loja fechada agora" : needWhen ? "Escolha a data da encomenda" : needAddr ? "Informe o endereço" : needId ? "Confirme seu telefone" : !pay ? "Escolha o pagamento" : cardErr ? "Preencha o cartão" : needDoc ? "Informe o CPF" : needAuth ? (oa.status === "new" ? "Confirme CPF, nascimento e senha" : "Digite sua senha") : placing ? (pay === "CARD_ONLINE" ? "Processando pagamento…" : "Enviando…") : pay === "CARD_ONLINE" ? "Pagar e fazer pedido" : "Fazer pedido";
-              const blocked = closed || needWhen || needAddr || needId || !pay || !!cardErr || needDoc || needAuth || placing || !quote;
+              const closedNow = closed && !when; // encomenda agendada pode ser feita com a loja fechada
+              const label = needWhen ? "Escolha a data da encomenda" : closedNow ? "Loja fechada agora" : needAddr ? "Informe o endereço" : needId ? "Confirme seu telefone" : !pay ? "Escolha o pagamento" : cardErr ? "Preencha o cartão" : needDoc ? "Informe o CPF" : needAuth ? (oa.status === "new" ? "Confirme CPF, nascimento e senha" : "Digite sua senha") : placing ? (pay === "CARD_ONLINE" ? "Processando pagamento…" : "Enviando…") : pay === "CARD_ONLINE" ? "Pagar e fazer pedido" : "Fazer pedido";
+              const blocked = closedNow || needWhen || needAddr || needId || !pay || !!cardErr || needDoc || needAuth || placing || !quote;
               return (
                 <button className={`cta${blocked ? " blocked" : ""}`} disabled={blocked} onClick={async () => {
                   setPlacing(true); setOrderErr(null);
@@ -689,7 +690,7 @@ export function Storefront(props: StorefrontProps) {
 
       {/* ================= acompanhamento ================= */}
       <div className={`screen${screen === "track" ? "" : " off-right"}`} data-screen="track" aria-hidden={screen !== "track"}>
-        <div className="app-hd"><div><h2>Pedido #{order?.displayId}</h2><span>{menu.tenant.name}</span></div></div>
+        <div className="app-hd"><div><h2>Pedido #{order?.displayId}</h2><span>{menu.tenant.name}{order?.scheduledFor ? ` · agendado para ${new Date(order.scheduledFor).toLocaleString("pt-BR", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}` : ""}</span></div></div>
         {order && screen === "track" && <Tracking api={api} base={base} order={order} setOrder={setOrder} />}
         {order && screen === "track" && <FeedbackCard menu={menu} api={api} base={base} sessionId={sessionId} order={order} />}
         {menu.banners.after_order && <div className="slot"><BannerView banner={menu.banners.after_order} onOpen={openBanner} /></div>}
@@ -934,7 +935,7 @@ function ItemSheet({ menu, draft, setDraft, groups, photos, onAdd, onClose, shak
         })}
         {groups.length > 0 && (
           <div className="notes"><b>Algum recado para a cozinha?</b>
-            <div className="chips">{NOTE_CHIPS.map((n) => <button key={n} className={`nchip${draft.notes.includes(n) ? " on" : ""}`} aria-pressed={draft.notes.includes(n)} onClick={() => setDraft({ ...draft, notes: draft.notes.includes(n) ? draft.notes.filter((x) => x !== n) : [...draft.notes, n] })}>{n}</button>)}</div>
+            <div className="chips">{(cuisineById(menu.tenant.settings.cuisine).notes || DEFAULT_NOTES).map((n) => <button key={n} className={`nchip${draft.notes.includes(n) ? " on" : ""}`} aria-pressed={draft.notes.includes(n)} onClick={() => setDraft({ ...draft, notes: draft.notes.includes(n) ? draft.notes.filter((x) => x !== n) : [...draft.notes, n] })}>{n}</button>)}</div>
           </div>
         )}
       </div>

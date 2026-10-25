@@ -130,7 +130,7 @@ export function publicRoutes() {
     if (!o || (o.customerId && o.customerId !== c.get("customerId"))) throw new HttpError(404, "Pedido não encontrado");
     o = (await sweepPayment(ctxOf(c), o)) as Order & { id: string };
     const on = o.payment.online;
-    return c.json({ id: o.id, displayId: o.displayId, status: o.status, statusHistory: o.statusHistory, total: o.total, lines: o.lines, cashbackEarned: o.cashbackEarned, mode: o.mode, feedback: o.feedback ? { nps: o.feedback.nps, kind: o.feedback.kind } : null,
+    return c.json({ id: o.id, displayId: o.displayId, status: o.status, statusHistory: o.statusHistory, total: o.total, lines: o.lines, cashbackEarned: o.cashbackEarned, mode: o.mode, scheduledFor: o.scheduledFor, feedback: o.feedback ? { nps: o.feedback.nps, kind: o.feedback.kind } : null,
       payment: { code: o.payment.code, online: on && { gateway: on.gateway, method: on.method, status: on.status, pix: on.status === "pending" || on.status === "expired" ? on.pix : undefined, card: on.card, failureReason: on.failureReason, paidAt: on.paidAt } } });
   });
   /** Configuração pública de pagamento (chave pública para gerar o token do cartão no navegador). */

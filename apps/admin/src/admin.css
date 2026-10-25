@@ -263,7 +263,7 @@
 .cw-ad .su-have { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border: 1px solid var(--line); border-radius: var(--r); padding: 10px 12px; background: var(--surface); }
 .cw-ad .su-pay .li { border-top: 1px solid var(--line); padding: 8px 0; }
 .cw-ad .su-live { border: 1px solid var(--accent); background: var(--accent-soft); border-radius: var(--r); padding: 14px; display: flex; flex-direction: column; gap: 8px; }
-@container (max-width: 860px) { .cw-ad .su-wrap { grid-template-columns: minmax(0, 1fr); } .cw-ad .su-steps { position: static; flex-direction: row; overflow-x: auto; scroll-snap-type: x mandatory; } .cw-ad .su-steps li { flex: none; scroll-snap-align: start; } .cw-ad .su-step { width: auto; } .cw-ad .su-t span { display: none; } }
+@container (max-width: 860px) { .cw-ad .su-wrap { grid-template-columns: minmax(0, 1fr); } .cw-ad .su-steps { position: static; flex-direction: row; overflow-x: auto; scroll-snap-type: x proximity; } .cw-ad .su-steps li { flex: none; scroll-snap-align: start; } .cw-ad .su-step { width: auto; } .cw-ad .su-t span { display: none; } }
 /* importar do iFood */
 .cw-ad details.panel > summary { cursor: pointer; list-style-position: inside; }
 .cw-ad details.panel[open] > summary { margin-bottom: 10px; }

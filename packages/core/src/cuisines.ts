@@ -44,6 +44,8 @@ export interface CuisineTemplate {
   triage: "pizza" | "generico";
   /** cuidados de cardápio específicos do segmento, mostrados no Setup */
   tips: string[];
+  /** recados rápidos para a cozinha no item (1 toque) */
+  notes?: string[];
 }
 
 const ml = (amount: number): Measure => ({ unit: "ml", amount });
@@ -74,7 +76,7 @@ export const CUISINES: CuisineTemplate[] = [
       { cat: 0, name: "Pizza grande + refrigerante 2 L", kind: "combo", price: 89.9, compareAt: 99.8, groups: ["sabores", "refri"], serves: "serve 3" },
       ...DRINKS(3),
     ],
-    tips: ["Sabores do meio a meio guardam o preço da pizza inteira; o item mostra “a partir de” pelo sabor mais barato.", "Combos ficam em categoria de preço fechado: lá o meio a meio nunca cobra diferença."],
+    notes: ["Bem assada", "Cortar em 12", "Sem orégano", "Pouca cebola"], tips: ["Sabores do meio a meio guardam o preço da pizza inteira; o item mostra “a partir de” pelo sabor mais barato.", "Combos ficam em categoria de preço fechado: lá o meio a meio nunca cobra diferença."],
   },
   {
     id: "hamburguer", label: "Hamburgueria", pitch: "Burgers com ponto da carne, adicionais repetíveis, combos com troca de acompanhamento.",
@@ -97,7 +99,7 @@ export const CUISINES: CuisineTemplate[] = [
       ...DRINKS(3),
       { cat: 4, name: "Milkshake de Ovomaltine", price: 22.9, measure: ml(400) },
     ],
-    tips: ["Ponto da carne é grupo obrigatório sem preço: entra na comanda e no PDV.", "Adicionais podem repetir (2× bacon); defina o máximo para não virar outro burger."],
+    notes: ["Sem cebola", "Sem picles", "Pão bem tostado", "Molho à parte"], tips: ["Ponto da carne é grupo obrigatório sem preço: entra na comanda e no PDV.", "Adicionais podem repetir (2× bacon); defina o máximo para não virar outro burger."],
   },
   {
     id: "japonesa", label: "Japonesa", pitch: "Combinados por peças, temaki com proteína e extras, molhos e hashi.",
@@ -119,7 +121,7 @@ export const CUISINES: CuisineTemplate[] = [
       { cat: 3, name: "Yakisoba de frango", price: 39.9, serves: "serve 1" },
       ...DRINKS(4),
     ],
-    tips: ["Mostre a quantidade de peças: o cardápio exibe o preço por peça para comparar combinados.", "Hashi como pergunta opcional reduz desperdício e entra na comanda."],
+    notes: ["Sem cebolinha", "Sem cream cheese", "Shoyu extra", "Wasabi à parte"], tips: ["Mostre a quantidade de peças: o cardápio exibe o preço por peça para comparar combinados.", "Hashi como pergunta opcional reduz desperdício e entra na comanda."],
   },
   {
     id: "acai", label: "Açaí e sorvetes", pitch: "Tamanhos por ml e complementos com cota grátis: os 3 primeiros não cobram.",
@@ -137,7 +139,7 @@ export const CUISINES: CuisineTemplate[] = [
       { cat: 1, name: "Cupuaçu 400 ml", price: 24.9, measure: ml(400), groups: ["comp"] },
       ...DRINKS(2),
     ],
-    tips: ["Coberturas caras (Nutella, pistache) ficam em grupo separado, fora da cota grátis.", "O preço por ml ajuda o cliente a subir de tamanho."],
+    notes: ["Granola à parte", "Bem batido", "Pouco gelado", "Cobertura por cima"], tips: ["Coberturas caras (Nutella, pistache) ficam em grupo separado, fora da cota grátis.", "O preço por ml ajuda o cliente a subir de tamanho."],
   },
   {
     id: "confeitaria", label: "Confeitaria e bolos", pitch: "Bolos sob encomenda com antecedência, tamanhos por pessoas, massa, recheio e mensagem.",
@@ -160,7 +162,7 @@ export const CUISINES: CuisineTemplate[] = [
       { cat: 3, name: "Cento de brigadeiro gourmet", kind: "combo", price: 220, measure: un(100), leadTimeHours: 48, groups: ["docinhos"] },
       ...DRINKS(4),
     ],
-    tips: ["Encomendas pedem data e horário na finalização; o pedido entra na coluna Agendados do gestor.", "Tamanho em “serve N” vende melhor que centímetros."],
+    notes: ["Para presente", "Com velas", "Sem lactose se possível", "Entregar na portaria"], tips: ["Encomendas pedem data e horário na finalização; o pedido entra na coluna Agendados do gestor.", "Tamanho em “serve N” vende melhor que centímetros."],
   },
   {
     id: "churrasco", label: "Churrasco e costela", pitch: "Carnes por peso com preço por kg, ponto, acompanhamentos com cota e kits para a família.",
@@ -180,7 +182,7 @@ export const CUISINES: CuisineTemplate[] = [
       { cat: 3, name: "Pão de alho", price: 19.9, measure: un(4) },
       ...DRINKS(4),
     ],
-    tips: ["Carne por peso: o cardápio mostra o preço por kg ao lado do preço da porção.", "“Serve N” alimenta a pergunta “pra quantas pessoas?” da triagem."],
+    notes: ["Mais gordura", "Bem tostada", "Molho à parte", "Separar a farofa"], tips: ["Carne por peso: o cardápio mostra o preço por kg ao lado do preço da porção.", "“Serve N” alimenta a pergunta “pra quantas pessoas?” da triagem."],
   },
   {
     id: "marmita", label: "Marmitas e almoço", pitch: "Prato do dia por dia da semana, monte sua marmita com proteína e acompanhamentos com cota.",
@@ -200,7 +202,7 @@ export const CUISINES: CuisineTemplate[] = [
       ...DRINKS(3),
       { cat: 4, name: "Pudim", price: 9.9 },
     ],
-    tips: ["Prato do dia tem dias de venda: fora deles aparece como “volta na quarta”.", "Acompanhamentos com cota grátis evitam cadastrar uma marmita para cada combinação."],
+    notes: ["Sem cebola", "Feijão à parte", "Pouco sal", "Sem pimenta"], tips: ["Prato do dia tem dias de venda: fora deles aparece como “volta na quarta”.", "Acompanhamentos com cota grátis evitam cadastrar uma marmita para cada combinação."],
   },
   {
     id: "arabe", label: "Árabe e esfiharia", pitch: "Esfihas por unidade e caixas de 12 em que o cliente distribui os sabores.",
@@ -219,7 +221,7 @@ export const CUISINES: CuisineTemplate[] = [
       { cat: 3, name: "Baklava", price: 9.9 },
       ...DRINKS(4),
     ],
-    tips: ["Caixa com N unidades: grupo com mínimo e máximo iguais e repetição liberada.", "Mostrar o preço por unidade na caixa evidencia a economia."],
+    notes: ["Bem assada", "Limão à parte", "Sem cebola", "Pimenta síria à parte"], tips: ["Caixa com N unidades: grupo com mínimo e máximo iguais e repetição liberada.", "Mostrar o preço por unidade na caixa evidencia a economia."],
   },
   {
     id: "salgados", label: "Salgados e festas", pitch: "Salgados por unidade e centos para festa com encomenda.",
@@ -234,7 +236,7 @@ export const CUISINES: CuisineTemplate[] = [
       { cat: 2, name: "Cento de salgados fritos", price: 89.9, measure: un(100), groups: ["sabores"], leadTimeHours: 24, serves: "serve 10" },
       ...DRINKS(3),
     ],
-    tips: ["Centos são encomenda: o cliente escolhe data e horário.", "Preço por unidade aparece no cento para comparar com o avulso."],
+    notes: ["Bem quentinho", "Molho à parte", "Separar por sabor", "Entregar na portaria"], tips: ["Centos são encomenda: o cliente escolhe data e horário.", "Preço por unidade aparece no cento para comparar com o avulso."],
   },
   {
     id: "poke", label: "Poke", pitch: "Monte seu poke em etapas: base, proteína, toppings com cota grátis e molho.",
@@ -253,7 +255,7 @@ export const CUISINES: CuisineTemplate[] = [
       { cat: 1, name: "Poke vegano de tofu", price: 36.9, groups: ["molho"], tags: ["vegano"] },
       ...DRINKS(2),
     ],
-    tips: ["Etapas na ordem base → proteína → toppings → molho deixam o “monte o seu” rápido no celular."],
+    notes: ["Molho à parte", "Pouco arroz", "Sem gergelim", "Gengibre extra"], tips: ["Etapas na ordem base → proteína → toppings → molho deixam o “monte o seu” rápido no celular."],
   },
   {
     id: "padaria", label: "Padaria e café", pitch: "Café da manhã com horário, pães por peso e cafés com tamanho e tipo de leite.",
@@ -272,7 +274,7 @@ export const CUISINES: CuisineTemplate[] = [
       { cat: 3, name: "Café com leite", price: 8.9, groups: ["tamanho", "leite"] },
       { cat: 3, name: "Suco de laranja", price: 11.9, measure: ml(300), isDrink: true },
     ],
-    tips: ["Categorias com horário somem do topo fora da janela e voltam sozinhas no dia seguinte."],
+    notes: ["Bem quente", "Sem açúcar", "Pão bem tostado", "Café separado"], tips: ["Categorias com horário somem do topo fora da janela e voltam sozinhas no dia seguinte."],
   },
   {
     id: "saudavel", label: "Saudável e fit", pitch: "Bowls e saladas com selos (vegano, sem glúten, low carb) e filtros no cardápio.",
@@ -287,7 +289,7 @@ export const CUISINES: CuisineTemplate[] = [
       { cat: 2, name: "Suco verde", price: 14.9, measure: ml(400), isDrink: true, tags: ["vegano", "zero_acucar"] },
       { cat: 3, name: "Cookie integral", price: 9.9, tags: ["vegano"] },
     ],
-    tips: ["Selos viram filtros no topo do cardápio (vegano, sem glúten, sem lactose)."],
+    notes: ["Molho à parte", "Sem sal", "Sem cebola", "Talheres de bambu"], tips: ["Selos viram filtros no topo do cardápio (vegano, sem glúten, sem lactose)."],
   },
   {
     id: "italiana", label: "Italiana e massas", pitch: "Massa monte a sua (tipo + molho), pratos prontos, risotos e vinhos.",
@@ -307,7 +309,7 @@ export const CUISINES: CuisineTemplate[] = [
       { cat: 3, name: "Tiramisù", price: 24.9 },
       { cat: 4, name: "Vinho tinto chileno", price: 69.9, measure: ml(750), isDrink: true },
     ],
-    tips: ["Massa + molho como etapas evita dezenas de itens repetidos."],
+    notes: ["Queijo à parte", "Al dente", "Pouco molho", "Sem cebola"], tips: ["Massa + molho como etapas evita dezenas de itens repetidos."],
   },
   {
     id: "mexicana", label: "Mexicana", pitch: "Burritos e tacos com proteína, nível de pimenta e extras.",
@@ -325,7 +327,7 @@ export const CUISINES: CuisineTemplate[] = [
       { cat: 2, name: "Nachos com guacamole", price: 29.9, serves: "serve 2", tags: ["vegetariano"] },
       ...DRINKS(3),
     ],
-    tips: ["Nível de pimenta é grupo obrigatório sem preço: reduz reclamação de “muito apimentado”."],
+    notes: ["Sem coentro", "Pimenta à parte", "Sem cebola", "Guacamole à parte"], tips: ["Nível de pimenta é grupo obrigatório sem preço: reduz reclamação de “muito apimentado”."],
   },
   {
     id: "bar", label: "Bar e petiscos", pitch: "Porções meia ou inteira com “serve N”, drinks e cervejas por ml.",
@@ -341,7 +343,7 @@ export const CUISINES: CuisineTemplate[] = [
       { cat: 3, name: "Cerveja long neck", price: 12.9, measure: ml(355), isDrink: true },
       { cat: 0, name: "Combo galera: 2 porções inteiras + 6 long necks", kind: "combo", price: 179.9, compareAt: 194.8, serves: "serve 6" },
     ],
-    tips: ["Bebida alcoólica exige confirmar maioridade na entrega: avise na descrição."],
+    notes: ["Bem crocante", "Molho à parte", "Gelo à parte", "Sem sal"], tips: ["Bebida alcoólica exige confirmar maioridade na entrega: avise na descrição."],
   },
   {
     id: "generico", label: "Outra culinária", pitch: "Estrutura básica: destaques, pratos, adicionais, bebidas e sobremesas.",
@@ -354,7 +356,7 @@ export const CUISINES: CuisineTemplate[] = [
       ...DRINKS(2),
       { cat: 3, name: "Sobremesa do dia", price: 14.9 },
     ],
-    tips: ["Comece pelos 10 itens que mais vendem; o resto entra depois."],
+    notes: ["Sem cebola", "Molho à parte", "Bem quente", "Enviar talheres"], tips: ["Comece pelos 10 itens que mais vendem; o resto entra depois."],
   },
 ];
 
