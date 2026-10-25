@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Campaign, Coupon, EmailBlock, InboxMessage, Item, MessageTemplate, Page, Segment, TemplateVar } from "@cw/core";
 import { Funnel } from "../charts";
+import { OrderNotifications, WhatsAppConnect } from "./WhatsAppConnect";
 import { BRL, Btn, ConfirmBtn, Drawer, Empty, Field, Num, Pill, Select, Tabs, Text, Tile, Toggle, dt, errMsg, pct, useAction, useAdmin, useLoad } from "../ui";
 
 type Tab = "canais" | "modelos" | "campanhas" | "inbox";
@@ -30,33 +31,19 @@ export function MessagingPage() {
 }
 
 /* ---------------- canais ---------------- */
-type WaCfg = { enabled: boolean; provider: "meta" | "fake"; phoneNumberId: string; wabaId?: string; token: string; appSecret: string; verifyToken: string; graphVersion?: string; otpTemplate?: { name: string; language: string }; costPerMessage?: number };
 type EmCfg = { enabled: boolean; provider: "resend" | "brevo" | "fake"; apiKey: string; fromName: string; fromEmail: string; replyTo?: string };
 function Channels(p: { onSaved: () => void }) {
   const { api, toast } = useAdmin(); const { run, busy } = useAction();
-  const cfg = useLoad<{ whatsapp: WaCfg | null; email: EmCfg | null; webhooks: { whatsapp: string; email: string } }>("/admin/messaging/config");
-  const [wa, setWa] = useState<WaCfg | null>(null); const [em, setEm] = useState<EmCfg | null>(null);
-  const [testTo, setTestTo] = useState({ whatsapp: "", email: "" });
-  useEffect(() => { if (!cfg.data) return; setWa(cfg.data.whatsapp || { enabled: false, provider: "meta", phoneNumberId: "", token: "", appSecret: "", verifyToken: crypto.randomUUID().slice(0, 12), graphVersion: "v26.0", otpTemplate: { name: "codigo_acesso", language: "pt_BR" }, costPerMessage: 0.35 }); setEm(cfg.data.email || { enabled: false, provider: "resend", apiKey: "", fromName: "", fromEmail: "" }); }, [cfg.data]);
-  if (!wa || !em || !cfg.data) return null;
-  const test = async (channel: "whatsapp" | "email") => { const r = await run(() => api.post<{ ok: boolean; error?: string }>("/admin/messaging/test", { channel, to: testTo[channel] })); if (r) toast(r.ok ? "Mensagem de teste enviada" : r.error || "Falhou", !r.ok); };
-  return <div className="grid2">
-    <section className="panel"><header><h2>WhatsApp (API oficial da Meta)</h2>{wa.enabled ? <Pill tone="good">ligado</Pill> : <Pill>desligado</Pill>}</header>
-      <p className="small muted">No Meta Business: crie o app, adicione o produto WhatsApp, gere um token permanente de usuário do sistema e aprove os modelos. Mensagens que a marca inicia só saem por modelo aprovado.</p>
-      <div className="grid2">
-        <Field label="Provedor"><Select value={wa.provider} onChange={(v) => setWa({ ...wa, provider: v })} options={[{ value: "meta", label: "Meta Cloud API" }, { value: "fake", label: "Teste (não envia)" }]} /></Field>
-        <Field label="ID do número (Phone number ID)"><Text mono value={wa.phoneNumberId} onChange={(v) => setWa({ ...wa, phoneNumberId: v })} /></Field>
-        <Field label="ID da conta (WABA)"><Text mono value={wa.wabaId} onChange={(v) => setWa({ ...wa, wabaId: v })} /></Field>
-        <Field label="Token de acesso"><Text mono type="password" value={wa.token} onChange={(v) => setWa({ ...wa, token: v })} /></Field>
-        <Field label="App Secret" hint="Valida a assinatura dos avisos da Meta"><Text mono type="password" value={wa.appSecret} onChange={(v) => setWa({ ...wa, appSecret: v })} /></Field>
-        <Field label="Token de verificação" hint="Cole o mesmo valor na Meta"><Text mono value={wa.verifyToken} onChange={(v) => setWa({ ...wa, verifyToken: v })} /></Field>
-        <Field label="Modelo do código de acesso"><Text mono value={wa.otpTemplate?.name} onChange={(v) => setWa({ ...wa, otpTemplate: { name: v, language: wa.otpTemplate?.language || "pt_BR" } })} /></Field>
-        <Field label="Custo por mensagem (R$)" hint="Só para os relatórios"><Num value={wa.costPerMessage} onChange={(v) => setWa({ ...wa, costPerMessage: v })} /></Field>
-      </div>
-      <Field label="URL do webhook (Meta › WhatsApp › Configuração)"><div className="codebox" style={{ overflowWrap: "anywhere" }}>{cfg.data.webhooks.whatsapp}</div></Field>
-      <div className="row"><Toggle checked={wa.enabled} onChange={(v) => setWa({ ...wa, enabled: v })} label="Ligar WhatsApp" /><Btn kind="primary" disabled={busy} onClick={async () => { if (await run(() => api.put("/admin/messaging/config/whatsapp", wa), "WhatsApp salvo")) { cfg.reload(); p.onSaved(); } }}>Salvar</Btn></div>
-      <div className="row"><Text placeholder="5521999990000" value={testTo.whatsapp} onChange={(v) => setTestTo({ ...testTo, whatsapp: v })} /><Btn disabled={busy || !testTo.whatsapp} onClick={() => test("whatsapp")}>Enviar teste</Btn></div>
-    </section>
+  const cfg = useLoad<{ whatsapp: { provider: string } | null; email: EmCfg | null; webhooks: { whatsapp: string; email: string } }>("/admin/messaging/config");
+  const [em, setEm] = useState<EmCfg | null>(null);
+  const [testTo, setTestTo] = useState({ email: "" });
+  useEffect(() => { if (!cfg.data) return; setEm(cfg.data.email || { enabled: false, provider: "resend", apiKey: "", fromName: "", fromEmail: "" }); }, [cfg.data]);
+  if (!em || !cfg.data) return null;
+  const test = async () => { const r = await run(() => api.post<{ ok: boolean; error?: string }>("/admin/messaging/test", { channel: "email", to: testTo.email })); if (r) toast(r.ok ? "Mensagem de teste enviada" : r.error || "Falhou", !r.ok); };
+  return <div className="stack">
+    <WhatsAppConnect onConnected={() => { cfg.reload(); p.onSaved(); }} />
+    <div className="grid2">
+    <OrderNotifications provider={cfg.data.whatsapp?.provider} />
     <section className="panel"><header><h2>E-mail marketing</h2>{em.enabled ? <Pill tone="good">ligado</Pill> : <Pill>desligado</Pill>}</header>
       <p className="small muted">Verifique o domínio no provedor (registros SPF, DKIM e DMARC) antes do primeiro envio; sem isso o e-mail cai no spam. Aberturas, cliques e descadastro são medidos aqui, em qualquer provedor.</p>
       <div className="grid2">
@@ -68,8 +55,9 @@ function Channels(p: { onSaved: () => void }) {
       </div>
       <Field label="URL de eventos (entregue, devolvido, spam)"><div className="codebox" style={{ overflowWrap: "anywhere" }}>{cfg.data.webhooks.email}</div></Field>
       <div className="row"><Toggle checked={em.enabled} onChange={(v) => setEm({ ...em, enabled: v })} label="Ligar e-mail" /><Btn kind="primary" disabled={busy} onClick={async () => { if (await run(() => api.put("/admin/messaging/config/email", em), "E-mail salvo")) { cfg.reload(); p.onSaved(); } }}>Salvar</Btn></div>
-      <div className="row"><Text type="email" placeholder="voce@empresa.com.br" value={testTo.email} onChange={(v) => setTestTo({ ...testTo, email: v })} /><Btn disabled={busy || !testTo.email} onClick={() => test("email")}>Enviar teste</Btn></div>
+      <div className="row"><Text type="email" placeholder="voce@empresa.com.br" value={testTo.email} onChange={(v) => setTestTo({ ...testTo, email: v })} /><Btn disabled={busy || !testTo.email} onClick={test}>Enviar teste</Btn></div>
     </section>
+    </div>
   </div>;
 }
 
@@ -92,7 +80,7 @@ function Templates() {
       <div className="row"><Btn onClick={() => setEdit({ name: "", channel: "whatsapp", waLanguage: "pt_BR", waCategory: "MARKETING", waBody: "", waVars: [] })}>Modelo de WhatsApp</Btn><Btn kind="primary" onClick={() => setEdit({ name: "", channel: "email", subject: "", blocks: [{ kind: "heading", text: "" }, { kind: "text", text: "" }, { kind: "button", label: "Pedir agora", href: "{{link}}" }] })}>Modelo de e-mail</Btn></div></div>
     {(list.data || []).length ? <div className="list">{list.data!.map((t) => <div key={t.id} className="li click" role="button" tabIndex={0} onClick={() => setEdit(t)}>
       <Pill tone={t.channel === "whatsapp" ? "good" : "accent"}>{t.channel === "whatsapp" ? "WhatsApp" : "E-mail"}</Pill>
-      <div className="grow"><b>{t.name}</b><span className="small muted">{t.channel === "whatsapp" ? `${t.waName} · ${t.waCategory === "MARKETING" ? "marketing" : t.waCategory === "UTILITY" ? "utilidade" : "autenticação"}` : t.subject}</span></div><span className="muted">›</span></div>)}</div> : <Empty title="Nenhum modelo" />}
+      <div className="grow"><b>{t.name}</b><span className="small muted">{t.channel === "whatsapp" ? `${t.waName || "texto livre (QR code)"} · ${t.waCategory === "MARKETING" ? "marketing" : t.waCategory === "UTILITY" ? "utilidade" : "autenticação"}` : t.subject}</span></div><span className="muted">›</span></div>)}</div> : <Empty title="Nenhum modelo" />}
     {edit && <TemplateEditor t={edit} onClose={() => setEdit(null)} onSaved={() => { setEdit(null); list.reload(); }} />}
   </>;
 }

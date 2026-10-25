@@ -3,14 +3,24 @@ import { z } from "zod";
 import { uid, type Customer, type InboxMessage, type MessageTemplate } from "@cw/core";
 import { body, ctxOf, type Env } from "../http";
 import { HttpError } from "../services/ctx";
-import { emailConfigSchema, whatsappConfigSchema } from "../schemas";
-import { audience, campaignReport, deliver, emailConfig, sendCampaign, tenantOf, unsubToken, waConfig, baseVars, type Msg } from "../services/messaging";
+import { emailConfigSchema, notificationsSchema, whatsappConfigSchema } from "../schemas";
+import { audience, campaignReport, deliver, emailConfig, sendCampaign, tenantOf, unsubToken, waConfig, baseVars, waConnect, waStatus, waDisconnect, waSimulateScan, waProvider, qrWebhookUrl, type Msg } from "../services/messaging";
+import { notificationSettings, putNotificationSettings, type NotificationSettings } from "../services/notify";
+import { isQrProvider, type WhatsAppConfig } from "../integrations/messaging/types";
 import { renderEmail } from "../integrations/messaging/render";
 import { draftSnapshot } from "../services/catalog";
-import { FakeWhatsApp, MetaWhatsApp } from "../integrations/messaging/whatsapp";
 
 const mask = (s?: string) => (s ? "••••" + s.slice(-4) : "");
 const keep = (v: unknown, prev?: string) => (typeof v === "string" && v.startsWith("••••") ? prev || "" : v);
+/** Segredos de todos os provedores de WhatsApp saem mascarados (••••1234). */
+function maskWa(wa: WhatsAppConfig) {
+  return {
+    ...wa, token: mask(wa.token), appSecret: mask(wa.appSecret),
+    zapi: wa.zapi ? { ...wa.zapi, instanceToken: mask(wa.zapi.instanceToken), clientToken: mask(wa.zapi.clientToken) } : undefined,
+    evolution: wa.evolution ? { ...wa.evolution, apiKey: mask(wa.evolution.apiKey) } : undefined,
+    webhookToken: undefined,
+  };
+}
 
 export function messagingAdminRoutes() {
   const r = new Hono<Env>();
@@ -19,15 +29,24 @@ export function messagingAdminRoutes() {
     const ctx = ctxOf(c); const t = await tenantOf(ctx);
     const wa = await waConfig(ctx), em = await emailConfig(ctx);
     return c.json({
-      whatsapp: wa ? { ...wa, token: mask(wa.token), appSecret: mask(wa.appSecret) } : null,
+      whatsapp: wa ? maskWa(wa) : null,
       email: em ? { ...em, apiKey: mask(em.apiKey) } : null,
-      webhooks: { whatsapp: `${ctx.deps.publicUrl}/webhooks/whatsapp/${t.slug}`, email: `${ctx.deps.publicUrl}/webhooks/email/${t.slug}?token=${em?.webhookToken || "(salve para gerar)"}` },
+      webhooks: { whatsapp: `${ctx.deps.publicUrl}/webhooks/whatsapp/${t.slug}`, whatsappQr: wa && isQrProvider(wa.provider) ? qrWebhookUrl(ctx, t.slug, wa) : null, email: `${ctx.deps.publicUrl}/webhooks/email/${t.slug}?token=${em?.webhookToken || "(salve para gerar)"}` },
     });
   });
   r.put("/config/whatsapp", async (c) => {
     const ctx = ctxOf(c); const prev = await waConfig(ctx); const raw = (await c.req.json()) as Record<string, unknown>;
-    const cfg = whatsappConfigSchema.parse({ ...raw, token: keep(raw.token, prev?.token), appSecret: keep(raw.appSecret, prev?.appSecret) });
-    await ctx.deps.db.put("integrations", ctx.tenantId, { id: "whatsapp", provider: "whatsapp", config: cfg });
+    const z0 = raw.zapi as Record<string, unknown> | undefined, e0 = raw.evolution as Record<string, unknown> | undefined;
+    const cfg = whatsappConfigSchema.parse({
+      ...raw, token: keep(raw.token, prev?.token), appSecret: keep(raw.appSecret, prev?.appSecret),
+      zapi: z0 ? { ...z0, instanceToken: keep(z0.instanceToken, prev?.zapi?.instanceToken), clientToken: keep(z0.clientToken, prev?.zapi?.clientToken) || undefined } : undefined,
+      evolution: e0 ? { ...e0, apiKey: keep(e0.apiKey, prev?.evolution?.apiKey) } : undefined,
+      webhookToken: prev?.webhookToken || crypto.randomUUID().replace(/-/g, ""),
+    }) as WhatsAppConfig;
+    const doc = await ctx.deps.db.get<{ id: string; state?: { connected: boolean } }>("integrations", ctx.tenantId, "whatsapp");
+    // trocar de provedor (ou de instância) desfaz a conexão anterior
+    const same = prev && prev.provider === cfg.provider && JSON.stringify(prev.zapi?.instanceId) === JSON.stringify(cfg.zapi?.instanceId) && prev.evolution?.instance === cfg.evolution?.instance;
+    await ctx.deps.db.put("integrations", ctx.tenantId, { id: "whatsapp", provider: "whatsapp", config: cfg, state: same ? doc?.state : { connected: false } });
     return c.json({ ok: true });
   });
   r.put("/config/email", async (c) => {
@@ -37,6 +56,21 @@ export function messagingAdminRoutes() {
     return c.json({ ok: true });
   });
 
+  /* ---------- conexão do WhatsApp (QR code, oficial ou teste) ---------- */
+  r.post("/whatsapp/connect", async (c) => c.json(await waConnect(ctxOf(c))));
+  r.get("/whatsapp/status", async (c) => c.json(await waStatus(ctxOf(c))));
+  r.post("/whatsapp/disconnect", async (c) => c.json(await waDisconnect(ctxOf(c))));
+  /** Provedor de teste: simula a leitura do QR pelo celular (demonstração e treinamento). */
+  r.post("/whatsapp/simulate-scan", async (c) => c.json(await waSimulateScan(ctxOf(c))));
+
+  /* ---------- avisos de pedido ---------- */
+  r.get("/notifications", async (c) => c.json(await notificationSettings(ctxOf(c))));
+  r.put("/notifications", async (c) => {
+    const v = await body(c, notificationsSchema);
+    for (const e of Object.values(v.events)) if (!e.waName) delete e.waName;
+    return c.json(await putNotificationSettings(ctxOf(c), v as NotificationSettings));
+  });
+
   /** Envio de teste para um número ou e-mail qualquer (não entra nos relatórios). */
   r.post("/test", async (c) => {
     const i = await body(c, z.object({ channel: z.enum(["whatsapp", "email"]), to: z.string().min(5), templateId: z.string().optional(), text: z.string().optional() }));
@@ -44,10 +78,11 @@ export function messagingAdminRoutes() {
     const tpl = i.templateId ? await ctx.deps.db.get<MessageTemplate & { id: string }>("message_templates", ctx.tenantId, i.templateId) : null;
     if (i.channel === "whatsapp" && !(await waConfig(ctx))?.enabled) throw new HttpError(422, "Ligue o WhatsApp antes de testar");
     if (i.channel === "whatsapp" && !tpl?.waName) {
-      // fora da janela de 24h só modelo aprovado; o teste sem modelo usa o hello_world padrão da Meta
       const cfg = (await waConfig(ctx))!;
-      const p = cfg.provider === "fake" ? new FakeWhatsApp() : new MetaWhatsApp(cfg, ctx.deps.messagingFetch);
-      try { const res = await p.send(i.to.replace(/\D/g, ""), { kind: "template", name: "hello_world", language: "en_US", bodyParams: [] }); return c.json({ ok: true, providerId: res.providerId }); }
+      const p = waProvider(ctx, cfg);
+      // QR code e teste mandam texto livre; na API oficial, fora da janela de 24h só modelo aprovado (o teste usa o hello_world da Meta)
+      const payload = cfg.provider === "meta" ? { kind: "template" as const, name: "hello_world", language: "en_US", bodyParams: [] } : { kind: "text" as const, body: i.text || `Teste do WhatsApp da ${t.name}: se chegou, a conexão está funcionando.` };
+      try { const res = await p.send(i.to.replace(/\D/g, ""), payload); return c.json({ ok: true, providerId: res.providerId }); }
       catch (e) { return c.json({ ok: false, error: String((e as Error).message) }); }
     }
     const fake: Customer = { id: "teste", name: c.get("admin")?.sub ? "Teste" : "Teste", phone: i.to.replace(/\D/g, ""), email: i.to.includes("@") ? i.to : undefined, optinEmail: true, optinWhatsapp: true, orders: 0, spent: 0, createdAt: new Date().toISOString() };
@@ -86,7 +121,7 @@ export function messagingAdminRoutes() {
   /** Visão por canal nos últimos 30 dias. */
   r.get("/overview", async (c) => {
     const { db, now } = c.get("deps"); const t = c.get("tenantId");
-    const msgs = (await db.list<Msg>("messages", t, { since: new Date(+now() - 30 * 864e5).toISOString() })).filter((m) => m.group === "envio");
+    const msgs = (await db.list<Msg>("messages", t, { since: new Date(+now() - 30 * 864e5).toISOString() })).filter((m) => m.group === "envio" && !m.transactional);
     const cs = await db.list<Customer & { id: string }>("customers", t);
     const ch = (k: "whatsapp" | "email") => { const l = msgs.filter((m) => (m.channel || "whatsapp") === k); return { sent: l.length, delivered: l.filter((m) => m.deliveredAt).length, read: l.filter((m) => m.readAt || m.openedAt).length, clicked: l.filter((m) => m.clickedAt).length, failed: l.filter((m) => ["failed", "bounced"].includes(m.status)).length }; };
     return c.json({ whatsapp: { ...ch("whatsapp"), optin: cs.filter((x) => x.optinWhatsapp && x.phone).length }, email: { ...ch("email"), optin: cs.filter((x) => x.optinEmail && x.email && !["bounced", "complained", "unsubscribed"].includes(x.emailStatus || "")).length }, customers: cs.length });
@@ -99,9 +134,10 @@ export function messagingAdminRoutes() {
     const i = await body(c, z.object({ text: z.string().min(1).max(4096) }));
     const ctx = ctxOf(c); const ib = await ctx.deps.db.get<InboxMessage & { id: string }>("inbox", ctx.tenantId, c.req.param("id"));
     if (!ib) throw new HttpError(404, "Conversa não encontrada");
-    if (+ctx.deps.now() - +new Date(ib.at) > 24 * 3600e3) throw new HttpError(422, "Passaram 24h da última mensagem do cliente: responda com um modelo aprovado");
     const cfg = await waConfig(ctx); if (!cfg?.enabled) throw new HttpError(422, "WhatsApp desligado");
-    const p = cfg.provider === "fake" ? new FakeWhatsApp() : new MetaWhatsApp(cfg, ctx.deps.messagingFetch);
+    // a janela de 24h é regra da API oficial; pelo QR code a conversa é como no celular
+    if (cfg.provider === "meta" && +ctx.deps.now() - +new Date(ib.at) > 24 * 3600e3) throw new HttpError(422, "Passaram 24h da última mensagem do cliente: responda com um modelo aprovado");
+    const p = waProvider(ctx, cfg);
     let status = "sent";
     try { await p.send(ib.from, { kind: "text", body: i.text }); } catch (e) { status = "failed: " + String((e as Error).message); }
     const replies = [...(ib.replies || []), { text: i.text, at: ctx.deps.now().toISOString(), by: c.get("admin")?.sub || "painel", status }];

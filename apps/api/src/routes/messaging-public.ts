@@ -2,7 +2,7 @@ import type { Hono } from "hono";
 import type { Env } from "../http";
 import { HttpError } from "../services/ctx";
 import { verifyMetaSignature } from "../integrations/messaging/whatsapp";
-import { emailConfig, handleEmailEvent, handleMetaWebhook, parseMid, readUnsubToken, tick, trackClick, trackOpen, waConfig } from "../services/messaging";
+import { emailConfig, handleEmailEvent, handleMetaWebhook, handleQrWebhook, parseMid, readUnsubToken, tick, trackClick, trackOpen, waConfig } from "../services/messaging";
 import { runAutomations } from "../services/automations";
 
 const GIF = Uint8Array.from(atob("R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"), (c) => c.charCodeAt(0));
@@ -14,14 +14,23 @@ export function mountMessaging(app: Hono<Env>) {
   // verificação do webhook na Meta (hub.challenge)
   app.get("/webhooks/whatsapp/:slug", async (c) => {
     const ctx = await tenantBySlug(c); const cfg = await waConfig(ctx);
-    if (c.req.query("hub.mode") === "subscribe" && cfg && c.req.query("hub.verify_token") === cfg.verifyToken) return c.text(c.req.query("hub.challenge") || "");
+    if (c.req.query("hub.mode") === "subscribe" && cfg?.verifyToken && c.req.query("hub.verify_token") === cfg.verifyToken) return c.text(c.req.query("hub.challenge") || "");
     return c.text("token inválido", 403);
   });
   app.post("/webhooks/whatsapp/:slug", async (c) => {
     const ctx = await tenantBySlug(c); const cfg = await waConfig(ctx);
     const raw = await c.req.text();
-    if (!cfg || !(await verifyMetaSignature(cfg.appSecret, raw, c.req.header("x-hub-signature-256")))) return c.text("assinatura inválida", 401);
+    if (!cfg?.appSecret || !(await verifyMetaSignature(cfg.appSecret, raw, c.req.header("x-hub-signature-256")))) return c.text("assinatura inválida", 401);
     return c.json(await handleMetaWebhook(ctx, JSON.parse(raw)));
+  });
+  /** Avisos dos provedores por QR code (Z-API, Evolution): a URL com o token é configurada sozinha ao gerar o QR. */
+  app.post("/webhooks/whatsapp-qr/:provider/:slug", async (c) => {
+    const ctx = await tenantBySlug(c); const cfg = await waConfig(ctx);
+    const provider = c.req.param("provider");
+    if (!cfg || cfg.provider !== provider || !cfg.webhookToken || c.req.query("token") !== cfg.webhookToken) return c.text("token inválido", 401);
+    let b: Record<string, unknown>;
+    try { b = await c.req.json(); } catch { return c.text("corpo inválido", 400); }
+    return c.json(await handleQrWebhook(ctx, provider, b));
   });
   app.post("/webhooks/email/:slug", async (c) => {
     const ctx = await tenantBySlug(c); const cfg = await emailConfig(ctx);

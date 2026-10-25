@@ -75,7 +75,7 @@ export async function startDemo(onProgress: (msg: string) => void): Promise<Demo
   }
 
   // WhatsApp e e-mail de teste: as campanhas "saem" e o relatório mostra entregas, aberturas e cliques simulados
-  if (!(await db.get("integrations", T, "whatsapp"))) await db.put("integrations", T, { id: "whatsapp", provider: "whatsapp", config: { enabled: true, provider: "fake", phoneNumberId: "demo", token: "demo", appSecret: "demo", verifyToken: "demo", graphVersion: "v26.0", otpTemplate: { name: "codigo_acesso", language: "pt_BR" }, costPerMessage: 0.35 } });
+  if (!(await db.get("integrations", T, "whatsapp"))) await db.put("integrations", T, { id: "whatsapp", provider: "whatsapp", config: { enabled: true, provider: "fake", phoneNumberId: "demo", token: "demo", appSecret: "demo", verifyToken: "demo", graphVersion: "v26.0", otpTemplate: { name: "codigo_acesso", language: "pt_BR" }, costPerMessage: 0.35, webhookToken: "demo" }, state: { connected: false } }); // QR de teste ainda não lido: o Setup mostra a conexão
   if (!(await db.get("integrations", T, "email"))) await db.put("integrations", T, { id: "email", provider: "email", config: { enabled: true, provider: "fake", apiKey: "demo", fromName: "Forneria Original", fromEmail: "contato@forneria.com.br", webhookToken: "demo" } });
 
   // catálogo da SAIPOS de teste espelha os códigos do cardápio (para o "Importar códigos PDV")

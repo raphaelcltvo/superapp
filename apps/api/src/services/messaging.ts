@@ -2,10 +2,10 @@ import { inSegment, normPhone, uid, r2, type AutomationChannel, type Campaign, t
 import type { Ctx } from "./ctx";
 import { HttpError } from "./ctx";
 import { hmac } from "../auth";
-import { FakeWhatsApp, MetaWhatsApp, type WhatsAppProvider, type WaPayload, type MetaWebhook } from "../integrations/messaging/whatsapp";
+import { EvolutionWhatsApp, FakeWhatsApp, MetaWhatsApp, ZApiWhatsApp, fakeQrSvg, type QrProvider, type WhatsAppProvider, type WaPayload, type MetaWebhook } from "../integrations/messaging/whatsapp";
 import { BrevoEmail, FakeEmail, ResendEmail, type EmailProvider } from "../integrations/messaging/email";
 import { fillVars, instrument, renderEmail } from "../integrations/messaging/render";
-import type { EmailConfig, WhatsAppConfig } from "../integrations/messaging/types";
+import { isQrProvider, type EmailConfig, type WaConnState, type WhatsAppConfig } from "../integrations/messaging/types";
 import { findByPhone } from "./customers";
 import { draftSnapshot, publishedSnapshot } from "./catalog";
 
@@ -29,6 +29,10 @@ export interface Msg {
   deliveredAt?: string; readAt?: string; openedAt?: string; clickedAt?: string;
   error?: string;
   cost?: number;
+  /** aviso de pedido (transacional): não conta no limite semanal de marketing nem nos relatórios de campanha */
+  transactional?: boolean;
+  orderId?: string;
+  orderEvent?: string;
   createdAt: string;
 }
 
@@ -45,7 +49,75 @@ export async function emailConfig(ctx: Ctx) { return (await ctx.deps.db.get<{ id
 const fakes = new Map<string, { wa: FakeWhatsApp; email: FakeEmail }>();
 export function fakeProviders(tenantId: string) { if (!fakes.has(tenantId)) fakes.set(tenantId, { wa: new FakeWhatsApp(), email: new FakeEmail() }); return fakes.get(tenantId)!; }
 
-function waProvider(ctx: Ctx, cfg: WhatsAppConfig): WhatsAppProvider { return cfg.provider === "fake" ? fakeProviders(ctx.tenantId).wa : new MetaWhatsApp(cfg, ctx.deps.messagingFetch); }
+export function waProvider(ctx: Ctx, cfg: WhatsAppConfig): WhatsAppProvider {
+  if (cfg.provider === "fake") return fakeProviders(ctx.tenantId).wa;
+  return qrProvider(ctx, cfg) || new MetaWhatsApp(cfg, ctx.deps.messagingFetch);
+}
+/** Provedor por QR code (Z-API ou Evolution) ou null para Meta/teste. */
+export function qrProvider(ctx: Ctx, cfg: WhatsAppConfig): QrProvider | null {
+  if (cfg.provider === "zapi") { if (!cfg.zapi?.instanceId || !cfg.zapi.instanceToken) throw new HttpError(422, "Informe o ID e o token da instância Z-API"); return new ZApiWhatsApp(cfg.zapi, ctx.deps.messagingFetch); }
+  if (cfg.provider === "evolution") { if (!cfg.evolution?.baseUrl || !cfg.evolution.apiKey || !cfg.evolution.instance) throw new HttpError(422, "Informe a URL, a chave e o nome da instância da Evolution API"); return new EvolutionWhatsApp(cfg.evolution, ctx.deps.messagingFetch); }
+  return null;
+}
+
+/* ---------------- conexão por QR code ---------------- */
+type WaDoc = { id: string; provider: string; config: WhatsAppConfig; state?: WaConnState };
+const waDoc = (ctx: Ctx) => ctx.deps.db.get<WaDoc>("integrations", ctx.tenantId, "whatsapp");
+async function patchState(ctx: Ctx, st: Partial<WaConnState>) {
+  const d = await waDoc(ctx); if (!d) return null;
+  const state = { ...(d.state || { connected: false }), ...st, checkedAt: ctx.deps.now().toISOString() } as WaConnState;
+  await ctx.deps.db.patch("integrations", ctx.tenantId, "whatsapp", { state });
+  return state;
+}
+export function qrWebhookUrl(ctx: Ctx, slug: string, cfg: WhatsAppConfig) { return `${ctx.deps.publicUrl}/webhooks/whatsapp-qr/${cfg.provider}/${slug}?token=${cfg.webhookToken || ""}`; }
+
+/** Pede o QR code (ou confirma que já está conectado). Ao gerar o QR, aponta o webhook de mensagens recebidas. */
+export async function waConnect(ctx: Ctx) {
+  const d = await waDoc(ctx); const cfg = d?.config;
+  if (!cfg) throw new HttpError(422, "Salve a configuração do WhatsApp antes de conectar");
+  if (cfg.provider === "meta") return { status: "meta", connected: !!cfg.enabled && !!cfg.phoneNumberId && !!cfg.token };
+  if (cfg.provider === "fake") {
+    if (d!.state?.connected) return { status: "connected", connected: true };
+    await patchState(ctx, { connected: false, scanned: false });
+    return { status: "waiting_scan", connected: false, qr: fakeQrSvg(ctx.tenantId + ctx.deps.now().toISOString()), pairingCode: "TEST-0000" };
+  }
+  const p = qrProvider(ctx, cfg)!;
+  try {
+    const r = await p.connect();
+    if (r.connected) { const st = await p.status(); await patchState(ctx, { connected: true, phone: st.phone, connectedAt: d!.state?.connectedAt || ctx.deps.now().toISOString() }); return { status: "connected", connected: true }; }
+    // webhook já na geração do QR: assim que o número conecta, as respostas dos clientes chegam na caixa de entrada
+    try { const t = await tenantOf(ctx); await p.setWebhook(qrWebhookUrl(ctx, t.slug, cfg)); } catch (e) { ctx.deps.log?.("webhook do WhatsApp por QR não configurado", String(e)); }
+    await patchState(ctx, { connected: false });
+    return { status: "waiting_scan", connected: false, qr: r.qr, pairingCode: r.pairingCode };
+  } catch (e) { if (e instanceof HttpError) throw e; throw new HttpError(502, `Não conseguimos falar com o provedor: ${String((e as Error).message || e)}`); }
+}
+
+export async function waStatus(ctx: Ctx) {
+  const d = await waDoc(ctx); const cfg = d?.config; const at = ctx.deps.now().toISOString();
+  if (!cfg) return { connected: false, provider: null, checkedAt: at };
+  if (cfg.provider === "meta") return { connected: !!cfg.enabled && !!cfg.phoneNumberId && !!cfg.token, provider: "meta", checkedAt: at };
+  if (cfg.provider === "fake") return { connected: !!d!.state?.connected, provider: "fake", phone: d!.state?.phone, checkedAt: at };
+  try {
+    const st = await qrProvider(ctx, cfg)!.status();
+    const was = d!.state;
+    await patchState(ctx, { connected: st.connected, phone: st.phone || was?.phone, ...(st.connected && !was?.connected ? { connectedAt: at } : {}) });
+    return { connected: st.connected, provider: cfg.provider, phone: st.phone || was?.phone, checkedAt: at };
+  } catch (e) { return { connected: false, provider: cfg.provider, phone: d!.state?.phone, checkedAt: at, error: String((e as Error).message || e) }; }
+}
+
+export async function waDisconnect(ctx: Ctx) {
+  const d = await waDoc(ctx); const cfg = d?.config;
+  if (cfg && isQrProvider(cfg.provider)) { try { await qrProvider(ctx, cfg)!.disconnect(); } catch (e) { ctx.deps.log?.("desconectar WhatsApp falhou", String(e)); } }
+  await patchState(ctx, { connected: false, phone: undefined, connectedAt: undefined, scanned: false });
+  return { ok: true };
+}
+
+/** Só no provedor de teste: simula a leitura do QR pelo celular da loja. */
+export async function waSimulateScan(ctx: Ctx, phone = "5521999990000") {
+  const d = await waDoc(ctx);
+  if (d?.config.provider !== "fake") throw new HttpError(422, "Simulação só no provedor de teste");
+  return patchState(ctx, { connected: true, scanned: true, phone, connectedAt: ctx.deps.now().toISOString() });
+}
 function emailProvider(ctx: Ctx, cfg: EmailConfig): EmailProvider {
   if (cfg.provider === "fake") return fakeProviders(ctx.tenantId).email;
   return cfg.provider === "brevo" ? new BrevoEmail(cfg, ctx.deps.messagingFetch) : new ResendEmail(cfg, ctx.deps.messagingFetch);
@@ -100,7 +172,8 @@ export async function deliver(ctx: Ctx, d: Deliver): Promise<Msg> {
     try {
       if (cfg?.enabled) {
         let payload: WaPayload;
-        if (tpl?.waName) payload = { kind: "template", name: tpl.waName, language: tpl.waLanguage || "pt_BR", bodyParams: (tpl.waVars || []).map((v) => (v.source === "fixo" ? v.value || "" : d.vars[v.source] ?? "")), headerImage: tpl.waHeaderImage };
+        if (isQrProvider(cfg.provider)) payload = { kind: "text", body: base.text }; // QR code: sem modelo aprovado nem janela de 24h
+        else if (tpl?.waName) payload = { kind: "template", name: tpl.waName, language: tpl.waLanguage || "pt_BR", bodyParams: (tpl.waVars || []).map((v) => (v.source === "fixo" ? v.value || "" : d.vars[v.source] ?? "")), headerImage: tpl.waHeaderImage };
         else {
           if (!(await windowOpen(ctx, d.customer))) throw new HttpError(422, "Fora da janela de 24h: use um modelo aprovado pela Meta");
           payload = { kind: "text", body: base.text };
@@ -150,7 +223,8 @@ function tplVarMap(tpl: MessageTemplate, vars: Record<string, string>) {
   return m;
 }
 
-async function save(ctx: Ctx, m: Msg) { await ctx.deps.db.put("messages", ctx.tenantId, m as never); return m; }
+export async function saveMsg(ctx: Ctx, m: Msg) { await ctx.deps.db.put("messages", ctx.tenantId, m as never); return m; }
+const save = saveMsg;
 
 /** Janela de atendimento: texto livre só até 24h depois da última mensagem do cliente. */
 export async function windowOpen(ctx: Ctx, c: Customer) {
@@ -160,7 +234,7 @@ export async function windowOpen(ctx: Ctx, c: Customer) {
 }
 
 /** Provedor de teste: marca entregue/lido/aberto/clicado com taxas plausíveis e determinísticas. */
-async function simulate(ctx: Ctx, m: Msg) {
+export async function simulate(ctx: Ctx, m: Msg) {
   const h = hash(m.id), t0 = +new Date(m.createdAt);
   const at = (min: number) => new Date(t0 + min * 60e3).toISOString();
   if (m.channel === "whatsapp") {
@@ -205,25 +279,73 @@ export async function handleMetaWebhook(ctx: Ctx, body: MetaWebhook) {
     }
     for (const msg of v.messages || []) {
       const text = msg.text?.body || msg.button?.text || msg.interactive?.button_reply?.title || msg.interactive?.list_reply?.title || `[${msg.type}]`;
-      const phone = normPhone(msg.from) || msg.from;
-      const cust = await findByPhone(ctx, phone);
       const name = v.contacts?.find((c) => c.wa_id === msg.from)?.profile?.name;
-      const at = msg.timestamp ? new Date(Number(msg.timestamp) * 1000).toISOString() : ctx.deps.now().toISOString();
-      const item: InboxMessage = { id: "in_" + msg.id.replace(/[^A-Za-z0-9]/g, "").slice(-24), from: phone, customerId: cust?.id, name: name || cust?.name, text, at, status: "open" };
-      if (await ctx.deps.db.get("inbox", ctx.tenantId, item.id)) continue; // reenvio do mesmo aviso
-      await ctx.deps.db.put("inbox", ctx.tenantId, item as never);
-      inbound++;
-      if (cust && OPTOUT.test(text)) {
-        await ctx.deps.db.patch("customers", ctx.tenantId, cust.id, { optinWhatsapp: false });
-        await ctx.deps.db.patch("inbox", ctx.tenantId, item.id, { status: "resolved", optout: true });
-        optouts++;
-        const cfg = await waConfig(ctx);
-        if (cfg?.enabled) { try { await waProvider(ctx, cfg).send(phone, { kind: "text", body: "Pronto, você não vai mais receber nossas mensagens por aqui. Para voltar, é só responder VOLTAR." }); } catch { /* resposta é cortesia */ } }
-      } else if (cust && /^\s*voltar\s*$/i.test(text)) await ctx.deps.db.patch("customers", ctx.tenantId, cust.id, { optinWhatsapp: true });
+      const r = await handleInbound(ctx, { from: msg.from, name, text, id: msg.id, at: msg.timestamp ? new Date(Number(msg.timestamp) * 1000).toISOString() : undefined });
+      if (r.saved) inbound++;
+      if (r.optout) optouts++;
     }
   }
   return { statuses, inbound, optouts };
 }
+
+/** Mensagem recebida de um cliente, qualquer provedor: caixa de entrada, descadastro (SAIR) e volta (VOLTAR). */
+export async function handleInbound(ctx: Ctx, m: { from: string; name?: string; text: string; id: string; at?: string }) {
+  const phone = normPhone(m.from) || m.from;
+  const cust = await findByPhone(ctx, phone);
+  const item: InboxMessage = { id: "in_" + m.id.replace(/[^A-Za-z0-9]/g, "").slice(-24), from: phone, customerId: cust?.id, name: m.name || cust?.name, text: m.text, at: m.at || ctx.deps.now().toISOString(), status: "open" };
+  if (await ctx.deps.db.get("inbox", ctx.tenantId, item.id)) return { saved: false, optout: false }; // reenvio do mesmo aviso
+  await ctx.deps.db.put("inbox", ctx.tenantId, item as never);
+  if (cust && OPTOUT.test(m.text)) {
+    await ctx.deps.db.patch("customers", ctx.tenantId, cust.id, { optinWhatsapp: false });
+    await ctx.deps.db.patch("inbox", ctx.tenantId, item.id, { status: "resolved", optout: true });
+    const cfg = await waConfig(ctx);
+    if (cfg?.enabled) { try { await waProvider(ctx, cfg).send(phone, { kind: "text", body: "Pronto, você não vai mais receber nossas mensagens por aqui. Para voltar, é só responder VOLTAR." }); } catch { /* resposta é cortesia */ } }
+    return { saved: true, optout: true };
+  }
+  if (cust && /^\s*voltar\s*$/i.test(m.text)) await ctx.deps.db.patch("customers", ctx.tenantId, cust.id, { optinWhatsapp: true });
+  return { saved: true, optout: false };
+}
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/**
+ * Webhook dos provedores por QR code. Z-API: on-message-received e MessageStatusCallback.
+ * Evolution v2: messages.upsert e messages.update. Ignora mensagens do próprio número e de grupos.
+ * ATENÇÃO: formatos da documentação pública; validar com eventos reais antes de produção.
+ */
+export async function handleQrWebhook(ctx: Ctx, provider: string, b: Record<string, any>) {
+  let inbound = 0, statuses = 0, ignored = 0;
+  const ZSTATUS: Record<string, string> = { SENT: "sent", RECEIVED: "delivered", DELIVERED: "delivered", READ: "read", PLAYED: "played", FAILED: "failed" };
+  const ESTATUS: Record<string, string> = { SERVER_ACK: "sent", DELIVERY_ACK: "delivered", READ: "read", PLAYED: "played", ERROR: "failed" };
+  const mark = async (pid: string, st?: string) => { if (!st || !pid) return; const m = await byProviderId(ctx, pid); if (m) { await setStatus(ctx, m.id, st); statuses++; } };
+  if (provider === "zapi") {
+    if (b.type === "MessageStatusCallback" || (b.status && Array.isArray(b.ids))) { for (const id of b.ids || [b.messageId]) await mark(String(id), ZSTATUS[String(b.status)]); return { inbound, statuses, ignored }; }
+    const phone = String(b.phone || "");
+    if (b.fromMe || b.isGroup || phone.includes("-") || phone.includes("@g.us") || b.isNewsletter) return { inbound, statuses, ignored: 1 };
+    const text = b.text?.message || b.buttonsResponseMessage?.message || b.listResponseMessage?.title || (b.image ? "[imagem]" : b.audio ? "[áudio]" : b.document ? "[documento]" : b.location ? "[localização]" : "");
+    if (!phone || !text) return { inbound, statuses, ignored: 1 };
+    const r = await handleInbound(ctx, { from: phone, name: b.senderName || b.chatName, text, id: String(b.messageId || b.id || `${phone}${b.momment || ""}`), at: b.momment ? new Date(Number(b.momment)).toISOString() : undefined });
+    if (r.saved) inbound++;
+    return { inbound, statuses, ignored };
+  }
+  if (provider === "evolution") {
+    const ev = String(b.event || "").toLowerCase().replace(/_/g, ".");
+    const list: any[] = Array.isArray(b.data) ? b.data : [b.data || {}];
+    for (const d of list) {
+      if (ev === "messages.update") { await mark(String(d.keyId || d.key?.id || ""), ESTATUS[String(d.status)]); continue; }
+      if (ev !== "messages.upsert") { ignored++; continue; }
+      const jid = String(d.key?.remoteJid || "");
+      if (d.key?.fromMe || !jid || jid.endsWith("@g.us") || jid.endsWith("@broadcast")) { ignored++; continue; }
+      const msg = d.message || {};
+      const text = msg.conversation || msg.extendedTextMessage?.text || msg.buttonsResponseMessage?.selectedDisplayText || msg.listResponseMessage?.title || (msg.imageMessage ? "[imagem]" : msg.audioMessage ? "[áudio]" : msg.documentMessage ? "[documento]" : "");
+      if (!text) { ignored++; continue; }
+      const r = await handleInbound(ctx, { from: jid.split("@")[0], name: d.pushName, text, id: String(d.key?.id || jid + d.messageTimestamp), at: d.messageTimestamp ? new Date(Number(d.messageTimestamp) * 1000).toISOString() : undefined });
+      if (r.saved) inbound++;
+    }
+    return { inbound, statuses, ignored };
+  }
+  throw new HttpError(404, "Provedor desconhecido");
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 /** Eventos do provedor de e-mail (Resend ou Brevo): entregue, devolvido, marcado como spam. */
 export async function handleEmailEvent(ctx: Ctx, body: Record<string, unknown>) {
@@ -274,6 +396,10 @@ export async function audience(ctx: Ctx, segmentId: string | undefined, channel:
 
 function inQuiet(q: [number, number] | undefined, h: number) { return !!q && (q[0] <= q[1] ? h >= q[0] && h < q[1] : h >= q[0] || h < q[1]); }
 
+export const QR_DAILY_CAP = 300;
+export const QR_PER_TICK = 8;
+const defaultSleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
 /** Envia em lotes; pode ser chamada várias vezes (retoma de onde parou). */
 export async function sendCampaign(ctx: Ctx, id: string, batch = 500) {
   const { db } = ctx.deps; const now = ctx.deps.now();
@@ -283,7 +409,20 @@ export async function sendCampaign(ctx: Ctx, id: string, batch = 500) {
   const tpl = await db.get<MessageTemplate & { id: string }>("message_templates", ctx.tenantId, camp.templateId);
   if (!tpl || tpl.channel !== camp.channel) throw new HttpError(422, "Modelo inválido para o canal da campanha");
   if (camp.channel === "email" && !(await emailConfig(ctx))?.enabled) throw new HttpError(422, "Configure o e-mail antes de enviar");
-  if (camp.channel === "whatsapp" && !tpl.waName) throw new HttpError(422, "Campanha de WhatsApp precisa de modelo aprovado pela Meta");
+  const wa = camp.channel === "whatsapp" ? await waConfig(ctx) : null;
+  const qr = !!wa?.enabled && isQrProvider(wa.provider);
+  if (camp.channel === "whatsapp" && !tpl.waName && !(qr && tpl.waBody)) throw new HttpError(422, "Campanha de WhatsApp precisa de modelo aprovado pela Meta");
+  // QR code: ritmo humano (intervalo aleatório de 4 a 8 s), poucas mensagens por rodada e teto diário, para reduzir o risco de bloqueio do número
+  let capLeft = Infinity;
+  const perTick = wa?.perTick ?? QR_PER_TICK, dailyCap = wa?.dailyCap ?? QR_DAILY_CAP;
+  if (qr) {
+    const startDay = new Date(now); startDay.setHours(0, 0, 0, 0);
+    const today = (await db.list<Msg>("messages", ctx.tenantId, { since: startDay.toISOString() })).filter((m) => m.channel === "whatsapp" && m.group === "envio" && m.campaignId && !m.transactional).length;
+    capLeft = Math.max(0, dailyCap - today);
+    batch = Math.min(batch, perTick, capLeft);
+  }
+  const qrWarning = qr ? `WhatsApp por QR code: envio em ritmo humano (${perTick} mensagens por rodada do agendador, até ${dailyCap} por dia) para reduzir o risco de bloqueio do número. Para volumes maiores, use a API oficial da Meta.` : undefined;
+  if (qr && capLeft <= 0) { if (camp.status !== "sending") await db.patch("campaigns", ctx.tenantId, id, { status: "sending", startedAt: camp.startedAt || now.toISOString() }); return { sent: 0, controle: 0, done: false, waiting: "limite diário do WhatsApp por QR code", warning: qrWarning, throttled: true, capLeft: 0 }; }
   if (inQuiet(camp.quietHours, now.getHours())) { await db.patch("campaigns", ctx.tenantId, id, { status: "scheduled" }); return { sent: 0, controle: 0, done: false, waiting: "horário de silêncio" }; }
   if (camp.status !== "sending") await db.patch("campaigns", ctx.tenantId, id, { status: "sending", startedAt: camp.startedAt || now.toISOString() });
   const t = await tenantOf(ctx);
@@ -291,13 +430,14 @@ export async function sendCampaign(ctx: Ctx, id: string, batch = 500) {
   const { reachable: people } = await audience(ctx, camp.segmentId, camp.channel);
   const already = new Set((await db.list<Msg>("messages", ctx.tenantId, { where: { campaignId: id } })).map((m) => m.customerId));
   const recent = await db.list<Msg>("messages", ctx.tenantId, { since: new Date(+now - 7 * 864e5).toISOString() });
-  const weekCount = new Map<string, number>(); for (const m of recent) if (m.group === "envio") weekCount.set(m.customerId, (weekCount.get(m.customerId) || 0) + 1);
+  const weekCount = new Map<string, number>(); for (const m of recent) if (m.group === "envio" && !m.transactional) weekCount.set(m.customerId, (weekCount.get(m.customerId) || 0) + 1);
   let sent = 0, controle = 0, n = 0;
   for (const c of people) {
     if (already.has(c.id)) continue;
     if (n >= batch) break;
     const group = hash(c.id + id) % 100 < camp.holdoutPercent ? "controle" : "envio";
     if (group === "envio" && (weekCount.get(c.id) || 0) >= camp.maxPerCustomerPerWeek) continue;
+    if (qr && group === "envio" && sent > 0) await (ctx.deps.sleep || defaultSleep)(4000 + Math.floor(Math.random() * 4000));
     n++;
     const link = trackedLink(ctx.deps.publicUrl, t.slug, camp.pageId, camp.channel, id);
     await deliver(ctx, { customer: c, channel: camp.channel, template: tpl, vars: baseVars(c, t, { cupom: coupon?.code || "", link }), ref: `camp:${id}`, group, campaignId: id, couponId: camp.couponId });
@@ -306,7 +446,7 @@ export async function sendCampaign(ctx: Ctx, id: string, batch = 500) {
   const left = people.filter((c) => !already.has(c.id)).length - n;
   const done = left <= 0;
   if (done) await db.patch("campaigns", ctx.tenantId, id, { status: "done", finishedAt: now.toISOString() });
-  return { sent, controle, done };
+  return qr ? { sent, controle, done, warning: qrWarning, throttled: true, capLeft: capLeft - sent } : { sent, controle, done };
 }
 
 /** Relatório: funil da mensagem e pedidos em 7 dias, comparando com o grupo de controle (mesmo público, sem envio). */
@@ -321,7 +461,7 @@ export async function campaignReport(ctx: Ctx, id: string) {
     }
     return { n, revenue: r2(revenue), rate: list.length ? r2((n / list.length) * 100) : 0 };
   };
-  const env = msgs.filter((m) => m.group === "envio"), ctl = msgs.filter((m) => m.group === "controle");
+  const env = msgs.filter((m) => m.group === "envio" && !m.transactional), ctl = msgs.filter((m) => m.group === "controle");
   const count = (f: (m: Msg) => boolean) => env.filter(f).length;
   const ok = env.filter((m) => !["failed", "bounced"].includes(m.status));
   const e = conv(env), k = conv(ctl);
