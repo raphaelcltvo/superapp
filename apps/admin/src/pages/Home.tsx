@@ -12,6 +12,7 @@ export function Home(p: { tick: number }) {
   const strategies = useLoad<{ active: boolean }[]>("/admin/strategies");
   const loyalty = useLoad<{ active: boolean }>("/admin/settings/loyalty");
   const banners = useLoad<{ active: boolean }[]>("/admin/banners");
+  const setup = useLoad<{ progress: { done: number; total: number }; steps: { label: string; done: boolean; optional?: boolean }[] }>("/admin/setup", [p.tick]);
   const errs = (audit.data || []).filter((x) => x.level === "erro").length;
   const steps: { label: string; ok: boolean; route: string; note?: string }[] = [
     { label: "Cardápio sem erros de preço, grupos ou links", ok: !!audit.data && errs === 0, route: "publicar", note: errs ? `${errs} pendências` : undefined },
@@ -26,6 +27,11 @@ export function Home(p: { tick: number }) {
   const c = ov.data?.current, pr = ov.data?.previous;
   return <>
     <div className="pagehead"><div><h1>Início</h1><p>O que falta para o cardápio rodar sozinho e como ele vendeu nos últimos 7 dias.</p></div></div>
+    {setup.data && setup.data.progress.done < setup.data.progress.total && <div className="su-have" role="status">
+      <b>Setup da marca: {setup.data.progress.done} de {setup.data.progress.total}</b>
+      <span className="small muted">Falta: {setup.data.steps.filter((x) => !x.done && !x.optional).map((x) => x.label).join(", ")}</span>
+      <Btn sm kind="primary" onClick={() => go("setup")}>Continuar o Setup</Btn>
+    </div>}
     <div className="split">
       <section className="panel">
         <header><h2>Para colocar no ar</h2><span className="small muted num">{done} de {steps.length}</span></header>
