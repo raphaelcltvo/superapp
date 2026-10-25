@@ -96,7 +96,7 @@ function Shell(p: AdminProps & { api: ReturnType<typeof createClient>; onLogout:
   useEffect(() => { p.api.get<{ id: string }[]>("/admin/stores").then((s) => s[0] && setStoreId((x) => x || s[0].id)).catch(() => {}); }, [p.api]);
   useEffect(() => { if (!toastMsg) return; const t = setTimeout(() => setToast(null), 3200); return () => clearTimeout(t); }, [toastMsg]);
   const go = useCallback((r: string) => { setRoute(r as Route); try { history.replaceState(null, "", "#" + r); } catch { /* moldura sem histórico */ } window.scrollTo?.(0, 0); }, []);
-  const ctx: AdminCtx = useMemo(() => ({ api: p.api, toast: (m, bad) => setToast({ m, bad }), go, dirty: () => { setDraftTick((x) => x + 1); p.onChange?.("draft"); }, storeId, setStoreId, onPublished: () => p.onChange?.("published") }), [p.api, go, storeId, p.onChange]); // eslint-disable-line
+  const ctx: AdminCtx = useMemo(() => ({ api: p.api, toast: (m, bad) => setToast({ m, bad }), go, dirty: () => { setDraftTick((x) => x + 1); p.onChange?.("draft"); }, storeId, setStoreId, onPublished: () => { setDraftTick((x) => x + 1); p.onChange?.("published"); } }), [p.api, go, storeId, p.onChange]); // eslint-disable-line
   const pages: Record<Route, ReactNode> = {
     setup: <SetupPage />, inicio: <Home tick={draftTick} />, cardapio: <MenuPage />, complementos: <GroupsPage />, vitrine: <ShowcasePage />, paginas: <PagesPage />,
     estrategias: <StrategiesPage />, cupons: <CouponsPage />, pagamentos: <PaymentsPage />, cashback: <LoyaltyPage />, pedidos: <OrdersPage />,
@@ -111,7 +111,7 @@ function Shell(p: AdminProps & { api: ReturnType<typeof createClient>; onLogout:
         <div style={{ marginTop: "auto" }}><button className="navbtn" onClick={p.onLogout}>Sair</button></div>
       </nav>
       <div className="main">
-        <TopBar route={route} />
+        <TopBar route={route} tick={draftTick} />
         <div className="content" key={route}>{pages[route]}</div>
       </div>
       {toastMsg && <div className={`toast ${toastMsg.bad ? "bad" : ""}`} role="status">{toastMsg.m}</div>}
@@ -119,12 +119,12 @@ function Shell(p: AdminProps & { api: ReturnType<typeof createClient>; onLogout:
   </Ctx.Provider>;
 }
 
-function TopBar(p: { route: Route }) {
+function TopBar(p: { route: Route; tick: number }) {
   const { api, go, toast, onPublished } = useAdmin();
   const [v, setV] = useState<{ number: number; createdAt: string; current: boolean }[]>([]);
   const [errors, setErrors] = useState(0);
   const load = useCallback(() => { api.get<typeof v>("/admin/versions").then(setV).catch(() => {}); api.get<{ level: string }[]>("/admin/audit").then((a) => setErrors(a.filter((x) => x.level === "erro").length)).catch(() => {}); }, [api]);
-  useEffect(load, [load, p.route]);
+  useEffect(load, [load, p.route, p.tick]);
   const cur = v.find((x) => x.current);
   return <div className="topbar">
     <div className="row small">

@@ -14,7 +14,7 @@ export function SetupPage(p: { slots?: { ifood?: (onDone: () => void) => ReactNo
   useEffect(() => { if (s && !cur) setCur((s.steps.find((x) => !x.done && !x.skipped) || s.steps[0]).id); }, [s, cur]);
   if (!s || !cur) return null;
   const idx = s.steps.findIndex((x) => x.id === cur);
-  const next = () => { st.reload(); const n = s.steps.slice(idx + 1).find((x) => !x.done) || s.steps[idx + 1]; if (n) setCur(n.id); window.scrollTo?.(0, 0); };
+  const next = () => { st.reload(); const n = s.steps[idx + 1]; if (n) setCur(n.id); window.scrollTo?.(0, 0); };
   const saved = () => st.reload();
   const step = s.steps[idx];
   return <>

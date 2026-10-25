@@ -23,7 +23,7 @@ export async function seedForneria(db: Db, o: SeedOpts) {
   const tenant: Tenant = {
     id: "ten_forneria", slug: "forneria-original", name: "Forneria Original",
     branding: { name: "Forneria Original", logoUrl: o.media.logo, coverUrl: o.media.cover, colors: { brand: "#A3191F", brandDeep: "#6F0E12", brandSoft: "#FBE9E8", ink: "#1B1716" }, fontDisplay: "Barlow Condensed", fontText: "Barlow" },
-    settings: { currency: "BRL", timezone: "America/Sao_Paulo", whatsapp: "5521999990000", legalName: "Forneria Original", priceParity: true },
+    settings: { currency: "BRL", timezone: "America/Sao_Paulo", whatsapp: "5521999990000", legalName: "Forneria Original", priceParity: true, cuisine: "pizza" },
   };
   await db.tenants.put(tenant as never);
   const T = tenant.id;

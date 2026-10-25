@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { ApiError, createClient, type Transport } from "@cw/client";
 import { CardError, detectBrand, fmtCardNumber, fmtCpf, fmtExpiry, tokenizeCard, validateCard, validCpf, type CardFields } from "./payments";
-import { DIET_TAGS, effectiveRule, freeUnits, fractionLabel, groupCount, leadTimeLabel, measureLabel, pickPopup, pricePerMeasure, tagLabel, priceLine, validateSelection, type Banner, type CartLineInput, type OptionGroup, type Page, type PageBlock, type PaymentCode, type PricedLine, type StrategyContext } from "@cw/core";
+import { DIET_TAGS, cuisineById, effectiveRule, freeUnits, fractionLabel, groupCount, leadTimeLabel, measureLabel, pickPopup, pricePerMeasure, tagLabel, priceLine, validateSelection, type Banner, type CartLineInput, type OptionGroup, type Page, type PageBlock, type PaymentCode, type PricedLine, type StrategyContext } from "@cw/core";
 import { Bottle, BannerView, ItemArt, PageView, PizzaPhoto, brl, nextOpening, optionPhotos } from "./parts";
 import type { CartLine, Menu, MenuItem, MenuStrategy, QuoteResp } from "./types";
 
@@ -413,7 +413,7 @@ export function Storefront(props: StorefrontProps) {
             <div className="logo" role="img" aria-label={menu.tenant.name} style={menu.tenant.branding.logoUrl ? { backgroundImage: `url(${menu.tenant.branding.logoUrl})` } : undefined}>{menu.tenant.branding.logoUrl ? null : menu.tenant.name.slice(0, 2).toUpperCase()}</div>
             <div className="nmwrap">
               <span className="store-name">{menu.tenant.name}</span>
-              <span className="store-sub">Pizza · {store?.name || ""} · {store?.open || preview ? <span className="open-pill">Aberto</span> : <span className="closed-pill">Fechado</span>}</span>
+              <span className="store-sub">{cuisineById(menu.tenant.settings.cuisine).id === "generico" ? "" : `${cuisineById(menu.tenant.settings.cuisine).label} · `}{store?.name || ""} · {store?.open || preview ? <span className="open-pill">Aberto</span> : <span className="closed-pill">Fechado</span>}</span>
             </div>
           </div>
           {closed && store && <div className="closed-bar" role="status">Fechado agora · {nextOpening(store.hours)}. Você pode montar a sacola e pedir quando abrir.</div>}
