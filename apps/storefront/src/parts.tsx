@@ -44,7 +44,8 @@ export function ItemArt({ item, photos }: { item: MenuItem; photos: Record<strin
   if (item.isDrink) return <Bottle name={item.name} />;
   const first = item.heroOptionNames?.map((n) => photos[n]).find(Boolean);
   if (first) return <PizzaPhoto urls={[first]} alt={item.name} />;
-  return <span className="ph-empty" aria-hidden="true" />;
+  const ini = item.name.replace(/[^\p{L}\p{N} ]/gu, "").split(/\s+/).filter((w) => w.length > 2).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
+  return <span className="ph-empty" aria-hidden="true">{ini && <b>{ini}</b>}</span>;
 }
 
 export function Media({ media, className }: { media: Banner["media"]; className?: string }) {
