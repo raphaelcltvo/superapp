@@ -29,6 +29,8 @@ export interface Deps {
   sendOtp: (tenantId: string, phone: string, code: string) => Promise<void>;
   /** endereço -> coordenadas (Google, Mapbox, Nominatim). Sem ele, usamos o centro da área cujo nome contém o bairro. */
   geocode?: (q: { street: string; number: string; district: string; city: string; state: string; postalCode: string }) => Promise<{ lat: number; lng: number } | null>;
+  /** confere se o CPF pertence a essa data de nascimento (Serpro, bureau de crédito). Sem ele, só o formato do CPF é validado. */
+  verifyIdentity?: (cpf: string, birthDate: string) => Promise<boolean | null>;
   demo?: boolean;
   publicUrl: string;
   log?: (msg: string, extra?: unknown) => void;

@@ -17,7 +17,7 @@ import { mountMessaging } from "./routes/messaging-public";
 export function createApp(deps: Deps) {
   const app = new Hono<Env>();
   app.onError(onError);
-  app.use("*", cors({ origin: (o) => o || "*", allowHeaders: ["authorization", "content-type", "x-customer-token"], allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"] }));
+  app.use("*", cors({ origin: (o) => o || "*", allowHeaders: ["authorization", "content-type", "x-customer-token", "x-lead-id", "x-online-token"], allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"] }));
   app.use("*", async (c, next) => { c.set("deps", deps); await next(); });
 
   app.get("/health", (c) => c.json({ ok: true, db: deps.db.kind, time: deps.now().toISOString() }));

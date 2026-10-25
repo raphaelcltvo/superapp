@@ -1,6 +1,7 @@
 import { DEFAULT_ENGAGEMENT, npsKind, priceLine, r2, slugify, uid, type Automation, type Banner, type Campaign, type MessageTemplate, type Category, type Coupon, type Customer, type EngagementSettings, type Item, type LoyaltyProgram, type MerchSettings, type Option, type OptionGroup, type Order, type Page, type Segment, type Store, type Strategy, type Tenant } from "@cw/core";
 import type { Db } from "../db/types";
 import { hashPassword } from "../auth";
+import { seedFirstVisit } from "./firstvisit";
 
 /**
  * Marca de exemplo: Forneria Original (cardápio importado do iFood, preços da tabela de reajuste set/2026).
@@ -222,6 +223,7 @@ export async function seedForneria(db: Db, o: SeedOpts) {
   const campaign: Campaign = { id: "cmp_bf_vip", name: "Black Friday · VIPs", channel: "email", templateId: "tpl_em_bf", segmentId: "seg_vip", couponId: "cup_frete", holdoutPercent: 10, maxPerCustomerPerWeek: 2, quietHours: [22, 9], status: "draft", createdAt: now.toISOString() };
   await db.put("campaigns", T, campaign as never);
 
+  await seedFirstVisit(db, T);
   if (o.history) await seedHistory(db, T, items, G, now);
   return { tenant, store };
 }

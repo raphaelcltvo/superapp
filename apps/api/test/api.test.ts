@@ -14,7 +14,7 @@ if (PG) backends.push(["postgres", async () => {
   const sql = postgres(PG, { max: 1, onnotice: () => {} });
   await sql.unsafe("drop schema public cascade; create schema public;");
   const { readFileSync } = await import("node:fs");
-  for (const f of ["001_init.sql", "002_mensagens.sql"]) await sql.unsafe(readFileSync(new URL("../migrations/" + f, import.meta.url), "utf8"));
+  for (const f of ["001_init.sql", "002_mensagens.sql", "003_leads.sql"]) await sql.unsafe(readFileSync(new URL("../migrations/" + f, import.meta.url), "utf8"));
   await sql.end();
   return postgresDb(PG);
 }]);

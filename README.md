@@ -60,6 +60,13 @@ Sem `DATABASE_URL` a API sobe com banco em memória (bom para testar).
 
 Pendente para 100% dos critérios: pedido com **mais de uma forma de pagamento** (o checkout aceita uma) e campo de bandeira do cartão no complemento.
 
+## Primeira visita, topo por jornada e senha do pagamento online
+
+- **Topo do cardápio por jornada**: quem chega por anúncio (utm_source/utm_campaign/utm_content) vê o produto ou a categoria do criativo (Painel › Pesquisa e engajamento › Primeira visita › Topo por campanha); o recorrente vê o que ele **mais** pede, com a combinação de sabores, em 1 toque; o visitante novo vê a triagem.
+- **Triagem de primeira visita**: com base enviada (30+ clientes), o núcleo agrupa os clientes em personas (tamanho do pedido, oferta x montar, doce, ticket) e escolhe as 2–3 perguntas que mais separam esses grupos; a resposta leva ao grupo mais parecido e o topo mostra o que ele pede, já montado. Sem base, vale o roteiro do segmento (editável no painel).
+- **Cupom em troca da pesquisa**: modo recompensa (responde e ganha) ou portão (o cupom aparece primeiro e só libera com respostas + celular + e-mail). O contato vira lead no CRM; o WhatsApp de marketing só liga depois que o telefone é confirmado por código no pedido (o lead é unido ao cliente nessa hora). Sem senha.
+- **Senha só no pagamento online**: na primeira compra online o cliente informa CPF e data de nascimento e cria uma senha; depois, só a senha (5 erros bloqueiam 15 min; "esqueci" usa o código do WhatsApp). Pagamento na entrega continua sem senha. Desligável em Pagamentos. Conferir se o CPF pertence àquela data de nascimento exige um serviço pago (Serpro ou bureau de crédito): plugue em `deps.verifyIdentity(cpf, nascimento)`; sem ele, só o formato do CPF é validado.
+
 ## Decisões de produto já embutidas
 
 - Pedido mínimo **nunca bloqueia**: abaixo dele entra a taxa (padrão R$ 15, enviada à SAIPOS como `MIN_ORDER_FEE`); acima, a taxa não existe e nada aparece na tela. A taxa aparece só no resumo antes de pagar (exigência do CDC).

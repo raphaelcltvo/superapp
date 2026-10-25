@@ -142,7 +142,7 @@ export const paymentsConfigSchema = z.object({
   enabled: z.boolean(), gateway: z.enum(["mercadopago", "pagarme", "asaas", "fake"]), env: z.enum(["sandbox", "production"]),
   accessToken: z.string().optional(), publicKey: z.string().optional(), secretKey: z.string().optional(), apiKey: z.string().optional(), webhookSecret: z.string().optional(),
   methods: z.object({ pix: z.boolean(), card: z.boolean() }), pixExpiresMinutes: z.number().int().min(2).max(1440), maxInstallments: z.number().int().min(1).max(12),
-  softDescriptor: z.string().max(13).optional(), captureOnlyIfStoreOpen: z.boolean().optional(), baseUrl: z.string().optional(), fakeAutoPaySeconds: z.number().int().min(0).max(600).optional(),
+  softDescriptor: z.string().max(13).optional(), captureOnlyIfStoreOpen: z.boolean().optional(), baseUrl: z.string().optional(), fakeAutoPaySeconds: z.number().int().min(0).max(600).optional(), requirePassword: z.boolean().optional(),
 });
 export const whatsappConfigSchema = z.object({
   enabled: z.boolean(), provider: z.enum(["meta", "fake"]), phoneNumberId: z.string(), wabaId: z.string().optional(), token: z.string(), appSecret: z.string(), verifyToken: z.string(),

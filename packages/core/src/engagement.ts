@@ -9,6 +9,7 @@
  *   Dose: no máximo 1 efeito por tela e 1 cupom por visita; respeita "reduzir movimento".
  */
 import type { ID } from "./types";
+import { DEFAULT_FIRST_VISIT, type CampaignTarget, type FirstVisitSettings } from "./firstvisit";
 
 export type PartySize = "solo" | "dupla" | "galera";
 export type Mood = "salgada" | "doce" | "ambas";
@@ -26,6 +27,8 @@ export interface CustomerPreferences {
   lastSurveyAt?: string;
   triageAskedAt?: string;
   triageAnswers?: number;
+  /** triagem de primeira visita (veio do lead ao confirmar o telefone) */
+  firstVisit?: { answers: Record<string, string>; personaId?: string; personaName?: string; at: string };
 }
 
 export interface OrderFeedback {
@@ -50,6 +53,10 @@ export interface TriageQuestionCfg { kind: TriageKind; enabled: boolean; title: 
 export interface AvoidTag { id: string; label: string; keywords: string[] }
 
 export interface EngagementSettings {
+  /** primeira visita: triagem com cupom de boas-vindas */
+  firstVisit: FirstVisitSettings;
+  /** topo do cardápio por campanha (utm) */
+  campaigns: CampaignTarget[];
   triage: {
     enabled: boolean;
     /** pergunta de novo só depois de N dias (por cliente) */
@@ -92,6 +99,8 @@ export interface EngagementSettings {
 }
 
 export const DEFAULT_ENGAGEMENT: EngagementSettings = {
+  firstVisit: DEFAULT_FIRST_VISIT,
+  campaigns: [],
   triage: {
     enabled: true, cooldownDays: 3, occasionHours: 6,
     questions: [
@@ -125,6 +134,8 @@ export function mergeEngagement(v?: Partial<EngagementSettings> | null): Engagem
   const d = DEFAULT_ENGAGEMENT;
   if (!v) return d;
   return {
+    firstVisit: { ...d.firstVisit, ...(v.firstVisit || {}) },
+    campaigns: v.campaigns || d.campaigns,
     triage: { ...d.triage, ...(v.triage || {}) },
     postOrder: { ...d.postOrder, ...(v.postOrder || {}) },
     effects: { ...d.effects, ...(v.effects || {}), exitIntent: { ...d.effects.exitIntent, ...(v.effects?.exitIntent || {}) } },

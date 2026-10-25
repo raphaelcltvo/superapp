@@ -5,9 +5,10 @@ import { Storefront } from "../../storefront/src/Storefront";
 import { startDemo, resetDemo, type Demo } from "./backend";
 import "./demo.css";
 
-type Visitor = "novo" | "recorrente" | "familia" | "em_risco";
-const VISITORS: { id: Visitor; label: string; source: string }[] = [
-  { id: "novo", label: "Novo · anúncio no Instagram", source: "instagram" },
+type Visitor = "direto" | "novo" | "recorrente" | "familia" | "em_risco";
+const VISITORS: { id: Visitor; label: string; source?: string; campaign?: string }[] = [
+  { id: "direto", label: "Novo · entrou direto", source: undefined },
+  { id: "novo", label: "Novo · anúncio no Instagram", source: "instagram", campaign: "pizza99" },
   { id: "recorrente", label: "Recorrente · link no WhatsApp", source: "whatsapp" },
   { id: "familia", label: "Família · Google no domingo", source: "google" },
   { id: "em_risco", label: "Sumido há 45+ dias", source: "whatsapp" },
@@ -16,13 +17,15 @@ const nextSunday19 = () => { const d = new Date(); d.setDate(d.getDate() + ((7 -
 
 function Shell({ demo }: { demo: Demo }) {
   const [view, setView] = useState<"ambos" | "painel" | "cardapio">(() => (window.innerWidth < 1100 ? "cardapio" : "ambos"));
-  const [visitor, setVisitor] = useState<Visitor>("novo");
+  const [visitor, setVisitor] = useState<Visitor>("direto");
   const [token, setToken] = useState<string | null>(null);
   const [key, setKey] = useState(0);
   const [resetAsk, setResetAsk] = useState(false);
   useEffect(() => {
     (async () => {
       demo.clock.offsetTo(visitor === "familia" ? nextSunday19() : null);
+      // cada troca de visitante começa uma visita nova (sem lead, sem cupom já oferecido)
+      try { localStorage.removeItem(`cw:lead:${demo.slug}`); for (const k of Object.keys(sessionStorage)) if (k.startsWith("cw:")) sessionStorage.removeItem(k); } catch { /* sem armazenamento */ }
       setToken(visitor === "recorrente" || visitor === "em_risco" ? await demo.customerToken(visitor) : null);
       setKey((k) => k + 1);
     })();
@@ -42,7 +45,7 @@ function Shell({ demo }: { demo: Demo }) {
     <main className={`demo-main v-${view}`}>
       {view !== "cardapio" && <section className="demo-admin"><Admin transport={demo.transport} autoLogin={{ email: "demo@forneria.com.br", password: "forneria2026" }} onChange={(k) => { if (k === "published") setKey((x) => x + 1); }} /></section>}
       {view !== "painel" && <aside className="demo-phone-wrap">
-        <div className="demo-phone"><div className="demo-screen"><Storefront key={key + ":" + visitor} transport={demo.transport} slug={demo.slug} source={v.source} customer={customer} /></div></div>
+        <div className="demo-phone"><div className="demo-screen"><Storefront key={key + ":" + visitor} transport={demo.transport} slug={demo.slug} source={v.source} campaign={v.campaign} customer={customer} /></div></div>
         <p className="demo-cap">O cardápio lê a última versão publicada. Edite no painel, clique em <b>Publicar alterações</b> e ele recarrega aqui. Os pedidos vão para uma SAIPOS de teste que confirma, despacha e entrega sozinha. Código do WhatsApp: <b>1234</b>.</p>
       </aside>}
     </main>

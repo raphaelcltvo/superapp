@@ -5,8 +5,10 @@ const OUT = process.env.OUT || ".";
   const pg = await b.newPage({ viewport: { width: 1500, height: 920 }, ignoreHTTPSErrors: true });
   const errs = []; pg.on("pageerror", (e) => errs.push(e.message)); pg.on("console", (m) => { if (m.type() === "error") errs.push(m.text()); });
   const ok = (c, m) => console.log((c ? "ok: " : "FALHOU: ") + m);
-  await pg.goto("http://localhost:8811/index.html");
+  await pg.goto("http://localhost:" + (process.env.PORT || 8811) + "/index.html");
   await pg.waitForSelector(".cw-sf .store-name", { timeout: 60000 });
+  const fvSkip = async () => { try { await pg.locator(".demo-screen .fv-sheet").waitFor({ timeout: 4000 }); await pg.locator('.demo-screen .fv-sheet button:has-text("Pular"), .demo-screen .fv-sheet button:has-text("Agora não")').first().click(); await pg.waitForTimeout(600); } catch { /* sem triagem */ } };
+  await fvSkip();
   const sf = pg.locator(".demo-screen");
   await sf.locator('[data-id="s40"] .info').click();
   await sf.locator('#g-g_sab40 .opt-row:has-text("4 Queijos") button[aria-label^="Adicionar"]').first().click();
@@ -21,6 +23,8 @@ const OUT = process.env.OUT || ".";
   await sf.locator("#cw-name").fill("Raphael Teste"); await sf.locator("#cw-phone").fill("21 9" + String(Date.now()).slice(-8));
   await sf.locator('button:has-text("Receber código")').click(); await sf.locator("#cw-code").fill("1234"); await sf.locator('button:has-text("Confirmar código")').click();
   await sf.locator(".ident-ok").waitFor(); await pg.waitForTimeout(500);
+  // pagamento online: CPF, nascimento e senha (só na primeira vez)
+  if (await sf.locator("#cw-oa-cpf").count()) { await sf.locator("#cw-oa-cpf").fill("52998224725"); await sf.locator("#cw-oa-bday").fill("1990-05-10"); await sf.locator("#cw-oa-pw").fill("segredo1"); }
   await sf.locator('[data-screen="checkout"] .foot-cta .cta').click();
   await pg.waitForTimeout(2500);
   await pg.screenshot({ path: OUT + "/7-pix.png" });

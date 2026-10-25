@@ -12,7 +12,10 @@ export interface Menu {
     payments: { code: PaymentCode; label: string; online: boolean }[]; eta?: [number, number]; hours: { weekday: number; open: string; close: string }[];
   } | null;
   profile: string;
-  hero: null | { kicker: string; title: string; sub?: string; action: { kind: "open_item"; itemId: string } | { kind: "reorder"; orderId: string; lines: CartLineInput[] } };
+  hero: null | { kicker: string; title: string; sub?: string; personal?: boolean; campaign?: string; action: { kind: "open_item"; itemId: string; selection?: Record<string, Record<string, number>> } | { kind: "reorder"; orderId?: string; lines: CartLineInput[] } | { kind: "category"; categoryId: string } };
+  /** triagem da primeira visita (só para quem não é cliente e ainda não respondeu) */
+  firstVisit?: FirstVisit | null;
+  lead?: { id: string; couponUnlocked: boolean; couponCode?: string } | null;
   banners: Partial<Record<"menu_top" | "below_suggested" | "bag" | "after_order", Banner | undefined>>;
   mostOrdered: { title: string; itemIds: string[] } | null;
   categories: { id: string; name: string; description?: string; pricingLocked: boolean; itemIds: string[] }[];
@@ -39,3 +42,12 @@ export interface QuoteResp {
 }
 
 export interface CartLine { key: string; itemId: string; qty: number; selection: Record<string, Record<string, number>>; notes?: string }
+
+export interface FirstVisit {
+  mode: "reward" | "gate";
+  source: "personas" | "playbook";
+  coupon: { name: string; type: string; value: number; maxDiscount?: number; minSubtotal?: number } | null;
+  questions: { id: string; title: string; options: { id: string; label: string }[] }[];
+  afterSeconds: number;
+  consentText: string;
+}

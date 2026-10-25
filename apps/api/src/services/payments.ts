@@ -22,7 +22,7 @@ export async function publicPayments(ctx: Ctx): Promise<PublicPaymentsConfig | n
   const a = await activePayments(ctx);
   if (!a) return null;
   const p = a.gw.publicConfig(a.cfg);
-  return { ...p, methods: { pix: p.methods.pix && a.gw.supports.pix, card: p.methods.card && a.gw.supports.card } };
+  return { ...p, methods: { pix: p.methods.pix && a.gw.supports.pix, card: p.methods.card && a.gw.supports.card }, requirePassword: a.cfg.requirePassword !== false };
 }
 export const isOnlineCode = (c: string) => c === "PIX_ONLINE" || c === "CARD_ONLINE";
 

@@ -13,7 +13,7 @@ import type { Customer, Item, OptionGroup, Order, Store } from "@cw/core";
  * Backend completo rodando no navegador: mesma API do servidor, banco em memória salvo no IndexedDB,
  * SAIPOS de teste que confirma, despacha e entrega os pedidos sozinha.
  */
-const DB_NAME = "superapp-demo", KEY = "snapshot-v6"; // v6: pagamento online, mensagens, pesquisa
+const DB_NAME = "superapp-demo", KEY = "snapshot-v7"; // v7: primeira visita, leads e senha do pagamento online
 const SLUG = "forneria-original";
 const media = (f: string) => `media/${f}`;
 
