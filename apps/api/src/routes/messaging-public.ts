@@ -1,5 +1,6 @@
 import type { Hono } from "hono";
 import type { Env } from "../http";
+import { maybeRunCycle } from "../services/algo";
 import { HttpError } from "../services/ctx";
 import { verifyMetaSignature } from "../integrations/messaging/whatsapp";
 import { emailConfig, handleEmailEvent, handleMetaWebhook, parseMid, readUnsubToken, tick, trackClick, trackOpen, waConfig } from "../services/messaging";
@@ -57,7 +58,10 @@ export function mountMessaging(app: Hono<Env>) {
     const deps = c.get("deps");
     if (!deps.cronSecret || c.req.header("x-cron-secret") !== deps.cronSecret) return c.text("não autorizado", 401);
     const out: Record<string, unknown> = {};
-    for (const t of await deps.db.tenants.list()) out[t.slug] = await tick({ deps, tenantId: t.id }, runAutomations);
+    for (const t of await deps.db.tenants.list()) {
+      const ctx = { deps, tenantId: t.id };
+      out[t.slug] = { ...(await tick(ctx, runAutomations)), ciclo: await maybeRunCycle(ctx).catch((e) => ({ error: String((e as Error).message) })) };
+    }
     return c.json(out);
   });
 }

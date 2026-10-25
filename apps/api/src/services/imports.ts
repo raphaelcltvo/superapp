@@ -45,14 +45,14 @@ export function suggest(kind: ImportKind, headers: string[]) {
   return map;
 }
 
-const parseMoney = (v: unknown) => { const s = String(v ?? "").replace(/[R$\s]/g, ""); const x = s.includes(",") ? s.replace(/\./g, "").replace(",", ".") : s; return r2(Number(x) || 0); };
-const parseDate = (v: unknown) => {
+export const parseMoney = (v: unknown) => { const s = String(v ?? "").replace(/[R$\s]/g, ""); const x = s.includes(",") ? s.replace(/\./g, "").replace(",", ".") : s; return r2(Number(x) || 0); };
+export const parseDate = (v: unknown) => {
   const s = String(v ?? "").trim();
   const br = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?:[ T](\d{1,2}):(\d{2}))?/);
   if (br) { const y = br[3].length === 2 ? "20" + br[3] : br[3]; return new Date(`${y}-${br[2].padStart(2, "0")}-${br[1].padStart(2, "0")}T${(br[4] || "12").padStart(2, "0")}:${br[5] || "00"}:00-03:00`).toISOString(); }
   const d = new Date(s); return isNaN(+d) ? null : d.toISOString();
 };
-const truthy = (v: unknown) => ["1", "sim", "s", "yes", "true", "y", "x"].includes(n(String(v ?? "")));
+export const truthy = (v: unknown) => ["1", "sim", "s", "yes", "true", "y", "x"].includes(n(String(v ?? "")));
 
 /** Cria o job de importação com prévia; nada é gravado nos clientes/pedidos até o commit. */
 export async function createImport(ctx: Ctx, kind: ImportKind, bytes: Uint8Array, filename: string) {
