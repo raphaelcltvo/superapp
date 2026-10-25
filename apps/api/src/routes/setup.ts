@@ -19,8 +19,9 @@ export async function setupStatus(ctx: Ctx) {
   const snap = await draftSnapshot(ctx);
   const st = await state(ctx);
   const store = snap.stores[0];
-  const integ = await db.list<{ id: string; config: { enabled?: boolean; provider?: string; connected?: boolean } }>("integrations", t);
-  const wa = integ.find((i) => i.id === "whatsapp")?.config;
+  const integ = await db.list<{ id: string; config: { enabled?: boolean; provider?: string }; state?: { connected?: boolean } }>("integrations", t);
+  const waDoc = integ.find((i) => i.id === "whatsapp");
+  const wa = waDoc && { ...waDoc.config, connected: waDoc.config.provider === "meta" ? true : !!waDoc.state?.connected };
   const saipos = integ.some((i) => i.id.startsWith("saipos:") && i.config.enabled);
   const ordersCfg = await db.get<{ id: string }>("settings", t, "orders");
   const customers = await db.count("customers", t);
@@ -33,7 +34,7 @@ export async function setupStatus(ctx: Ctx) {
     cardapio: { done: snap.items.length > 0 && itemErrors === 0, detail: `${snap.categories.length} categorias · ${snap.items.length} itens · ${snap.groups.length} grupos${itemErrors ? ` · ${itemErrors} erro(s)` : ""}` },
     pagamento: { done: !!store?.payments.some((p) => p.active), detail: store ? store.payments.filter((p) => p.active).map((p) => p.label).join(", ") || "nenhuma forma ativa" : "cadastre a loja antes" },
     pedidos: { done: !!ordersCfg || saipos || !!st.ordersMode, detail: saipos ? "PDV SAIPOS ligado" : st.ordersMode === "pdv" ? "PDV escolhido (falta conectar)" : "gestor de pedidos do SuperApp" },
-    whatsapp: { done: !!wa?.enabled && (wa.provider === "meta" || wa.connected !== false), detail: wa?.enabled ? `${wa.provider === "meta" ? "API oficial" : wa.provider === "fake" ? "teste" : "QR code"}${wa.connected === false ? " · desconectado" : " · conectado"}` : "não conectado" },
+    whatsapp: { done: !!wa?.enabled && wa.connected, detail: wa?.enabled ? `${wa.provider === "meta" ? "API oficial" : wa.provider === "fake" ? "QR code (teste)" : "QR code"} · ${wa.connected ? "conectado" : "aguardando leitura do QR"}` : "não conectado" },
     base: { done: customers > 0, detail: customers ? `${customers} clientes na base` : "opcional: suba a base para achar os perfis" },
     publicar: { done: !!tenant.publishedVersionId, detail: tenant.publishedVersionId ? "no ar" : `${issues.filter((i) => i.level === "erro").length} pendência(s)` },
   };

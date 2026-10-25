@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { CARD_BRANDS, OFFLINE_PAYMENTS, VOUCHER_BRANDS, FEATURE_INFO, brandPalette, measureLabel, tagLabel, type CuisineFeature, type CuisineId, type PaymentCode, type SetupStepId, type Store, type Tenant } from "@cw/core";
+import { WhatsAppConnect, OrderNotifications } from "./WhatsAppConnect";
 import { BRL, Btn, Chips, Field, MediaInput, Num, Pill, Text, Toggle, errMsg, useAction, useAdmin, useLoad } from "../ui";
 
 type Step = { id: SetupStepId; label: string; hint: string; optional?: boolean; done: boolean; detail: string; skipped: boolean };
@@ -39,7 +40,7 @@ export function SetupPage(p: { slots?: { ifood?: (onDone: () => void) => ReactNo
         {cur === "cardapio" && <MenuStep status={s} onSaved={saved} onNext={next} ifood={p.slots?.ifood} />}
         {cur === "pagamento" && <PaymentStep onSaved={next} />}
         {cur === "pedidos" && <OrdersStep status={s} onSaved={next} />}
-        {cur === "whatsapp" && <WhatsAppStep onSaved={next} slot={p.slots?.whatsapp} />}
+        {cur === "whatsapp" && <WhatsAppStep onSaved={next} onConnected={saved} slot={p.slots?.whatsapp} />}
         {cur === "base" && <BaseStep onSkip={next} />}
         {cur === "publicar" && <PublishStep status={s} onSaved={saved} />}
       </section>
@@ -238,11 +239,13 @@ function OrdersStep(p: { status: Status; onSaved: () => void }) {
 }
 
 /* ---------------- 7. WhatsApp ---------------- */
-function WhatsAppStep(p: { onSaved: () => void; slot?: (onDone: () => void) => ReactNode }) {
+function WhatsAppStep(p: { onSaved: () => void; onConnected: () => void; slot?: (onDone: () => void) => ReactNode }) {
   const { go } = useAdmin();
   return <div className="stack">
     <p className="small">O WhatsApp é o canal do CRM: confirma o pedido, avisa quando sai para entrega, recebe as respostas dos clientes e dispara as campanhas de recompra. Pagamento online e PDV são opcionais; o WhatsApp é o que mais pesa na recompra.</p>
-    {p.slot ? p.slot(p.onSaved) : <div className="su-have"><span>Conexão do WhatsApp</span><Btn sm kind="primary" onClick={() => go("mensagens")}>Conectar</Btn></div>}
+    {p.slot ? p.slot(p.onSaved) : <WhatsAppConnect compact onConnected={p.onConnected} />}
+    <details><summary className="small">Avisos automáticos do pedido (aceito, saiu para entrega, entregue)</summary><div style={{ marginTop: 10 }}><OrderNotifications /></div></details>
+    <div className="row"><Btn kind="primary" id="su-wa-next" onClick={p.onSaved}>Continuar</Btn><Btn onClick={() => go("mensagens")}>Mais opções de WhatsApp e e-mail</Btn></div>
   </div>;
 }
 

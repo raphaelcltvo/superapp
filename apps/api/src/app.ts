@@ -32,6 +32,8 @@ export function createApp(deps: Deps) {
     await deps.db.tenants.put(t as never);
     const u = { id: uid("usr"), name: i.name, email: i.email.toLowerCase(), role: "owner", passwordHash: await hashPassword(i.password), createdAt: deps.now().toISOString() };
     await deps.db.put("users", t.id, u);
+    // demonstração: WhatsApp de teste ligado e ainda sem QR lido, para o Setup mostrar a conexão
+    if (deps.demo) await deps.db.put("integrations", t.id, { id: "whatsapp", provider: "whatsapp", config: { enabled: true, provider: "fake", phoneNumberId: "demo", token: "demo", appSecret: "demo", verifyToken: "demo", webhookToken: crypto.randomUUID().replace(/-/g, "") }, state: { connected: false } });
     return c.json({ token: await signAdmin({ sub: u.id, tid: t.id, role: "owner" }, deps.jwtSecret), tenant: t }, 201);
   });
   app.post("/auth/login", async (c) => {
