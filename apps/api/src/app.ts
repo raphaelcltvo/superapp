@@ -13,6 +13,7 @@ import { onSaiposEvent } from "./services/orders";
 import { saiposConfig } from "./services/integrations";
 import { onPaymentWebhook } from "./services/payments";
 import { mountMessaging } from "./routes/messaging-public";
+import { mountAlgo } from "./algo/routes";
 
 export function createApp(deps: Deps) {
   const app = new Hono<Env>();
@@ -45,6 +46,7 @@ export function createApp(deps: Deps) {
   app.route("/public/:slug", publicRoutes());
   app.route("/v1", v1Routes());
   mountMessaging(app);
+  mountAlgo(app); // algoritmo: banco (esquema algo), rotas e agendador próprios
 
   /** Webhook que a SAIPOS chama a cada mudança de status (configure a URL no Saipos Developer > Configuração). */
   app.post("/webhooks/saipos/:slug/:storeId", async (c) => {
