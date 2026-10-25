@@ -113,3 +113,24 @@ for (const [label, mk] of backends) describe(`Copiar do iFood (${label})`, () =>
     deps.ifoodFetch = undefined;
   });
 });
+
+describe("Copiar do iFood · fotos", () => {
+  it("copia as fotos do iFood para o nosso armazenamento quando há mediaFetch", async () => {
+    const { memoryDb } = await import("../src/db/memory");
+    const { copyPhotos } = await import("../src/services/menuimport");
+    const db = memoryDb();
+    await db.tenants.put({ id: "t1", slug: "t1" } as never);
+    await db.put("items", "t1", { id: "i1", imageUrl: "https://static.ifood-static.com.br/image/upload/t_high/pratos/abc.jpg" } as never);
+    await db.put("items", "t1", { id: "i2", imageUrl: "https://minha.cdn/foto.jpg" } as never);
+    await db.put("option_groups", "t1", { id: "g1", options: [{ id: "o1", imageUrl: "https://static.ifood-static.com.br/image/upload/t_high/pratos/abc.jpg" }, { id: "o2", imageUrl: "https://static.ifood-static.com.br/x/bad.jpg" }] } as never);
+    const saved: string[] = [];
+    const deps = { db, storage: { async put(_t: string, name: string) { saved.push(name); return "https://nosso.storage/" + name; } }, mediaFetch: async (u: string) => (u.includes("bad") ? new Response("x", { status: 404 }) : new Response(new Uint8Array([1, 2, 3]), { headers: { "content-type": "image/jpeg" } })) } as never;
+    const r = await copyPhotos({ deps, tenantId: "t1" });
+    expect(r).toEqual({ copied: 1, failed: 1, pending: 1 });
+    expect(saved).toEqual(["ifood-abc.jpg"]);
+    expect((await db.get<{ id: string; imageUrl: string }>("items", "t1", "i1"))!.imageUrl).toBe("https://nosso.storage/ifood-abc.jpg");
+    expect((await db.get<{ id: string; imageUrl: string }>("items", "t1", "i2"))!.imageUrl).toBe("https://minha.cdn/foto.jpg");
+    const g = await db.get<{ id: string; options: { imageUrl: string }[] }>("option_groups", "t1", "g1");
+    expect(g!.options.map((o) => o.imageUrl)).toEqual(["https://nosso.storage/ifood-abc.jpg", "https://static.ifood-static.com.br/x/bad.jpg"]);
+  });
+});

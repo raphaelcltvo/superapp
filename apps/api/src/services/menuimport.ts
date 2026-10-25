@@ -24,7 +24,7 @@ export interface MenuImportJob {
   createdAt: string;
   finishedAt?: string;
 }
-export interface CommitReport { mode: "replace" | "merge"; categories: number; items: number; groups: number; created: number; updated: number; removed: number; cuisine: CuisineId }
+export interface CommitReport { mode: "replace" | "merge"; categories: number; items: number; groups: number; created: number; updated: number; removed: number; cuisine: CuisineId; photos?: { copied: number; failed: number; pending: number } }
 
 const SESSION_MIN = 30;
 const MAX_RAW = 8 * 1024 * 1024;
@@ -194,9 +194,51 @@ export async function commitImport(ctx: Ctx, id: string, mode: "replace" | "merg
   }
   const t = (await db.tenants.get(T)) as unknown as Tenant;
   if (t && !t.settings?.cuisine) await db.tenants.put({ ...t, settings: { ...t.settings, cuisine: plan.cuisine } } as unknown as Parameters<typeof db.tenants.put>[0]);
-  const result: CommitReport = { mode, categories: plan.categories.length, items: plan.items.length, groups: plan.groups.length, created, updated, removed, cuisine: plan.cuisine };
+  const photos = await copyPhotos(ctx);
+  const result: CommitReport = { mode, categories: plan.categories.length, items: plan.items.length, groups: plan.groups.length, created, updated, removed, cuisine: plan.cuisine, photos };
   await db.patch("imports", T, id, { status: "concluida", result, finishedAt: ctx.deps.now().toISOString() });
   return result;
+}
+
+/* ---------------- fotos ---------------- */
+const EXTERNAL = /^https?:\/\/[^/]*ifood[^/]*\//i;
+/**
+ * Copia as fotos que ainda apontam para o iFood para o nosso armazenamento (o cardápio não depende do servidor de imagens deles).
+ * Sem deps.mediaFetch (demonstração, testes) as URLs ficam como estão e o relatório conta as pendentes.
+ */
+export async function copyPhotos(ctx: Ctx, limit = 400) {
+  const { db, storage, mediaFetch } = ctx.deps; const T = ctx.tenantId;
+  const items = (await db.list<Item & { id: string }>("items", T)).filter((i) => i.imageUrl && EXTERNAL.test(i.imageUrl));
+  const groups = (await db.list<OptionGroup & { id: string }>("option_groups", T)).filter((g) => g.options.some((o) => o.imageUrl && EXTERNAL.test(o.imageUrl)));
+  const pending = items.length + groups.reduce((a, g) => a + g.options.filter((o) => o.imageUrl && EXTERNAL.test(o.imageUrl)).length, 0);
+  if (!mediaFetch || !pending) return { copied: 0, failed: 0, pending };
+  const cache = new Map<string, string | null>();
+  let copied = 0, failed = 0, n = 0;
+  const grab = async (url: string) => {
+    if (cache.has(url)) return cache.get(url)!;
+    if (n++ >= limit) return null;
+    try {
+      const r = await mediaFetch(url);
+      const type = r.headers.get("content-type") || "image/jpeg";
+      if (!r.ok || !type.startsWith("image/")) throw new Error(String(r.status));
+      const bytes = new Uint8Array(await r.arrayBuffer());
+      if (bytes.length > 3e6) throw new Error("grande demais");
+      const out = await storage.put(T, `ifood-${url.split("/").pop()!.replace(/[^a-zA-Z0-9._-]/g, "").slice(-60) || uid("img")}`, bytes, type);
+      cache.set(url, out); copied++; return out;
+    } catch { cache.set(url, null); failed++; return null; }
+  };
+  let left = 0;
+  for (const it of items) { const u = await grab(it.imageUrl!); if (u) await db.patch("items", T, it.id, { imageUrl: u }); else left++; }
+  for (const g of groups) {
+    const options = [];
+    for (const o of g.options) {
+      if (!o.imageUrl || !EXTERNAL.test(o.imageUrl)) { options.push(o); continue; }
+      const u = await grab(o.imageUrl); if (!u) left++;
+      options.push({ ...o, imageUrl: u || o.imageUrl });
+    }
+    await db.patch("option_groups", T, g.id, { options });
+  }
+  return { copied, failed, pending: left };
 }
 
 /* ---------------- bookmarklet ---------------- */

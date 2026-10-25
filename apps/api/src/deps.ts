@@ -39,6 +39,8 @@ export interface Deps {
   ifoodPaceMs?: number;
   /** termina a busca do iFood na mesma requisição (testes); em produção ela segue em segundo plano */
   ifoodSync?: boolean;
+  /** baixa imagens externas (fotos do iFood) para guardar no nosso armazenamento. Sem ele, a foto fica apontando para a origem. */
+  mediaFetch?: Fetch;
   demo?: boolean;
   publicUrl: string;
   log?: (msg: string, extra?: unknown) => void;

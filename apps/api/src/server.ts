@@ -19,6 +19,7 @@ const disk: Storage = {
 
 const app = createApp({
   db, jwtSecret: process.env.JWT_SECRET || "dev-secret-troque", now: () => new Date(), storage: disk, messenger: logMessenger, publicUrl,
+  mediaFetch: (u, i) => fetch(u, i),
   sendOtp: async (_t, phone, code) => console.log(`[otp] ${phone}: ${code}`), demo: process.env.DEMO === "1", cronSecret: process.env.CRON_SECRET, log: (m, x) => console.log(m, x ?? ""),
 });
 app.get("/uploads/*", async (c) => {
