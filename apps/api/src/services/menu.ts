@@ -1,4 +1,4 @@
-import { favoriteOrder, detectProfile, pickBanner, walletBalance, hasVariablePrice, type Customer, type Order, type ProfileKey, type Store, type Weekday } from "@cw/core";
+import { favoriteOrder, detectProfile, pickBanner, walletBalance, hasVariablePrice, minPrice, type Customer, type Order, type ProfileKey, type Store, type Weekday } from "@cw/core";
 import type { Ctx } from "./ctx";
 import type { Snapshot } from "./catalog";
 import { customerContext, ledgerOf } from "./customers";
@@ -73,7 +73,7 @@ export async function resolveMenu(ctx: Ctx, snap: Snapshot, v: VisitorInput) {
     const recent = await ctx.deps.db.list<Order & { id: string }>("orders", ctx.tenantId, { since, limit: 2000 });
     const count = new Map<string, number>();
     for (const o of recent) if (o.status !== "cancelled") for (const l of o.lines) count.set(l.itemId, (count.get(l.itemId) || 0) + l.qty);
-    const auto = [...count.entries()].filter(([id]) => items.some((i) => i.id === id)).sort((a, b) => b[1] - a[1]).map(([id]) => id);
+    const auto = [...count.entries()].filter(([id]) => items.some((i) => i.id === id && !i.isDrink)).sort((a, b) => b[1] - a[1]).map(([id]) => id);
     if (auto.length >= 3) mostIds = auto.slice(0, 6);
   }
 
@@ -94,7 +94,7 @@ export async function resolveMenu(ctx: Ctx, snap: Snapshot, v: VisitorInput) {
     banners,
     mostOrdered: snap.merch.mostOrdered.enabled ? { title: snap.merch.mostOrdered.title, itemIds: mostIds.filter((id) => items.some((i) => i.id === id)) } : null,
     categories: cats.map((c) => ({ id: c.id, name: c.name, description: c.description, pricingLocked: !!c.pricingLocked, itemIds: items.filter((i) => i.categoryId === c.id).sort((a, b) => a.position - b.position).map((i) => i.id) })).filter((c) => c.itemIds.length),
-    items: Object.fromEntries(items.map((i) => [i.id, { ...i, fromPrice: hasVariablePrice(i, i.groupIds.map((g) => G[g]).filter(Boolean)) }])),
+    items: Object.fromEntries(items.map((i) => [i.id, { ...i, fromPrice: hasVariablePrice(i, i.groupIds.map((g) => G[g]).filter(Boolean)), minPrice: minPrice(i, i.groupIds.map((g) => G[g]).filter(Boolean)) }])),
     groups: Object.fromEntries([...usedGroups].filter((g) => G[g]).map((g) => [g, { ...G[g], options: G[g].options.filter((o) => o.active) }])),
     crossSell: snap.merch.crossSell.filter((r) => r.active),
     strategies: clientStrategies,

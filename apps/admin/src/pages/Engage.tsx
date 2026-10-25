@@ -242,7 +242,7 @@ function FirstVisitTab() {
         <section className="panel"><header><h3>Roteiro (sem base, ou quando a base não separa bem)</h3><p>O que já funciona no segmento. Os títulos e as opções valem também quando as perguntas vêm das personas.</p></header>
           {F.playbook.map((q, i) => <div key={q.id} className="stack" style={{ gap: 8, borderTop: i ? "1px solid var(--line)" : undefined, paddingTop: i ? 12 : 0 }}>
             <div className="grid2" style={{ alignItems: "end" }}>
-              <Field label={q.dim === "party" ? "Pessoas / tamanho" : q.dim === "deal" ? "Oferta pronta ou montar" : "Doce"}><Text value={q.title} onChange={(x) => setQ(i, { title: x })} /></Field>
+              <Field label={q.dim === "party" ? "Pessoas / tamanho" : q.dim === "novelty" ? "Clássico ou novidade" : q.dim === "deal" ? "Oferta pronta ou montar" : "Doce"}><Text value={q.title} onChange={(x) => setQ(i, { title: x })} /></Field>
               <Toggle checked={q.enabled !== false} onChange={(x) => setQ(i, { enabled: x })} label={q.enabled !== false ? "Ligada" : "Desligada"} />
             </div>
             <div className="grid3">{q.options.map((o, j) => <Field key={o.id} label={`Opção ${j + 1}`}><Text value={o.label} onChange={(x) => setQ(i, { options: q.options.map((y, k) => (k === j ? { ...y, label: x } : y)) })} /></Field>)}</div>

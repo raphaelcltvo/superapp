@@ -2,12 +2,13 @@ import { DEFAULT_ENGAGEMENT, npsKind, priceLine, r2, slugify, uid, type Automati
 import type { Db } from "../db/types";
 import { hashPassword } from "../auth";
 import { seedFirstVisit } from "./firstvisit";
+import cardapio from "./ifood-barra/cardapio.json";
 
 /**
  * Marca de exemplo: Forneria Original (cardápio importado do iFood, preços da tabela de reajuste set/2026).
  * `photo(nome)` devolve a URL da foto de cada sabor; `history` gera 90 dias de navegação e pedidos sintéticos para o CRM.
  */
-export interface SeedOpts { photo: (name: string) => string | undefined; media: { cover?: string; logo?: string; video?: string; poster?: string; gif?: string }; history?: boolean; now?: Date; password?: string; email?: string }
+export interface SeedOpts { photo: (name: string) => string | undefined; /** nomes com foto (para casar variações de grafia) */ photoNames?: string[]; media: { cover?: string; logo?: string; video?: string; poster?: string; gif?: string }; history?: boolean; now?: Date; password?: string; email?: string }
 
 const BORDAS = ["Recheada de Catupiry", "Recheada de cream cheese Philadelphia", "Recheada Catupiry e goiabada", "Recheada de goiabada", "Recheada de doce de leite", "Recheada de creme de avelã"];
 const S40: [string, number][] = [["3 Queijos Gratinada", 139], ["4 Queijos", 159], ["A Moda", 169], ["Abobrinha", 119], ["Alho", 109], ["Apimentada Original", 129], ["Atum com Cebola", 175], ["Bacon com ovos", 169], ["Bruschetta de abobrinha", 115], ["Calabresa", 108], ["Calabresa Gourmet", 118], ["Calabresa Seara sem muçarela", 99], ["Calabresa Seara com Gorgonzola", 119], ["Camarão com alho poró e cream cheese Philadelphia", 199], ["Camarão com Catupiry", 189], ["Caprese Original com Catupiry", 114], ["Caprese Parma com Catupiry", 149], ["Carioca", 130], ["Carne seca com Catupiry", 219], ["Catuperoni", 185], ["Catupiresa", 139], ["Catupiresa especial", 159], ["Champignon", 118], ["Da Barra", 139], ["Frango Caipira", 149], ["Frango Caipira com Catupiry", 179], ["Frango com Bacon Seara e Cream Cheese", 180], ["Frango com Catupiry", 172], ["Genovesa", 129], ["Lombiry", 169], ["Lombo canadense", 129], ["Lombo Original", 139], ["Marguerita", 104], ["Marguerita especial", 114], ["Marguerita romana", 119], ["Marinara", 126], ["Muçarela", 104], ["Muçarela com Catupiry", 139], ["Napolitana", 125], ["Palmito", 129], ["Parma e Pesto", 140], ["Pepperoni", 159], ["Pomodoro", 104], ["Portuguesa", 135], ["Presunto", 115], ["Presunto com champignon", 133], ["Lombo com Pesto e Parmesão (Nigro)", 154], ["Carne Seca com Queijo Coalho e Melado", 197], ["Tomate seco e rúcula", 109]];
@@ -30,7 +31,11 @@ export async function seedForneria(db: Db, o: SeedOpts) {
 
   let pdv = 70000;
   const code = () => String(++pdv);
-  const opt = (name: string, price = 0, extra: Partial<Option> = {}): Option => ({ id: slugify(name).slice(0, 40), name, price, active: true, imageUrl: o.photo(name), integrationCode: code(), ...extra });
+  // fotos: casa variações de grafia ("Banana Caramelizada" = "Banana caramelizada", "&" = "e", sufixo "Scala")
+  const pnorm = (n: string) => n.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/&/g, "e").replace(/\b(scala|veg|vegana?)\b/g, "").replace(/[^a-z0-9]/g, "");
+  const pidx = new Map((o.photoNames || []).map((n) => [pnorm(n), n]));
+  const photoOf = (name?: string) => (name ? o.photo(name) ?? (pidx.get(pnorm(name)) ? o.photo(pidx.get(pnorm(name))!) : undefined) : undefined);
+  const opt = (name: string, price = 0, extra: Partial<Option> = {}): Option => ({ id: slugify(name).slice(0, 40), name, price, active: true, imageUrl: photoOf(name), integrationCode: code(), ...extra });
 
   /* loja e áreas desenhadas no mapa */
   const store: Store = {
@@ -55,20 +60,15 @@ export async function seedForneria(db: Db, o: SeedOpts) {
   await db.put("stores", T, store as never);
 
   /* categorias */
-  const cats: Category[] = [
-    { id: "cat_combos", name: "Combos", slug: "combos", position: 0, visible: true, pricingLocked: true, description: "Preço fechado" },
-    { id: "cat_imbat", name: "Imbatíveis · meia a meia", slug: "imbativeis", position: 1, visible: true, pricingLocked: true },
-    { id: "cat_salg", name: "Pizzas salgadas", slug: "salgadas", position: 2, visible: true },
-    { id: "cat_doces", name: "Pizzas doces 20cm", slug: "doces", position: 3, visible: true },
-    { id: "cat_bebidas", name: "Bebidas", slug: "bebidas", position: 4, visible: true, description: "1,5l sai por R$ 9,33/L; a lata, R$ 25,43/L" },
-  ];
+  /* categorias: as mesmas do iFood da Forneria Barra, na mesma ordem */
+  const cats: Category[] = cardapio.categories as Category[];
   for (const c of cats) await db.put("categories", T, c as never);
 
   /* grupos de complementos */
   const massa = (id: string, cm: number, extra: number, bordas = BORDAS): OptionGroup => ({ id, name: `Massa ${cm}cm`, min: 1, max: 1, rule: "sum", allowRepeat: false, options: [opt("Gourmet", 0, { id: "gourmet", description: "Mais grossa e aerada", popular: true }), opt("Fina", 0, { id: "fina", description: "Sem borda e crocante" }), ...bordas.map((b) => opt(b, extra))] });
   const groups: OptionGroup[] = [
     massa("g_massa40", 40, 32), massa("g_massa30", 30, 26), massa("g_massa40c3", 40, 32, [BORDAS[0], BORDAS[1], BORDAS[4], BORDAS[5]]),
-    { id: "g_sab40", name: "Sabores 40cm", min: 2, max: 2, rule: "fraction", allowRepeat: true, options: S40.map(([n, full]) => opt(n, 0, { fullPrice: full })) },
+    { id: "g_sab40", name: "Sabores 40cm", min: 2, max: 2, rule: "fraction", allowRepeat: true, options: ((cardapio.groups.find((g) => g.id === "ig3f")?.options as { name: string; fullPrice?: number; description?: string }[] | undefined) || S40.map(([name, fullPrice]) => ({ name, fullPrice, description: undefined as string | undefined }))).map((x) => opt(x.name.replace(/ Scala$/, ""), 0, { fullPrice: x.fullPrice, ...(x.description ? { description: x.description } : {}) })) },
     { id: "g_sab99", name: "Pizza salgada 40cm", min: 2, max: 2, rule: "sum", allowRepeat: true, options: S99.map((n) => opt(n)) },
     { id: "g_sab119", name: "Pizza salgada 30cm", min: 2, max: 2, rule: "sum", allowRepeat: true, options: S119.map(([n, p]) => opt(n, p)) },
     { id: "g_sab149", name: "Pizza salgada 40cm", min: 2, max: 2, rule: "sum", allowRepeat: true, options: S149.map(([n, p]) => opt(n, p)) },
@@ -106,6 +106,32 @@ export async function seedForneria(db: Db, o: SeedOpts) {
     { id: "b5", categoryId: "cat_bebidas", name: "Água sem gás 500ml", kind: "simple", price: 5, groupIds: [], isDrink: true, liters: 0.5 },
     { id: "b6", categoryId: "cat_bebidas", name: "Chá Matte Leão Pêssego 1,5l", description: "R$ 9,33/L", kind: "simple", price: 14, groupIds: [], isDrink: true, liters: 1.5 },
   ].map((x, i) => ({ active: true, available: true, position: i, integrationCode: code(), ...x }) as Item);
+
+  /* resto do cardápio da Barra (iFood): itens que ainda não existiam, com seus grupos de complementos */
+  type CItem = (typeof cardapio.items)[number] & { keepId?: string; photoName?: string; heroOptionNames?: string[]; compareAt?: number; isDrink?: boolean; liters?: number };
+  const byKeep = new Map((cardapio.items as CItem[]).filter((x) => x.keepId).map((x, ) => [x.keepId!, x]));
+  const order = new Map((cardapio.items as CItem[]).map((x, i) => [x.keepId || x.ifoodId, i]));
+  for (const it of items) { const c = byKeep.get(it.id); if (c) { it.categoryId = c.categoryId; it.position = order.get(it.id)!; if (c.compareAt && !it.compareAt) it.compareAt = c.compareAt; } else it.position = 900 + it.position; }
+  const newItems = (cardapio.items as CItem[]).filter((x) => !x.keepId);
+  const usedG = new Set(newItems.flatMap((x) => x.groupIds));
+  const ids = new Set(items.map((x) => x.id));
+  for (const g of cardapio.groups) {
+    if (!usedG.has(g.id)) continue;
+    const og: OptionGroup = { id: g.id, name: g.name, min: g.min, max: g.max, rule: g.rule as "sum" | "fraction", allowRepeat: g.allowRepeat, ...("liters" in g && g.liters ? { liters: g.liters as number } : {}),
+      options: g.options.map((x) => opt(x.name, x.price, { id: x.id, ...(x.description ? { description: x.description } : {}), ...("fullPrice" in x && x.fullPrice ? { fullPrice: x.fullPrice as number } : {}) })) };
+    groups.push(og); G[og.id] = og;
+    await db.put("option_groups", T, og as never);
+  }
+  for (const x of newItems) {
+    let id = "i_" + slugify(x.name).slice(0, 28); while (ids.has(id)) id += "2"; ids.add(id);
+    const hero = x.heroOptionNames;
+    items.push({
+      id, categoryId: x.categoryId, name: x.name, description: x.description, kind: x.kind as Item["kind"], price: x.price, ...(x.compareAt ? { compareAt: x.compareAt } : {}),
+      groupIds: x.groupIds, ...(hero ? { heroOptionNames: hero } : {}), imageUrl: photoOf(x.photoName || hero?.[0]),
+      ...(x.isDrink ? { isDrink: true, ...(x.liters ? { liters: x.liters } : {}) } : {}),
+      active: true, available: true, position: order.get(x.ifoodId)!, integrationCode: code(),
+    } as Item);
+  }
   for (const it of items) await db.put("items", T, it as never);
 
   /* cupons e estratégias (os exemplos pedidos) */
@@ -245,6 +271,8 @@ async function seedHistory(db: Db, T: string, items: Item[], G: Record<string, O
   const events: { id: string; sessionId: string; customerId?: string; name: string; ts: string; source?: string; device?: string; props?: Record<string, unknown> }[] = [];
   let n = 1001;
   const orders: Order[] = [];
+  const CLASSICS = /^(calabresa|marguerita|mu[cç]arela|portuguesa|frango com catupiry|4 queijos|banana com canela|romeu e julieta)$/i;
+  const explorer = customers.map(() => rnd() < 0.3);
   const freq = customers.map(() => (rnd() < 0.55 ? 1 : rnd() < 0.6 ? 2 + Math.floor(rnd() * 3) : 5 + Math.floor(rnd() * 8)));
   for (let ci = 0; ci < customers.length; ci++) {
     const c = customers[ci]; const k = freq[ci];
@@ -252,7 +280,14 @@ async function seedHistory(db: Db, T: string, items: Item[], G: Record<string, O
     for (let j = 0; j < k && t < +now; j++) {
       const pid = pick(pop); const it = items.find((x) => x.id === pid)!;
       const sel: Record<string, Record<string, number>> = {};
-      for (const gid of it.groupIds) { const g = G[gid]; if (g.min > 0) { const o1 = pick(g.options.slice(0, 8)), o2 = pick(g.options.slice(0, 8)); sel[gid] = g.max >= 2 ? (o1.id === o2.id ? { [o1.id]: 2 } : { [o1.id]: 1, [o2.id]: 1 }) : { [o1.id]: 1 }; } }
+      for (const gid of it.groupIds) {
+        const g = G[gid]; if (g.min <= 0) continue;
+        // sabores: quem é "clássico" pede os de sempre; quem gosta de novidade vai na cauda longa
+        const flavor = g.max >= 2 || /sabor|pizza|doce/i.test(g.name);
+        const classic = g.options.filter((x) => CLASSICS.test(x.name)), tail = g.options.filter((x) => !CLASSICS.test(x.name));
+        const pool = !flavor ? g.options.slice(0, 2) : explorer[ci] && tail.length ? (rnd() < 0.8 ? tail : classic.length ? classic : g.options) : classic.length && rnd() < 0.85 ? classic : g.options.slice(0, 8);
+        const o1 = pick(pool), o2 = pick(pool); sel[gid] = g.max >= 2 ? (o1.id === o2.id ? { [o1.id]: 2 } : { [o1.id]: 1, [o2.id]: 1 }) : { [o1.id]: 1 };
+      }
       if (rnd() < 0.4 && it.groupIds.includes("g_bebida")) sel.g_bebida = { "guarana-antarctica-1-5l": 1 };
       const line = priceLine(it, it.groupIds.map((g) => G[g]), { itemId: it.id, qty: 1, selection: sel });
       const extra = rnd() < 0.3 ? priceLine(items.find((x) => x.id === "b1")!, [], { itemId: "b1", qty: 1 }) : null;

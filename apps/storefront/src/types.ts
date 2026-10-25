@@ -1,7 +1,9 @@
 import type { OnlineCfg } from "./payments";
 import type { Banner, CartLineInput, CrossSellRule, Item, OptionGroup, Page, PaymentCode, Strategy, Tenant } from "@cw/core";
 
-export type MenuItem = Item & { fromPrice: boolean };
+export type MenuItem = Item & { fromPrice: boolean; minPrice?: number };
+/** Preço exibido no card: o menor preço possível do item. */
+export const shownPrice = (it: { price: number; minPrice?: number }) => it.minPrice ?? it.price;
 export type MenuStrategy = Strategy & { coupon?: { id?: string; name?: string; code?: string; type?: string; value?: number; maxDiscount?: number; minSubtotal?: number } };
 
 export interface Menu {
@@ -47,7 +49,7 @@ export interface FirstVisit {
   mode: "reward" | "gate";
   source: "personas" | "playbook";
   coupon: { name: string; type: string; value: number; maxDiscount?: number; minSubtotal?: number } | null;
-  questions: { id: string; title: string; options: { id: string; label: string }[] }[];
+  questions: { id: string; title: string; options: { id: string; label: string; final?: boolean }[] }[];
   afterSeconds: number;
   consentText: string;
 }

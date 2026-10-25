@@ -43,8 +43,10 @@ export function FirstVisitSheet({ fv, brand, api, base, sessionId, source, campa
   const skip = async () => { track("fv_skip_click", { step }); await send({ skip: true, answers: {} }); onClose(null); };
   const pick = (qid: string, oid: string) => {
     const a = { ...answers, [qid]: oid }; setAnswers(a);
-    track("fv_answer", { q: qid, a: oid });
-    setStep((s) => s + 1);
+    const opt = qs.find((q) => q.id === qid)?.options.find((o) => o.id === oid) as { final?: boolean } | undefined;
+    track("fv_answer", { q: qid, a: oid, final: !!opt?.final });
+    // pergunta adaptativa: se a resposta já define o perfil, pula direto para o contato
+    setStep((s) => (opt?.final ? qs.length : s + 1));
   };
   const contactValid = gate ? phoneOk(contact.phone) && emailOk(contact.email) : (!contact.phone || phoneOk(contact.phone)) && (!contact.email || emailOk(contact.email));
   const finish = async (withContact: boolean) => {

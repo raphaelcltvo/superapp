@@ -4,6 +4,7 @@ import { CardError, detectBrand, fmtCardNumber, fmtCpf, fmtExpiry, tokenizeCard,
 import { effectiveRule, fractionLabel, groupCount, pickPopup, priceLine, validateSelection, type Banner, type CartLineInput, type OptionGroup, type Page, type PageBlock, type PaymentCode, type PricedLine, type StrategyContext } from "@cw/core";
 import { Bottle, BannerView, ItemArt, PageView, PizzaPhoto, brl, nextOpening, optionPhotos } from "./parts";
 import type { CartLine, Menu, MenuItem, MenuStrategy, QuoteResp } from "./types";
+import { shownPrice } from "./types";
 import "./storefront.css";
 import { FirstVisitSheet, OnlineAuth, ONLINE_AUTH_INIT, onlineAuthReady, onlineToken, type FvResult, type OnlineAuthState } from "./firstvisit";
 import { EngageCtx, ExitSheet, FeedbackCard, TriageSheet, engageOf, useExitAndReturn, useFxValue, useIdleGlow, useNudge, useReadyGlow, useStatusBuzz, type EngageMenu } from "./engage";
@@ -362,7 +363,7 @@ export function Storefront(props: StorefrontProps) {
         <button className="tap info" onClick={() => openItem(id)} aria-label={`Abrir ${it.name}`}>
           <span className="nm">{it.name}{(it as { avoidHit?: string }).avoidHit && <span className="chip-avoid">tem {(it as { avoidHit?: string }).avoidHit!.toLowerCase()}</span>}</span>
           {it.description && <span className="ds">{it.description}</span>}
-          <span className="pr">{it.fromPrice ? "a partir de " : ""}{brl(it.price)}{it.compareAt ? <s>{brl(it.compareAt)}</s> : null}</span>
+          <span className="pr">{it.fromPrice ? "a partir de " : ""}{brl(shownPrice(it))}{it.compareAt ? <s>{brl(it.compareAt)}</s> : null}</span>
           {(it.likes || it.serves || it.tags?.length) && <span className="proof">{it.likes && <>👍 {it.likes.pct}% ({it.likes.n})</>}{it.tags?.slice(0, 1).map((t) => <span key={t} className="badge1">{t}</span>)}{it.serves && <span>· {it.serves}</span>}</span>}
         </button>
         <div className="thumb">
@@ -448,7 +449,7 @@ export function Storefront(props: StorefrontProps) {
             <div className="carousel">{menu.mostOrdered.itemIds.map((id, i) => menu.items[id] && (
               <button key={id} className="mini tap" onClick={() => openItem(id)}>
                 <div className="ph"><span className="tag-pos">#{i + 1}</span><ItemArt item={menu.items[id]} photos={photos} /></div>
-                <span className="nm">{nameOf(id)}</span><span className="pr">{menu.items[id].fromPrice ? "a partir de " : ""}{brl(menu.items[id].price)}</span>
+                <span className="nm">{nameOf(id)}</span><span className="pr">{menu.items[id].fromPrice ? "a partir de " : ""}{brl(shownPrice(menu.items[id]))}</span>
               </button>))}
             </div>
           </div>
@@ -693,7 +694,7 @@ export function Storefront(props: StorefrontProps) {
                 <button key={it.id} className="sres tap" onClick={() => { track("search", { q: search.q.trim(), n: results.length, picked: it.id }); openItem(it.id); }}>
                   <span className="thumb sm"><ItemArt item={it} photos={photos} /></span>
                   <span className="c"><b>{it.name}</b><span>{via ? `tem a opção ${via}` : it.description}</span></span>
-                  <span className="pr">{it.fromPrice ? "a partir de " : ""}{brl(it.price)}</span>
+                  <span className="pr">{it.fromPrice ? "a partir de " : ""}{brl(shownPrice(it))}</span>
                 </button>
               )) : <p className="muted">Nada com “{search.q.trim()}”. Tente outro sabor.</p>}
           </div>
@@ -782,7 +783,7 @@ function CrossSell({ menu, cart, photos, onAdd }: { menu: Menu; cart: CartLine[]
       <div className="xs">{sug.slice(0, 6).map(({ id, reason }) => (
         <button key={id} className="xcard tap" onClick={(e) => onAdd(id, e.currentTarget)}>
           <span className="ph"><ItemArt item={menu.items[id]} photos={photos} /></span>
-          <b>{menu.items[id].name.split(" · ")[0]}</b><span>{reason}</span><em>+ {brl(menu.items[id].price)}</em>
+          <b>{menu.items[id].name.split(" · ")[0]}</b><span>{reason}</span><em>+ {brl(shownPrice(menu.items[id]))}</em>
         </button>))}
       </div>
     </div>
@@ -852,7 +853,7 @@ function ItemSheet({ menu, draft, setDraft, groups, photos, onAdd, onClose, shak
         <div className="item-hd">
           <h3>{item.name}</h3>
           {item.description && <p>{item.description}</p>}
-          <div className="proof"><b className="pbig">{item.fromPrice ? "a partir de " : ""}{brl(item.price)}</b>{item.compareAt ? <s>{brl(item.compareAt)}</s> : null}{item.likes && <span>· 👍 {item.likes.pct}% ({item.likes.n})</span>}{item.liters && <span>· {brl(item.price / item.liters)}/L</span>}</div>
+          <div className="proof"><b className="pbig">{item.fromPrice ? "a partir de " : ""}{brl(shownPrice(item))}</b>{item.compareAt ? <s>{brl(item.compareAt)}</s> : null}{item.likes && <span>· 👍 {item.likes.pct}% ({item.likes.n})</span>}{item.liters && <span>· {brl(item.price / item.liters)}/L</span>}</div>
         </div>
         {item.presets?.length ? (
           <div className="presets"><div className="pre-h"><b>Mais pedidos aqui</b><span className="muted">1 toque e pronto</span></div>

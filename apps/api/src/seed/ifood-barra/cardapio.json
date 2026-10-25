@@ -1,0 +1,5732 @@
+{
+ "fonte": "iFood · Forneria Original Pizza - Barra · lido em 24/10/2026",
+ "categories": [
+  {
+   "id": "cat_imbat",
+   "name": "Imbatíveis",
+   "slug": "imbativeis",
+   "position": 0,
+   "visible": true,
+   "pricingLocked": true
+  },
+  {
+   "id": "cat_combos",
+   "name": "Mais pedidos",
+   "slug": "mais-pedidos",
+   "position": 1,
+   "visible": true,
+   "pricingLocked": true
+  },
+  {
+   "id": "cat_salg",
+   "name": "Pizzas salgadas",
+   "slug": "pizzas-salgadas",
+   "position": 2,
+   "visible": true,
+   "pricingLocked": false
+  },
+  {
+   "id": "cat_doces",
+   "name": "Pizzas doces",
+   "slug": "pizzas-doces",
+   "position": 3,
+   "visible": true,
+   "pricingLocked": false
+  },
+  {
+   "id": "cat_veganas",
+   "name": "Pizzas veganas",
+   "slug": "pizzas-veganas",
+   "position": 4,
+   "visible": true,
+   "pricingLocked": false
+  },
+  {
+   "id": "cat_bebidas",
+   "name": "Bebidas",
+   "slug": "bebidas",
+   "position": 5,
+   "visible": true,
+   "pricingLocked": false,
+   "description": "1,5l sai por R$ 9,33/L; a lata, R$ 25,43/L"
+  },
+  {
+   "id": "cat_originais",
+   "name": "Produtos Originais",
+   "slug": "produtos-originais",
+   "position": 6,
+   "visible": true,
+   "pricingLocked": false
+  },
+  {
+   "id": "cat_hits",
+   "name": "Hits",
+   "slug": "hits",
+   "position": 7,
+   "visible": true,
+   "pricingLocked": true
+  },
+  {
+   "id": "cat_adicionais",
+   "name": "Adicionais",
+   "slug": "adicionais",
+   "position": 8,
+   "visible": true,
+   "pricingLocked": false
+  },
+  {
+   "id": "cat_ofertas",
+   "name": "Ofertas da semana",
+   "slug": "ofertas-da-semana",
+   "position": 9,
+   "visible": true,
+   "pricingLocked": true
+  },
+  {
+   "id": "cat_vinhos",
+   "name": "Vinhos",
+   "slug": "vinhos",
+   "position": 10,
+   "visible": true,
+   "pricingLocked": false
+  }
+ ],
+ "groups": [
+  {
+   "id": "ig0",
+   "name": "Massa - 30cm",
+   "min": 1,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "gourmet",
+     "name": "Gourmet",
+     "description": "Mais grossa e aerada",
+     "price": 0
+    },
+    {
+     "id": "fina",
+     "name": "Fina",
+     "description": "Sem borda e crocante",
+     "price": 0
+    },
+    {
+     "id": "recheada-de-catupiry",
+     "name": "Recheada de Catupiry",
+     "description": "Borda cremosa de Catupiry",
+     "price": 26
+    },
+    {
+     "id": "recheada-de-cream-cheese-philadelphia",
+     "name": "Recheada de cream cheese Philadelphia",
+     "description": "Borda cream cheese Philadelphia",
+     "price": 26
+    },
+    {
+     "id": "recheada-catupiry-e-goiabada",
+     "name": "Recheada Catupiry e goiabada",
+     "description": "Borda cremosa de Catupiry e goiabada",
+     "price": 26
+    },
+    {
+     "id": "recheada-de-goiabada",
+     "name": "Recheada de goiabada",
+     "description": "Borda cremosa de goiabada",
+     "price": 26
+    },
+    {
+     "id": "recheada-de-doce-de-leite",
+     "name": "Recheada de doce de leite",
+     "description": "Borda de doce de leite",
+     "price": 26
+    },
+    {
+     "id": "recheada-de-creme-de-avela",
+     "name": "Recheada de creme de avelã",
+     "description": "Borda creme de avelã",
+     "price": 26
+    }
+   ]
+  },
+  {
+   "id": "ig1",
+   "name": "Deseja bebida?",
+   "min": 0,
+   "max": 5,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "coca-cola-original-1-5l",
+     "name": "Coca-Cola Original 1,5l",
+     "description": "Garrafa 1,5l",
+     "price": 16
+    },
+    {
+     "id": "coca-cola-sem-acucar-1-5l",
+     "name": "Coca-Cola sem Açúcar 1,5l",
+     "description": "Garrafa 1,5l",
+     "price": 16
+    },
+    {
+     "id": "refrigerante-guarana-antarctica-1-5l",
+     "name": "Refrigerante Guaraná Antarctica 1,5l",
+     "price": 16
+    }
+   ],
+   "liters": 1.5
+  },
+  {
+   "id": "ig2",
+   "name": "Massas",
+   "min": 1,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "gourmet",
+     "name": "Gourmet",
+     "description": "Mais grossa e aerada",
+     "price": 0
+    },
+    {
+     "id": "fina",
+     "name": "Fina",
+     "description": "Sem borda e Crocante",
+     "price": 0
+    }
+   ]
+  },
+  {
+   "id": "ig3",
+   "name": "Pizza salgada até 2 Sabores - 40cm",
+   "min": 2,
+   "max": 2,
+   "rule": "sum",
+   "allowRepeat": true,
+   "options": [
+    {
+     "id": "4-queijos",
+     "name": "4 Queijos",
+     "description": "molho de tomate, muçarela, gorgonzola, parmesão, Catupiry e orégano",
+     "price": 79.5
+    },
+    {
+     "id": "3-queijos-gratinada-scala",
+     "name": "3 Queijos Gratinada Scala",
+     "description": "molho de tomate, muçarela, gorgonzola, parmesão gratinado e orégano",
+     "price": 69.5
+    },
+    {
+     "id": "a-moda",
+     "name": "A Moda",
+     "description": "molho de tomate, muçarela, calabresa Seara, azeitona preta, milho, palmito, Catupiry e orégano",
+     "price": 84.5
+    },
+    {
+     "id": "abobrinha",
+     "name": "Abobrinha",
+     "description": "molho de tomate, muçarela, abobrinhas, parmesão e orégano",
+     "price": 59.5
+    },
+    {
+     "id": "alho",
+     "name": "Alho",
+     "description": "molho de tomate, muçarela, alho frito torrado e orégano",
+     "price": 54.5
+    },
+    {
+     "id": "apimentada-original",
+     "name": "Apimentada Original",
+     "description": "(molho de tomate, muçarela, linguiça apimentada artesanal mineira Original, cebola e orégano) .",
+     "price": 64.5
+    },
+    {
+     "id": "atum-com-cebola",
+     "name": "Atum com Cebola",
+     "description": "molho de tomate, muçarela, atum, cebola e orégano",
+     "price": 87.5
+    },
+    {
+     "id": "bacon-com-ovos",
+     "name": "Bacon com ovos",
+     "description": "molho de tomate, muçarela, ovos ralados, bacon frito e orégano",
+     "price": 84.5
+    },
+    {
+     "id": "bruschetta-de-abobrinha",
+     "name": "Bruschetta de abobrinha",
+     "description": "molho de tomate, Tomate Picado, Abobrinha, Pesto, Parmesão e orégano.",
+     "price": 57.5
+    },
+    {
+     "id": "calabresa",
+     "name": "Calabresa",
+     "description": "molho de tomate, muçarela, calabresa Seara, cebola e orégano",
+     "price": 54
+    },
+    {
+     "id": "calabresa-seara-sem-mucarela",
+     "name": "Calabresa Seara sem muçarela",
+     "description": "Molho de tomate, tomate picado, calabresa, cebola e orégano.",
+     "price": 49.5
+    },
+    {
+     "id": "calabresa-gourmet",
+     "name": "Calabresa Gourmet",
+     "description": "molho de tomate, muçarela, calabresa Seara Gourmet com um toque de erva doce, cebola e orégano",
+     "price": 59
+    },
+    {
+     "id": "calabresa-seara-com-gorgonzola",
+     "name": "Calabresa Seara com Gorgonzola",
+     "description": "molho de tomate, muçarela, calabresa Seara Gourmet com um toque de erva doce, gorgonzola ralado e orégano",
+     "price": 59.5
+    },
+    {
+     "id": "calabria",
+     "name": "Calábria",
+     "description": "molho de tomate, muçarela, linguiça apimentada, ovos ralados, parmesão gratinado e orégano",
+     "price": 60.5
+    },
+    {
+     "id": "camarao-com-alho-poro-e-cream-cheese-phi",
+     "name": "Camarão com alho poró e cream cheese Philadelphia",
+     "description": "molho de tomate, muçarela, Cream Cheese Philadelphia, camarões, alho poró e orégano",
+     "price": 99.5
+    },
+    {
+     "id": "camarao-com-catupiry",
+     "name": "Camarão com Catupiry",
+     "description": "molho de tomate, muçarela, Catupiry, camarões e orégano",
+     "price": 94.5
+    },
+    {
+     "id": "caprese-original-com-catupiry",
+     "name": "Caprese Original com Catupiry",
+     "description": "molho de tomate com muçarela de búfala na base, tomate em rodelas com Catupiry, azeitona preta, manjericão e orégano",
+     "price": 57
+    },
+    {
+     "id": "caprese-parma-com-catupiry",
+     "name": "Caprese Parma com Catupiry",
+     "description": "molho de tomate com muçarela de búfala na base, tomate cereja, Catupiry, presunto de parma, manjericão e orégano",
+     "price": 74.5
+    },
+    {
+     "id": "carioca",
+     "name": "Carioca",
+     "description": "molho de tomate, muçarela, calabresa Seara, azeitona verde, tomate picado, ovos ralados e orégano",
+     "price": 65
+    },
+    {
+     "id": "carne-seca-com-catupiry",
+     "name": "Carne seca com Catupiry",
+     "description": "molho de tomate, muçarela, carne seca, Catupiry e orégano",
+     "price": 109.5
+    },
+    {
+     "id": "catuperoni",
+     "name": "Catuperoni",
+     "description": "molho de tomate, muçarela, pepperoni, Catupiry e orégano",
+     "price": 92.5
+    },
+    {
+     "id": "catupiresa",
+     "name": "Catupiresa",
+     "description": "molho de tomate, muçarela, calabresa Seara, Catupiry e orégano",
+     "price": 69.5
+    },
+    {
+     "id": "catupiresa-especial",
+     "name": "Catupiresa especial",
+     "description": "molho de tomate, muçarela, calabresa Seara, Catupiry, azeitona preta, cebola e orégano",
+     "price": 79.5
+    },
+    {
+     "id": "champignon",
+     "name": "Champignon",
+     "description": "molho de tomate, muçarela, champignon e orégano",
+     "price": 59
+    },
+    {
+     "id": "da-barra",
+     "name": "Da Barra",
+     "description": "molho de tomate, muçarela, tomate seco, champignon, muçarela de búfala, rúcula e orégano",
+     "price": 69.5
+    },
+    {
+     "id": "frango-caipira",
+     "name": "Frango Caipira",
+     "description": "molho de tomate, muçarela, frango desfiado, milho e orégano",
+     "price": 74.5
+    },
+    {
+     "id": "frango-caipira-com-catupiry",
+     "name": "Frango Caipira com Catupiry",
+     "description": "molho de tomate, muçarela, frango desfiado, Catupiry, milho e orégano",
+     "price": 89.5
+    },
+    {
+     "id": "frango-com-catupiry",
+     "name": "Frango com Catupiry",
+     "description": "molho de tomate, muçarela, frango desfiado, Catupiry e orégano",
+     "price": 86
+    },
+    {
+     "id": "frango-com-bacon-seara-e-cream-cheese",
+     "name": "Frango com Bacon Seara e Cream Cheese",
+     "description": "molho de tomate, muçarela, frango e bacon Seara e cream cheese Philadelphia",
+     "price": 90
+    },
+    {
+     "id": "genovesa",
+     "name": "Genovesa",
+     "description": "Pesto na base, muçarela, tomate cereja, rúcula, parmesão, orégano e nosso molho Pesto (feito com rúcula e manjericão frescos, além de parmesão e castanha de caju",
+     "price": 64.5
+    },
+    {
+     "id": "lombiry",
+     "name": "Lombiry",
+     "description": "molho de tomate, muçarela, lombo canadense, Catupiry e orégano",
+     "price": 84.5
+    },
+    {
+     "id": "lombo-canadense",
+     "name": "Lombo canadense",
+     "description": "molho de tomate, muçarela, lombo canadense e orégano",
+     "price": 64.5
+    },
+    {
+     "id": "lombo-com-pesto-e-parmesao-nigro",
+     "name": "Lombo com Pesto e Parmesão (Nigro)",
+     "description": "(Molho de tomate, muçarela de búfala, lombo, parmesão, pesto e orégano) / - na Versão Borda Gourmet com parmesão gratinado.",
+     "price": 77
+    },
+    {
+     "id": "lombo-original",
+     "name": "Lombo Original",
+     "description": "Molho de tomate, Lombo, Cream Cheese, Muçarela com Parmesão gratinado e orégano.",
+     "price": 69.5
+    },
+    {
+     "id": "marguerita",
+     "name": "Marguerita",
+     "description": "molho de tomate, muçarela, tomate, manjericão e orégano",
+     "price": 52
+    },
+    {
+     "id": "marguerita-especial",
+     "name": "Marguerita especial",
+     "description": "molho de tomate, muçarela, alho em lascas, tomate cereja, manjericão e orégano",
+     "price": 57
+    },
+    {
+     "id": "marguerita-romana",
+     "name": "Marguerita romana",
+     "description": "molho de tomate, muçarela, tomate, cebola, azeitona preta, manjericão e orégano",
+     "price": 59.5
+    },
+    {
+     "id": "marinara",
+     "name": "Marinara",
+     "description": "molho de tomate, manjericão, tomate cereja, muçarela de búfala, alho em lascas e orégano",
+     "price": 63
+    },
+    {
+     "id": "mucarela",
+     "name": "Muçarela",
+     "description": "molho de tomate, muçarela e orégano",
+     "price": 52
+    },
+    {
+     "id": "mucarela-com-catupiry",
+     "name": "Muçarela com Catupiry",
+     "description": "molho de tomate, muçarela, Catupiry e orégano",
+     "price": 69.5
+    },
+    {
+     "id": "napolitana",
+     "name": "Napolitana",
+     "description": "molho de tomate, muçarela, tomate, parmesão e orégano",
+     "price": 62.5
+    },
+    {
+     "id": "palmito",
+     "name": "Palmito",
+     "description": "molho de tomate, muçarela, palmito, azeitona verde e orégano",
+     "price": 64.5
+    },
+    {
+     "id": "parma-e-pesto",
+     "name": "Parma e Pesto",
+     "description": "molho de tomate, muçarela de búfala, tomate seco, presunto de parma, molho pesto e orégano",
+     "price": 70
+    },
+    {
+     "id": "pepperoni",
+     "name": "Pepperoni",
+     "description": "molho de tomate, muçarela, pepperoni e orégano",
+     "price": 79.5
+    },
+    {
+     "id": "pizza-do-gabriel-nigro-2026",
+     "name": "Pizza do Gabriel Nigro (2026)",
+     "description": "Cream cheese Philadelphia, muçarela, calabresa premium, queijo parmesão e finalizada com alho torrado.",
+     "price": 84.5
+    },
+    {
+     "id": "pomodoro",
+     "name": "Pomodoro",
+     "description": "molho de tomate, Manjericão, Tomate Picado, Muçarela de Búfala, Parmesão e Orégano.",
+     "price": 52
+    },
+    {
+     "id": "portuguesa",
+     "name": "Portuguesa",
+     "description": "molho de tomate, muçarela, presunto ralado, azeitona preta, ovos cozidos, cebola e orégano",
+     "price": 67.5
+    },
+    {
+     "id": "presunto",
+     "name": "Presunto",
+     "description": "molho de tomate, muçarela, presunto ralado e orégano",
+     "price": 57.5
+    },
+    {
+     "id": "presunto-com-champignon",
+     "name": "Presunto com champignon",
+     "description": "molho de tomate, muçarela, presunto ralado, champignon e orégano",
+     "price": 66.5
+    },
+    {
+     "id": "tomate-seco-e-rucula",
+     "name": "Tomate seco e rúcula",
+     "description": "molho de tomate, muçarela, tomate seco, rúcula e orégano",
+     "price": 54.5
+    }
+   ]
+  },
+  {
+   "id": "ig4",
+   "name": "Seu refri vai ser..",
+   "min": 1,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "coca-cola-original-1-5l",
+     "name": "Coca-Cola Original 1,5l",
+     "description": "Garrafa 1,5l",
+     "price": 0
+    },
+    {
+     "id": "coca-cola-sem-acucar-1-5l",
+     "name": "Coca-Cola sem Açúcar 1,5l",
+     "description": "Garrafa 1,5l",
+     "price": 0
+    },
+    {
+     "id": "refrigerante-guarana-antarctica-1-5-l",
+     "name": "Refrigerante Guaraná Antarctica 1,5 l",
+     "price": 0
+    },
+    {
+     "id": "cha-ice-tea-leao-pessego-1-5l",
+     "name": "Chá Ice Tea Leão Pêssego 1,5l",
+     "description": "Garrafa 1,5l",
+     "price": 0
+    },
+    {
+     "id": "cha-ice-tea-leao-limao-1-5l",
+     "name": "Chá Ice Tea Leão Limão 1,5l",
+     "description": "Garrafa 1,5l",
+     "price": 0
+    },
+    {
+     "id": "cha-mate-limao-matte-leao-1-5l",
+     "name": "Chá Mate Limão Matte Leão 1,5l",
+     "price": 0
+    },
+    {
+     "id": "cha-matte-leao-original-1-5l",
+     "name": "Chá Matte Leão Original 1,5l",
+     "description": "Garrafa 1,5l",
+     "price": 0
+    }
+   ],
+   "liters": 1.5
+  },
+  {
+   "id": "ig5",
+   "name": "Massa - 40cm",
+   "min": 1,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "gourmet",
+     "name": "Gourmet",
+     "description": "Mais grossa e aerada",
+     "price": 0
+    },
+    {
+     "id": "fina",
+     "name": "Fina",
+     "description": "Sem borda e crocante",
+     "price": 0
+    },
+    {
+     "id": "recheada-de-catupiry",
+     "name": "Recheada de Catupiry",
+     "description": "Borda cremosa de Catupiry",
+     "price": 32
+    },
+    {
+     "id": "recheada-de-cream-cheese-philadelphia",
+     "name": "Recheada de cream cheese Philadelphia",
+     "description": "Borda cream cheese Philadelphia",
+     "price": 32
+    },
+    {
+     "id": "recheada-catupiry-e-goiabada",
+     "name": "Recheada Catupiry e goiabada",
+     "description": "Borda cremosa de Catupiry e goiabada",
+     "price": 32
+    },
+    {
+     "id": "recheada-de-goiabada",
+     "name": "Recheada de goiabada",
+     "description": "Borda cremosa de goiabada",
+     "price": 32
+    },
+    {
+     "id": "recheada-de-doce-de-leite",
+     "name": "Recheada de doce de leite",
+     "description": "Borda de doce de leite",
+     "price": 32
+    },
+    {
+     "id": "recheada-de-creme-de-avela",
+     "name": "Recheada de creme de avelã",
+     "description": "Borda creme de avelã",
+     "price": 32
+    }
+   ]
+  },
+  {
+   "id": "ig6",
+   "name": "Pizza salgada 40cm - R$ 99",
+   "min": 2,
+   "max": 2,
+   "rule": "sum",
+   "allowRepeat": true,
+   "options": [
+    {
+     "id": "calabresa-seara-sem-mucarela",
+     "name": "Calabresa Seara sem muçarela",
+     "description": "Molho de tomate, tomate picado, calabresa, cebola e orégano.",
+     "price": 0
+    },
+    {
+     "id": "mucarela",
+     "name": "Muçarela",
+     "description": "molho de tomate, muçarela e orégano",
+     "price": 0
+    },
+    {
+     "id": "pomodoro",
+     "name": "Pomodoro",
+     "description": "molho de tomate, Manjericão, Tomate Picado, Muçarela de Búfala, Parmesão e Orégano.",
+     "price": 0
+    },
+    {
+     "id": "marguerita",
+     "name": "Marguerita",
+     "description": "molho de tomate, muçarela, tomate, manjericão e orégano",
+     "price": 0
+    },
+    {
+     "id": "marinara",
+     "name": "Marinara",
+     "description": "molho de tomate, manjericão, tomate cereja, muçarela de búfala, alho em lascas e orégano",
+     "price": 0
+    },
+    {
+     "id": "marguerita-romana",
+     "name": "Marguerita romana",
+     "description": "molho de tomate, muçarela, tomate, cebola, azeitona preta, manjericão e orégano",
+     "price": 0
+    },
+    {
+     "id": "bruschetta-de-abobrinha",
+     "name": "Bruschetta de abobrinha",
+     "description": "molho de tomate, Tomate Picado, Abobrinha, Pesto, Parmesão e orégano.",
+     "price": 0
+    },
+    {
+     "id": "alho",
+     "name": "Alho",
+     "description": "molho de tomate, muçarela, alho frito torrado e orégano",
+     "price": 0
+    },
+    {
+     "id": "caprese-original-com-catupiry",
+     "name": "Caprese Original com Catupiry",
+     "description": "molho de tomate com muçarela de búfala na base, tomate em rodelas com Catupiry, azeitona preta, manjericão e orégano",
+     "price": 0
+    }
+   ]
+  },
+  {
+   "id": "ig7",
+   "name": "Pizza salgada 30cm - R$ 119",
+   "min": 2,
+   "max": 2,
+   "rule": "sum",
+   "allowRepeat": true,
+   "options": [
+    {
+     "id": "marguerita",
+     "name": "Marguerita",
+     "description": "molho de tomate, muçarela, tomate, manjericão e orégano",
+     "price": 0
+    },
+    {
+     "id": "mucarela",
+     "name": "Muçarela",
+     "description": "molho de tomate, muçarela e orégano",
+     "price": 0
+    },
+    {
+     "id": "pomodoro",
+     "name": "Pomodoro",
+     "description": "molho de tomate, Manjericão, Tomate Picado, Muçarela de Búfala, Parmesão e Orégano.",
+     "price": 0
+    },
+    {
+     "id": "caprese-original-com-catupiry",
+     "name": "Caprese Original com Catupiry",
+     "description": "molho de tomate com muçarela de búfala na base, tomate em rodelas com Catupiry, azeitona preta, manjericão e orégano",
+     "price": 0
+    },
+    {
+     "id": "marinara",
+     "name": "Marinara",
+     "description": "molho de tomate, manjericão, tomate cereja, muçarela de búfala, alho em lascas e orégano",
+     "price": 0
+    },
+    {
+     "id": "marguerita-romana",
+     "name": "Marguerita romana",
+     "description": "molho de tomate, muçarela, tomate, cebola, azeitona preta, manjericão e orégano",
+     "price": 0
+    },
+    {
+     "id": "calabresa-seara-sem-mucarela",
+     "name": "Calabresa Seara sem muçarela",
+     "description": "Molho de tomate, tomate picado, calabresa, cebola e orégano.",
+     "price": 0
+    },
+    {
+     "id": "bruschetta-de-abobrinha",
+     "name": "Bruschetta de abobrinha",
+     "description": "molho de tomate, Tomate Picado, Abobrinha, Pesto, Parmesão e orégano.",
+     "price": 0
+    },
+    {
+     "id": "alho",
+     "name": "Alho",
+     "description": "molho de tomate, muçarela, alho frito torrado e orégano",
+     "price": 0
+    },
+    {
+     "id": "calabresa",
+     "name": "Calabresa",
+     "description": "molho de tomate, muçarela, calabresa Seara, cebola e orégano",
+     "price": 1
+    },
+    {
+     "id": "tomate-seco-e-rucula",
+     "name": "Tomate seco e rúcula",
+     "description": "molho de tomate, muçarela, tomate seco, rúcula e orégano",
+     "price": 2
+    },
+    {
+     "id": "apimentada-original",
+     "name": "Apimentada Original",
+     "description": "molho de tomate, muçarela, linguiça apimentada artesanal mineira Original, cebola e orégano",
+     "price": 4
+    },
+    {
+     "id": "calabresa-seara-com-gorgonzola",
+     "name": "Calabresa Seara com Gorgonzola",
+     "description": "molho de tomate, muçarela, calabresa Seara Gourmet com um toque de erva doce, gorgonzola ralado e orégano",
+     "price": 5
+    }
+   ]
+  },
+  {
+   "id": "ig8",
+   "name": "20cm - Escolha seu sabor (1 sabor)",
+   "min": 1,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "banana-com-canela",
+     "name": "Banana com canela",
+     "description": "muçarela, banana, canela e açúcar",
+     "price": 0
+    },
+    {
+     "id": "dulce-de-leche-tostine",
+     "name": "Dulce de Leche Tostine",
+     "description": "Creme de leite, doce de leite e biscoito tostine triturado",
+     "price": 0
+    },
+    {
+     "id": "romeu-e-julieta",
+     "name": "Romeu & Julieta",
+     "description": "muçarela, goiabada e Catupiry",
+     "price": 0
+    },
+    {
+     "id": "cheesecake-de-frutas-vermelhas",
+     "name": "Cheesecake de frutas vermelhas",
+     "description": "cream cheese Philadelphia, chocolate branco forneável e geleia de frutas vermelhas",
+     "price": 0
+    },
+    {
+     "id": "banoffee",
+     "name": "Banoffee",
+     "description": "Doce de leite, banana fatiada, mistura de açúcar e canela, marshmallow e biscoito tostine triturado",
+     "price": 0
+    },
+    {
+     "id": "creme-de-avela-com-morango",
+     "name": "Creme de Avelã com Morango",
+     "description": "creme de leite, Creme de Avelã e Morango.",
+     "price": 0
+    },
+    {
+     "id": "negresco",
+     "name": "Negresco",
+     "description": "creme de leite, cream cheese Philadelphia, chocolate branco cremoso e pedaços crocantes de Negresco",
+     "price": 0
+    },
+    {
+     "id": "romeu-e-julieta-2",
+     "name": "Romeu e Julieta",
+     "price": 0
+    },
+    {
+     "id": "cheesecake-doce-de-leite",
+     "name": "Cheesecake Doce de Leite",
+     "price": 0
+    }
+   ]
+  },
+  {
+   "id": "ig9",
+   "name": "Massa - 40cm",
+   "min": 1,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "gourmet",
+     "name": "Gourmet",
+     "description": "Mais grossa e aerada",
+     "price": 0
+    },
+    {
+     "id": "fina",
+     "name": "Fina",
+     "description": "Sem borda e crocante",
+     "price": 0
+    },
+    {
+     "id": "recheada-de-catupiry",
+     "name": "Recheada de Catupiry",
+     "description": "Borda cremosa de Catupiry",
+     "price": 32
+    },
+    {
+     "id": "recheada-de-cream-cheese-philadelphia",
+     "name": "Recheada de cream cheese Philadelphia",
+     "description": "Borda cream cheese Philadelphia",
+     "price": 32
+    },
+    {
+     "id": "recheada-de-doce-de-leite",
+     "name": "Recheada de doce de leite",
+     "description": "Borda de doce de leite",
+     "price": 32
+    },
+    {
+     "id": "recheada-de-creme-de-avela",
+     "name": "Recheada de creme de avelã",
+     "description": "Borda creme de avelã",
+     "price": 32
+    }
+   ]
+  },
+  {
+   "id": "ig10",
+   "name": "Pizza salgada 40cm - R$ 149",
+   "min": 2,
+   "max": 2,
+   "rule": "sum",
+   "allowRepeat": true,
+   "options": [
+    {
+     "id": "bruschetta-de-abobrinha",
+     "name": "Bruschetta de abobrinha",
+     "description": "molho de tomate, Tomate Picado, Abobrinha, Pesto, Parmesão e orégano.",
+     "price": 0
+    },
+    {
+     "id": "calabresa-seara-sem-mucarela",
+     "name": "Calabresa Seara sem muçarela",
+     "description": "Molho de tomate, tomate picado, calabresa, cebola e orégano.",
+     "price": 0
+    },
+    {
+     "id": "caprese-original-com-catupiry",
+     "name": "Caprese Original com Catupiry",
+     "description": "molho de tomate com muçarela de búfala na base, tomate em rodelas com Catupiry, azeitona preta, manjericão e orégano",
+     "price": 0
+    },
+    {
+     "id": "marinara",
+     "name": "Marinara",
+     "description": "molho de tomate, manjericão, tomate cereja, muçarela de búfala, alho em lascas e orégano",
+     "price": 0
+    },
+    {
+     "id": "marguerita",
+     "name": "Marguerita",
+     "description": "molho de tomate, muçarela, tomate, manjericão e orégano",
+     "price": 0
+    },
+    {
+     "id": "marguerita-romana",
+     "name": "Marguerita romana",
+     "description": "molho de tomate, muçarela, tomate, cebola, azeitona preta, manjericão e orégano",
+     "price": 0
+    },
+    {
+     "id": "mucarela",
+     "name": "Muçarela",
+     "description": "molho de tomate, muçarela e orégano",
+     "price": 0
+    },
+    {
+     "id": "pomodoro",
+     "name": "Pomodoro",
+     "description": "molho de tomate, Manjericão, Tomate Picado, Muçarela de Búfala, Parmesão e Orégano.",
+     "price": 0
+    },
+    {
+     "id": "calabresa",
+     "name": "Calabresa",
+     "description": "molho de tomate, muçarela, calabresa Seara, cebola e orégano",
+     "price": 2
+    },
+    {
+     "id": "marguerita-especial",
+     "name": "Marguerita especial",
+     "description": "molho de tomate, muçarela, alho em lascas, tomate cereja, manjericão e orégano",
+     "price": 2
+    },
+    {
+     "id": "portuguesa",
+     "name": "Portuguesa",
+     "description": "molho de tomate, muçarela, presunto ralado, azeitona preta, ovos cozidos, cebola e orégano",
+     "price": 6
+    },
+    {
+     "id": "catupiresa",
+     "name": "Catupiresa",
+     "description": "molho de tomate, muçarela, calabresa Seara, Catupiry e orégano",
+     "price": 19
+    },
+    {
+     "id": "4-queijos",
+     "name": "4 Queijos",
+     "description": "molho de tomate, muçarela, gorgonzola, parmesão, Catupiry e orégano",
+     "price": 26
+    },
+    {
+     "id": "frango-com-catupiry",
+     "name": "Frango com Catupiry",
+     "description": "molho de tomate, muçarela, frango desfiado, Catupiry e orégano",
+     "price": 33
+    }
+   ]
+  },
+  {
+   "id": "ig11",
+   "name": "20cm - Escolha seu sabor (1 sabor)",
+   "min": 1,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "banana-caramelizada",
+     "name": "Banana Caramelizada",
+     "price": 0
+    },
+    {
+     "id": "banana-com-canela",
+     "name": "Banana com canela",
+     "description": "muçarela, banana, canela e açúcar",
+     "price": 0
+    },
+    {
+     "id": "banana-com-creme-de-avela",
+     "name": "Banana com creme de avelã",
+     "description": "muçarela, banana fatiada e creme de avelã",
+     "price": 0
+    },
+    {
+     "id": "banoffee",
+     "name": "Banoffee",
+     "description": "Doce de leite, banana fatiada, mistura de açúcar e canela, marshmallow e biscoito tostine triturado",
+     "price": 0
+    },
+    {
+     "id": "creme-de-avela-com-morango",
+     "name": "Creme de Avelã com Morango",
+     "description": "creme de leite, Creme de Avelã e Morango.",
+     "price": 0
+    },
+    {
+     "id": "cheesecake-de-frutas-vermelhas",
+     "name": "Cheesecake de frutas vermelhas",
+     "description": "cream cheese Philadelphia, chocolate branco forneável e geleia de frutas vermelhas",
+     "price": 0
+    },
+    {
+     "id": "cheesecake-doce-de-leite",
+     "name": "Cheesecake Doce de Leite",
+     "price": 0
+    },
+    {
+     "id": "doce-de-leite-com-banana",
+     "name": "Doce de leite com banana",
+     "description": "muçarela, banana, doce de leite, açúcar e canela",
+     "price": 0
+    },
+    {
+     "id": "dulce-de-leche-tostine",
+     "name": "Dulce de Leche Tostine",
+     "description": "Creme de leite, doce de leite e biscoito tostine triturado",
+     "price": 0
+    },
+    {
+     "id": "negresco",
+     "name": "Negresco",
+     "description": "creme de leite, cream cheese Philadelphia, chocolate branco cremoso e pedaços crocantes de Negresco",
+     "price": 0
+    },
+    {
+     "id": "romeu-e-julieta",
+     "name": "Romeu e Julieta",
+     "price": 0
+    }
+   ]
+  },
+  {
+   "id": "ig12",
+   "name": "Pizza salgada 30cm - R$ 155",
+   "min": 2,
+   "max": 2,
+   "rule": "sum",
+   "allowRepeat": true,
+   "options": [
+    {
+     "id": "marinara",
+     "name": "Marinara",
+     "description": "molho de tomate, manjericão, tomate cereja, muçarela de búfala, alho em lascas e orégano",
+     "price": 0
+    },
+    {
+     "id": "pomodoro",
+     "name": "Pomodoro",
+     "description": "molho de tomate, Manjericão, Tomate Picado, Muçarela de Búfala, Parmesão e Orégano.",
+     "price": 0
+    },
+    {
+     "id": "marguerita",
+     "name": "Marguerita",
+     "description": "molho de tomate, muçarela, tomate, manjericão e orégano",
+     "price": 0
+    },
+    {
+     "id": "caprese-original-com-catupiry",
+     "name": "Caprese Original com Catupiry",
+     "description": "molho de tomate com muçarela de búfala na base, tomate em rodelas com Catupiry, azeitona preta, manjericão e orégano",
+     "price": 0
+    },
+    {
+     "id": "mucarela",
+     "name": "Muçarela",
+     "description": "molho de tomate, muçarela e orégano",
+     "price": 0
+    },
+    {
+     "id": "marguerita-romana",
+     "name": "Marguerita romana",
+     "description": "molho de tomate, muçarela, tomate, cebola, azeitona preta, manjericão e orégano",
+     "price": 0
+    },
+    {
+     "id": "alho",
+     "name": "Alho",
+     "description": "molho de tomate, muçarela, alho frito torrado e orégano",
+     "price": 0
+    },
+    {
+     "id": "calabresa",
+     "name": "Calabresa",
+     "description": "molho de tomate, muçarela, calabresa Seara, cebola e orégano",
+     "price": 0
+    },
+    {
+     "id": "marguerita-especial",
+     "name": "Marguerita especial",
+     "description": "molho de tomate, muçarela, alho em lascas, tomate cereja, manjericão e orégano",
+     "price": 0
+    },
+    {
+     "id": "portuguesa",
+     "name": "Portuguesa",
+     "description": "molho de tomate, muçarela, presunto ralado, azeitona preta, ovos cozidos, cebola e orégano",
+     "price": 8
+    },
+    {
+     "id": "3-queijos-gratinada-scala",
+     "name": "3 Queijos Gratinada Scala",
+     "description": "molho de tomate, muçarela, gorgonzola, parmesão gratinado e orégano",
+     "price": 8
+    },
+    {
+     "id": "da-barra",
+     "name": "Da Barra",
+     "description": "Molho de tomate, muçarela, tomate seco, champignon, muçarela de búfala, rúcula e orégano).",
+     "price": 9
+    },
+    {
+     "id": "calabria",
+     "name": "Calábria",
+     "description": "molho de tomate, muçarela, linguiça apimentada, ovos ralados, parmesão gratinado e orégano",
+     "price": 10
+    },
+    {
+     "id": "frango-caipira",
+     "name": "Frango Caipira",
+     "description": "molho de tomate, muçarela, frango desfiado, milho e orégano",
+     "price": 10
+    },
+    {
+     "id": "caprese-parma-com-catupiry",
+     "name": "Caprese Parma com Catupiry",
+     "description": "molho de tomate com muçarela de búfala na base, tomate cereja, Catupiry, presunto de parma, manjericão e orégano",
+     "price": 11
+    },
+    {
+     "id": "catupiresa",
+     "name": "Catupiresa",
+     "description": "molho de tomate, muçarela, calabresa Seara, Catupiry e orégano",
+     "price": 13
+    },
+    {
+     "id": "4-queijos",
+     "name": "4 Queijos",
+     "description": "molho de tomate, muçarela, gorgonzola, parmesão, Catupiry e orégano",
+     "price": 16
+    },
+    {
+     "id": "pepperoni",
+     "name": "Pepperoni",
+     "description": "molho de tomate, muçarela, pepperoni e orégano",
+     "price": 17
+    }
+   ]
+  },
+  {
+   "id": "ig13",
+   "name": "Massa - 30cm - 2ªpizza",
+   "min": 1,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "gourmet",
+     "name": "Gourmet",
+     "description": "Mais grossa e aerada",
+     "price": 0
+    },
+    {
+     "id": "fina",
+     "name": "Fina",
+     "description": "Sem borda e crocante",
+     "price": 0
+    },
+    {
+     "id": "recheada-de-catupiry",
+     "name": "Recheada de Catupiry",
+     "description": "Borda cremosa de Catupiry",
+     "price": 26
+    },
+    {
+     "id": "recheada-de-cream-cheese-philadelphia",
+     "name": "Recheada de cream cheese Philadelphia",
+     "description": "Borda cream cheese Philadelphia",
+     "price": 26
+    },
+    {
+     "id": "recheada-catupiry-e-goiabada",
+     "name": "Recheada Catupiry e goiabada",
+     "description": "Borda cremosa de Catupiry e goiabada",
+     "price": 26
+    },
+    {
+     "id": "recheada-de-goiabada",
+     "name": "Recheada de goiabada",
+     "description": "Borda cremosa de goiabada",
+     "price": 26
+    },
+    {
+     "id": "recheada-de-doce-de-leite",
+     "name": "Recheada de doce de leite",
+     "description": "Borda de doce de leite",
+     "price": 26
+    },
+    {
+     "id": "recheada-de-creme-de-avela",
+     "name": "Recheada de creme de avelã",
+     "description": "Borda creme de avelã",
+     "price": 26
+    }
+   ]
+  },
+  {
+   "id": "ig14",
+   "name": "Pizza salgada 30cm - R$ 155 - 2ª Pizza",
+   "min": 2,
+   "max": 2,
+   "rule": "sum",
+   "allowRepeat": true,
+   "options": [
+    {
+     "id": "marinara",
+     "name": "Marinara",
+     "description": "molho de tomate, manjericão, tomate cereja, muçarela de búfala, alho em lascas e orégano",
+     "price": 0
+    },
+    {
+     "id": "pomodoro",
+     "name": "Pomodoro",
+     "description": "molho de tomate, Manjericão, Tomate Picado, Muçarela de Búfala, Parmesão e Orégano.",
+     "price": 0
+    },
+    {
+     "id": "marguerita",
+     "name": "Marguerita",
+     "description": "molho de tomate, muçarela, tomate, manjericão e orégano",
+     "price": 0
+    },
+    {
+     "id": "caprese-original-com-catupiry",
+     "name": "Caprese Original com Catupiry",
+     "description": "molho de tomate com muçarela de búfala na base, tomate em rodelas com Catupiry, azeitona preta, manjericão e orégano",
+     "price": 0
+    },
+    {
+     "id": "mucarela",
+     "name": "Muçarela",
+     "description": "molho de tomate, muçarela e orégano",
+     "price": 0
+    },
+    {
+     "id": "marguerita-romana",
+     "name": "Marguerita romana",
+     "description": "molho de tomate, muçarela, tomate, cebola, azeitona preta, manjericão e orégano",
+     "price": 0
+    },
+    {
+     "id": "alho",
+     "name": "Alho",
+     "description": "molho de tomate, muçarela, alho frito torrado e orégano",
+     "price": 0
+    },
+    {
+     "id": "calabresa",
+     "name": "Calabresa",
+     "description": "molho de tomate, muçarela, calabresa Seara, cebola e orégano",
+     "price": 0
+    },
+    {
+     "id": "marguerita-especial",
+     "name": "Marguerita especial",
+     "description": "molho de tomate, muçarela, alho em lascas, tomate cereja, manjericão e orégano",
+     "price": 0
+    },
+    {
+     "id": "portuguesa",
+     "name": "Portuguesa",
+     "description": "molho de tomate, muçarela, presunto ralado, azeitona preta, ovos cozidos, cebola e orégano",
+     "price": 8
+    },
+    {
+     "id": "3-queijos-gratinada-scala",
+     "name": "3 Queijos Gratinada Scala",
+     "description": "molho de tomate, muçarela, gorgonzola, parmesão gratinado e orégano",
+     "price": 8
+    },
+    {
+     "id": "da-barra",
+     "name": "Da Barra",
+     "description": "Molho de tomate, muçarela, tomate seco, champignon, muçarela de búfala, rúcula e orégano).",
+     "price": 9
+    },
+    {
+     "id": "calabria",
+     "name": "Calábria",
+     "description": "molho de tomate, muçarela, linguiça apimentada, ovos ralados, parmesão gratinado e orégano",
+     "price": 10
+    },
+    {
+     "id": "frango-caipira",
+     "name": "Frango Caipira",
+     "description": "molho de tomate, muçarela, frango desfiado, milho e orégano",
+     "price": 10
+    },
+    {
+     "id": "caprese-parma-com-catupiry",
+     "name": "Caprese Parma com Catupiry",
+     "description": "molho de tomate com muçarela de búfala na base, tomate cereja, Catupiry, presunto de parma, manjericão e orégano",
+     "price": 11
+    },
+    {
+     "id": "catupiresa",
+     "name": "Catupiresa",
+     "description": "molho de tomate, muçarela, calabresa Seara, Catupiry e orégano",
+     "price": 13
+    },
+    {
+     "id": "4-queijos",
+     "name": "4 Queijos",
+     "description": "molho de tomate, muçarela, gorgonzola, parmesão, Catupiry e orégano",
+     "price": 16
+    },
+    {
+     "id": "pepperoni",
+     "name": "Pepperoni",
+     "description": "molho de tomate, muçarela, pepperoni e orégano",
+     "price": 17
+    }
+   ]
+  },
+  {
+   "id": "ig15",
+   "name": "Massa salgada 30cm",
+   "min": 1,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "gourmet",
+     "name": "Gourmet",
+     "description": "Mais grossa e aerada",
+     "price": 0
+    },
+    {
+     "id": "fina",
+     "name": "Fina",
+     "description": "Sem borda e crocante",
+     "price": 0
+    },
+    {
+     "id": "recheada-de-catupiry",
+     "name": "Recheada de Catupiry",
+     "description": "Borda cremosa de Catupiry",
+     "price": 26
+    },
+    {
+     "id": "recheada-de-cream-cheese-philadelphia",
+     "name": "Recheada de cream cheese Philadelphia",
+     "description": "Borda cream cheese Philadelphia",
+     "price": 26
+    },
+    {
+     "id": "recheada-catupiry-e-goiabada",
+     "name": "Recheada Catupiry e goiabada",
+     "description": "Borda cremosa de Catupiry e goiabada",
+     "price": 26
+    },
+    {
+     "id": "recheada-de-goiabada",
+     "name": "Recheada de goiabada",
+     "description": "Borda cremosa de goiabada",
+     "price": 26
+    },
+    {
+     "id": "recheada-de-doce-de-leite",
+     "name": "Recheada de doce de leite",
+     "description": "Borda de doce de leite",
+     "price": 26
+    },
+    {
+     "id": "recheada-de-creme-de-avela",
+     "name": "Recheada de creme de avelã",
+     "description": "Borda creme de avelã",
+     "price": 26
+    }
+   ]
+  },
+  {
+   "id": "ig16",
+   "name": "Pizza 30cm - Doce e Salgada",
+   "min": 1,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "3-queijos-gratinada",
+     "name": "3 Queijos Gratinada",
+     "description": "molho de tomate, muçarela, gorgonzola, parmesão gratinado e orégano",
+     "price": 115
+    },
+    {
+     "id": "4-queijos",
+     "name": "4 Queijos",
+     "description": "molho de tomate, muçarela, gorgonzola, parmesão, Catupiry e orégano",
+     "price": 126
+    },
+    {
+     "id": "a-moda",
+     "name": "A Moda",
+     "description": "molho de tomate, muçarela, calabresa, azeitona preta, milho, palmito, Catupiry e orégano",
+     "price": 114
+    },
+    {
+     "id": "abobrinha",
+     "name": "Abobrinha",
+     "description": "molho de tomate, muçarela, abobrinhas, parmesão e orégano",
+     "price": 91
+    },
+    {
+     "id": "alho",
+     "name": "Alho",
+     "description": "molho de tomate, muçarela, alho frito torrado e orégano",
+     "price": 84
+    },
+    {
+     "id": "apimentada-original",
+     "name": "Apimentada Original",
+     "description": "molho de tomate, muçarela, linguiça apimentada artesanal mineira Original, cebola e orégano",
+     "price": 91
+    },
+    {
+     "id": "atum-com-cebola",
+     "name": "Atum com cebola",
+     "description": "molho de tomate, muçarela, atum, cebola e orégano",
+     "price": 119
+    },
+    {
+     "id": "bacon-com-ovos",
+     "name": "Bacon com ovos",
+     "description": "molho de tomate, muçarela, ovos ralados, bacon frito e orégano",
+     "price": 105
+    },
+    {
+     "id": "bruschetta-de-abobrinha",
+     "name": "Bruschetta de abobrinha",
+     "description": "molho de tomate, Tomate Picado, Abobrinha, Pesto, Parmesão e orégano.",
+     "price": 77
+    },
+    {
+     "id": "calabresa",
+     "name": "Calabresa",
+     "description": "molho de tomate, muçarela, calabresa, cebola e orégano",
+     "price": 88
+    },
+    {
+     "id": "calabresa-seara-sem-mucarela",
+     "name": "Calabresa Seara sem muçarela",
+     "description": "Molho de tomate, tomate picado, calabresa, cebola e orégano.",
+     "price": 77
+    },
+    {
+     "id": "calabresa-gourmet",
+     "name": "Calabresa Gourmet",
+     "description": "molho de tomate, muçarela, calabresa Seara Gourmet com um toque de erva doce, cebola e orégano",
+     "price": 90
+    },
+    {
+     "id": "calabresa-seara-com-gorgonzola",
+     "name": "Calabresa Seara com Gorgonzola",
+     "description": "molho de tomate, muçarela, calabresa Seara Gourmet com um toque de erva doce, gorgonzola ralado e orégano",
+     "price": 92
+    },
+    {
+     "id": "calabria",
+     "name": "Calábria",
+     "description": "molho de tomate, muçarela, linguiça apimentada, ovos ralados, parmesão gratinado e orégano",
+     "price": 111
+    },
+    {
+     "id": "camarao-com-alho-poro-e-cream-cheese-phi",
+     "name": "Camarão com alho poró e cream cheese Philadelphia",
+     "description": "molho de tomate, muçarela, cream cheese Philadelphia,camarões, alho poró e orégano",
+     "price": 142
+    },
+    {
+     "id": "camarao-com-catupiry",
+     "name": "Camarão com Catupiry",
+     "description": "molho de tomate, muçarela, Catupiry, camarões e orégano",
+     "price": 134
+    },
+    {
+     "id": "caprese-original-com-catupiry",
+     "name": "Caprese Original com Catupiry",
+     "description": "molho de tomate com muçarela de búfala na base, tomate em rodelas com Catupiry, azeitona preta, manjericão e orégano",
+     "price": 96
+    },
+    {
+     "id": "caprese-parma-com-catupiry",
+     "name": "Caprese Parma com Catupiry",
+     "description": "molho de tomate com muçarela de búfala na base, tomate cereja, Catupiry, presunto de parma, manjericão e orégano",
+     "price": 119
+    },
+    {
+     "id": "carioca",
+     "name": "Carioca",
+     "description": "molho de tomate, muçarela, calabresa, azeitona verde, tomate picado, ovos ralados e orégano",
+     "price": 92
+    },
+    {
+     "id": "carne-seca-com-catupiry",
+     "name": "Carne seca com Catupiry",
+     "description": "molho de tomate, muçarela, carne seca, Catupiry e orégano",
+     "price": 144
+    },
+    {
+     "id": "catuperoni",
+     "name": "Catuperoni",
+     "description": "molho de tomate, muçarela, pepperoni, Catupiry e orégano",
+     "price": 131
+    },
+    {
+     "id": "catupiresa",
+     "name": "Catupiresa",
+     "description": "molho de tomate, muçarela, calabresa, Catupiry e orégano",
+     "price": 109
+    },
+    {
+     "id": "catupiresa-especial",
+     "name": "Catupiresa especial",
+     "description": "molho de tomate, muçarela, calabresa, Catupiry, azeitona preta, cebola e orégano",
+     "price": 112
+    },
+    {
+     "id": "champignon",
+     "name": "Champignon",
+     "description": "molho de tomate, muçarela, champignon e orégano",
+     "price": 87
+    },
+    {
+     "id": "da-barra",
+     "name": "Da Barra",
+     "description": "molho de tomate, muçarela, tomate seco, champignon, muçarela de búfala, rúcula e orégano",
+     "price": 107
+    },
+    {
+     "id": "frango-caipira",
+     "name": "Frango Caipira",
+     "description": "molho de tomate, muçarela, frango desfiado, milho e orégano",
+     "price": 109
+    },
+    {
+     "id": "frango-caipira-com-catupiry",
+     "name": "Frango Caipira com Catupiry",
+     "description": "molho de tomate, muçarela, frango desfiado, Catupiry, milho e orégano",
+     "price": 123
+    },
+    {
+     "id": "frango-com-bacon-seara-e-cream-cheese",
+     "name": "Frango com Bacon Seara e Cream Cheese",
+     "description": "molho de tomate, muçarela, frango e bacon Seara e cream cheese Philadelphia",
+     "price": 132
+    },
+    {
+     "id": "frango-com-catupiry",
+     "name": "Frango com Catupiry",
+     "description": "molho de tomate, muçarela, frango, Catupiry e orégano",
+     "price": 123
+    },
+    {
+     "id": "genovesa",
+     "name": "Genovesa",
+     "description": "pesto na base, muçarela, tomate cereja, rúcula, parmesão, orégano e nosso molho Pesto (feito com rúcula e manjericão frescos, além de parmesão e castanha de caju",
+     "price": 97
+    },
+    {
+     "id": "lombiry",
+     "name": "Lombiry",
+     "description": "molho de tomate, muçarela, lombo canadense, Catupiry e orégano",
+     "price": 115
+    },
+    {
+     "id": "lombo-canadense",
+     "name": "Lombo canadense",
+     "description": "molho de tomate, muçarela, lombo canadense e orégano",
+     "price": 95
+    },
+    {
+     "id": "lombo-com-pesto-e-parmesao-nigro",
+     "name": "Lombo com Pesto e Parmesão (Nigro)",
+     "description": "(Molho de tomate, muçarela de búfala, lombo, parmesão, pesto e orégano) / - na Versão Borda Gourmet com parmesão gratinado.",
+     "price": 104
+    },
+    {
+     "id": "lombo-original",
+     "name": "Lombo Original",
+     "description": "Molho de tomate, Lombo, Cream Cheese, Muçarela com Parmesão gratinado e orégano.",
+     "price": 108
+    },
+    {
+     "id": "marguerita",
+     "name": "Marguerita",
+     "description": "molho de tomate, muçarela, tomate, manjericão e orégano",
+     "price": 79
+    },
+    {
+     "id": "marguerita-especial",
+     "name": "Marguerita especial",
+     "description": "molho de tomate, muçarela, alho em lascas, tomate cereja, manjericão e orégano",
+     "price": 84
+    },
+    {
+     "id": "marguerita-romana",
+     "name": "Marguerita romana",
+     "description": "molho de tomate, muçarela, tomate, cebola, azeitona preta, manjericão e orégano",
+     "price": 84
+    },
+    {
+     "id": "marinara",
+     "name": "Marinara",
+     "description": "molho de tomate, manjericão, tomate cereja, muçarela de búfala, alho em lascas e orégano",
+     "price": 115
+    },
+    {
+     "id": "mucarela",
+     "name": "Muçarela",
+     "description": "molho de tomate, muçarela e orégano",
+     "price": 79
+    },
+    {
+     "id": "mucarela-com-catupiry",
+     "name": "Muçarela com Catupiry",
+     "description": "molho de tomate, muçarela, Catupiry e orégano",
+     "price": 100
+    },
+    {
+     "id": "palmito",
+     "name": "Palmito",
+     "description": "molho de tomate, muçarela, palmito, azeitona verde e orégano",
+     "price": 94
+    },
+    {
+     "id": "napolitana",
+     "name": "Napolitana",
+     "description": "molho de tomate, muçarela, tomate, parmesão e orégano",
+     "price": 91
+    },
+    {
+     "id": "parma-e-pesto",
+     "name": "Parma e Pesto",
+     "description": "molho de tomate, muçarela de búfala, tomate seco, presunto de parma, molho pesto e orégano",
+     "price": 105
+    },
+    {
+     "id": "pepperoni",
+     "name": "Pepperoni",
+     "description": "molho de tomate, muçarela, pepperoni e orégano",
+     "price": 115
+    },
+    {
+     "id": "pizza-do-gabriel-nigro-2026",
+     "name": "Pizza do Gabriel Nigro (2026)",
+     "description": "Cream cheese Philadelphia, muçarela, calabresa premium, queijo parmesão e finalizada com alho torrado.",
+     "price": 119
+    },
+    {
+     "id": "pomodoro",
+     "name": "Pomodoro",
+     "description": "molho de tomate, Manjericão, Tomate Picado, Muçarela de Búfala, Parmesão e Orégano.",
+     "price": 84
+    },
+    {
+     "id": "portuguesa",
+     "name": "Portuguesa",
+     "description": "molho de tomate, muçarela, presunto, azeitona preta, ovos cozidos, cebola e orégano",
+     "price": 99
+    },
+    {
+     "id": "presunto",
+     "name": "Presunto",
+     "description": "molho de tomate, muçarela, presunto e orégano",
+     "price": 84
+    },
+    {
+     "id": "presunto-com-champignon",
+     "name": "Presunto com champignon",
+     "description": "molho de tomate, muçarela, presunto, champignon e orégano",
+     "price": 98
+    },
+    {
+     "id": "tomate-seco-e-rucula",
+     "name": "Tomate seco e rúcula",
+     "description": "molho de tomate, muçarela, tomate seco, rúcula e orégano",
+     "price": 85
+    },
+    {
+     "id": "banana-caramelizada",
+     "name": "Banana caramelizada",
+     "description": "mucarela, banana e chocolate branco caramelizado",
+     "price": 95
+    },
+    {
+     "id": "banana-com-canela",
+     "name": "Banana com canela",
+     "description": "muçarela, banana, canela e açúcar",
+     "price": 79
+    },
+    {
+     "id": "banana-com-creme-de-avela",
+     "name": "Banana com creme de avelã",
+     "description": "muçarela, banana fatiada e creme de avelã",
+     "price": 109
+    },
+    {
+     "id": "banoffee",
+     "name": "Banoffee",
+     "description": "Doce de leite, banana fatiada, mistura de açúcar e canela, marshmallow e biscoito tostine triturado",
+     "price": 95
+    },
+    {
+     "id": "cheesecake-de-frutas-vermelhas",
+     "name": "Cheesecake de frutas vermelhas",
+     "description": "cream cheese Philadelphia, chocolate branco forneável e geleia de frutas vermelhas",
+     "price": 99
+    },
+    {
+     "id": "cheesecake-doce-de-leite",
+     "name": "Cheesecake doce de leite",
+     "description": "(muçarela, cream cheese Philadelphia, chocolate branco caramelizado, doce de leite mineiro) .",
+     "price": 95
+    },
+    {
+     "id": "chocolate-ao-leite",
+     "name": "Chocolate ao leite",
+     "description": "creme de leite e chocolate ao leite em lascas",
+     "price": 125
+    },
+    {
+     "id": "chocolate-ao-leite-com-banana",
+     "name": "Chocolate ao leite com banana",
+     "description": "muçarela, banana e chocolate ao leite em lascas",
+     "price": 125
+    },
+    {
+     "id": "chocolate-ao-leite-com-mems",
+     "name": "Chocolate ao leite com m&ms",
+     "description": "creme de leite, chocolate ao leite em lascas e m&ms",
+     "price": 135
+    },
+    {
+     "id": "chocolate-ao-leite-com-morango",
+     "name": "Chocolate ao leite com morango",
+     "description": "creme de leite, chocolate ao leite em lascas e morango",
+     "price": 135
+    },
+    {
+     "id": "chocolate-branco",
+     "name": "Chocolate branco",
+     "description": "creme de leite, chocolate branco em lascas",
+     "price": 125
+    },
+    {
+     "id": "chocolate-branco-com-mems",
+     "name": "Chocolate branco com m&ms",
+     "description": "creme de leite, chocolate branco em lascas e m&ms",
+     "price": 139
+    },
+    {
+     "id": "chocolate-branco-com-morango",
+     "name": "Chocolate branco com morango",
+     "description": "creme de leite, chocolate branco em lascas e morango",
+     "price": 135
+    },
+    {
+     "id": "chocolate-meio-amargo",
+     "name": "Chocolate meio amargo",
+     "description": "creme de leite e chocolate meio amargo em lascas",
+     "price": 125
+    },
+    {
+     "id": "chocolate-meio-amargo-com-banana",
+     "name": "Chocolate meio amargo com banana",
+     "description": "muçarela, banana e chocolate meio amargo em lascas",
+     "price": 125
+    },
+    {
+     "id": "chocolate-meio-amargo-com-mems",
+     "name": "Chocolate meio amargo com m&ms",
+     "description": "creme de leite, chocolate meio amargo em lascas e m&ms",
+     "price": 135
+    },
+    {
+     "id": "chocolate-meio-amargo-com-morango",
+     "name": "Chocolate meio amargo com morango",
+     "description": "creme de leite, chocolate meio amargo em lascas e morango",
+     "price": 135
+    },
+    {
+     "id": "creme-de-avela-com-morango",
+     "name": "Creme de Avelã com Morango",
+     "description": "creme de leite, Creme de Avelã e Morango.",
+     "price": 95
+    },
+    {
+     "id": "doce-de-leite-com-banana",
+     "name": "Doce de leite com banana",
+     "description": "muçarela, banana, doce de leite, açúcar e canela",
+     "price": 95
+    },
+    {
+     "id": "duo-chocolate",
+     "name": "Duo chocolate",
+     "description": "creme de leite e mescla de chocolates ao leite e branco em lascas",
+     "price": 125
+    },
+    {
+     "id": "dulce-leche-tostine",
+     "name": "Dulce Leche Tostine",
+     "description": "Creme de leite, doce de leite e biscoito tostine triturado",
+     "price": 65
+    },
+    {
+     "id": "kit-kat",
+     "name": "Kit Kat",
+     "description": "creme de leite, recheio cremoso e deliciosos pedaços de Kit Kat",
+     "price": 109
+    },
+    {
+     "id": "marshmallow-com-kit-kat",
+     "name": "Marshmallow com Kit Kat",
+     "description": "creme de leite, kitkat pasta, marshmallow",
+     "price": 109
+    },
+    {
+     "id": "negresco",
+     "name": "Negresco",
+     "description": "creme de leite, cream cheese Philadelphia, chocolate branco cremoso e pedaços crocantes de Negresco",
+     "price": 95
+    },
+    {
+     "id": "romeu-e-julieta",
+     "name": "Romeu & Julieta",
+     "description": "muçarela, goiabada e Catupiry",
+     "price": 95
+    }
+   ]
+  },
+  {
+   "id": "ig17",
+   "name": "Pizza Doce 20cm - Sabores selecionados",
+   "min": 1,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "banoffee",
+     "name": "Banoffee",
+     "description": "Doce de leite, banana fatiada, mistura de açúcar e canela, marshmallow e biscoito tostine triturado",
+     "price": 0
+    },
+    {
+     "id": "banana-com-canela",
+     "name": "Banana com canela",
+     "description": "muçarela, banana, canela e açúcar",
+     "price": 0
+    },
+    {
+     "id": "banana-caramelizada",
+     "name": "Banana caramelizada",
+     "description": "mucarela, banana e chocolate branco caramelizado",
+     "price": 0
+    },
+    {
+     "id": "banana-com-creme-de-avela",
+     "name": "Banana com creme de avelã",
+     "description": "muçarela, banana fatiada e creme de avelã",
+     "price": 0
+    },
+    {
+     "id": "cheesecake-de-frutas-vermelhas",
+     "name": "Cheesecake de frutas vermelhas",
+     "description": "cream cheese Philadelphia, chocolate branco forneável e geleia de frutas vermelhas",
+     "price": 0
+    },
+    {
+     "id": "chocolate-ao-leite-com-banana",
+     "name": "Chocolate ao leite com banana",
+     "description": "muçarela, banana e chocolate ao leite em lascas",
+     "price": 0
+    },
+    {
+     "id": "chocolate-meio-amargo-com-banana",
+     "name": "Chocolate meio amargo com banana",
+     "description": "muçarela, banana e chocolate meio amargo em lascas",
+     "price": 0
+    },
+    {
+     "id": "cheesecake-doce-de-leite",
+     "name": "Cheesecake doce de leite",
+     "description": "(muçarela, cream cheese Philadelphia, chocolate branco caramelizado, doce de leite mineiro) .",
+     "price": 0
+    },
+    {
+     "id": "doce-de-leite-com-banana",
+     "name": "Doce de leite com banana",
+     "description": "muçarela, banana, doce de leite, açúcar e canela",
+     "price": 0
+    },
+    {
+     "id": "dulce-leche-tostine",
+     "name": "Dulce Leche Tostine",
+     "description": "Creme de leite, doce de leite e biscoito tostine triturado",
+     "price": 0
+    },
+    {
+     "id": "negresco",
+     "name": "Negresco",
+     "description": "creme de leite, cream cheese Philadelphia, chocolate branco cremoso e pedaços crocantes de Negresco",
+     "price": 0
+    },
+    {
+     "id": "romeu-e-julieta",
+     "name": "Romeu & Julieta",
+     "description": "muçarela, goiabada e Catupiry",
+     "price": 0
+    },
+    {
+     "id": "kit-kat",
+     "name": "Kit Kat",
+     "description": "creme de leite, recheio cremoso e deliciosos pedaços de Kit Kat",
+     "price": 4
+    },
+    {
+     "id": "chocolate-ao-leite",
+     "name": "Chocolate ao leite",
+     "description": "creme de leite e chocolate ao leite em lascas",
+     "price": 4
+    },
+    {
+     "id": "chocolate-branco",
+     "name": "Chocolate branco",
+     "description": "creme de leite, chocolate branco em lascas",
+     "price": 4
+    },
+    {
+     "id": "chocolate-meio-amargo",
+     "name": "Chocolate meio amargo",
+     "description": "creme de leite e chocolate meio amargo em lascas",
+     "price": 4
+    },
+    {
+     "id": "duo-chocolate",
+     "name": "Duo chocolate",
+     "description": "creme de leite e mescla de chocolates ao leite e branco em lascas",
+     "price": 4
+    },
+    {
+     "id": "chocolate-ao-leite-com-morango",
+     "name": "Chocolate ao leite com morango",
+     "description": "creme de leite, chocolate ao leite em lascas e morango",
+     "price": 5
+    },
+    {
+     "id": "chocolate-branco-com-morango",
+     "name": "Chocolate branco com morango",
+     "description": "creme de leite, chocolate branco em lascas e morango",
+     "price": 5
+    },
+    {
+     "id": "chocolate-meio-amargo-com-morango",
+     "name": "Chocolate meio amargo com morango",
+     "description": "creme de leite, chocolate meio amargo em lascas e morango",
+     "price": 5
+    },
+    {
+     "id": "chocolate-ao-leite-com-mems",
+     "name": "Chocolate ao leite com m&ms",
+     "description": "creme de leite, chocolate ao leite em lascas e m&ms",
+     "price": 7
+    },
+    {
+     "id": "chocolate-branco-com-mems",
+     "name": "Chocolate branco com m&ms",
+     "description": "creme de leite, chocolate branco em lascas e m&ms",
+     "price": 7
+    },
+    {
+     "id": "chocolate-meio-amargo-com-mems",
+     "name": "Chocolate meio amargo com m&ms",
+     "description": "creme de leite, chocolate meio amargo em lascas e m&ms",
+     "price": 7
+    }
+   ]
+  },
+  {
+   "id": "ig18",
+   "name": "Massa 40cm",
+   "min": 1,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "gourmet",
+     "name": "Gourmet",
+     "description": "Mais grossa e aerada",
+     "price": 0
+    },
+    {
+     "id": "fina",
+     "name": "Fina",
+     "description": "Sem borda e crocante",
+     "price": 0
+    },
+    {
+     "id": "recheada-de-catupiry",
+     "name": "Recheada de Catupiry",
+     "description": "Borda cremosa de Catupiry",
+     "price": 32
+    },
+    {
+     "id": "recheada-de-doce-de-leite",
+     "name": "Recheada de doce de leite",
+     "description": "Borda de doce de leite",
+     "price": 32
+    },
+    {
+     "id": "recheada-de-creme-de-avela",
+     "name": "Recheada de creme de avelã",
+     "description": "Borda creme de avelã",
+     "price": 32
+    }
+   ]
+  },
+  {
+   "id": "ig19",
+   "name": "Pizza 40cm - Refri Promo",
+   "min": 2,
+   "max": 2,
+   "rule": "sum",
+   "allowRepeat": true,
+   "options": [
+    {
+     "id": "mucarela",
+     "name": "Muçarela",
+     "description": "molho de tomate, muçarela e orégano",
+     "price": 52
+    },
+    {
+     "id": "calabresa",
+     "name": "Calabresa",
+     "description": "molho de tomate, muçarela, calabresa Seara, cebola e orégano",
+     "price": 54
+    },
+    {
+     "id": "marguerita",
+     "name": "Marguerita",
+     "description": "molho de tomate, muçarela, tomate, manjericão e orégano",
+     "price": 52
+    },
+    {
+     "id": "marguerita-especial",
+     "name": "Marguerita especial",
+     "description": "molho de tomate, muçarela, alho em lascas, tomate cereja, manjericão e orégano",
+     "price": 57
+    },
+    {
+     "id": "frango-com-catupiry",
+     "name": "Frango com Catupiry",
+     "description": "molho de tomate, muçarela, frango desfiado, Catupiry e orégano",
+     "price": 86
+    },
+    {
+     "id": "4-queijos",
+     "name": "4 Queijos",
+     "description": "molho de tomate, muçarela, gorgonzola, parmesão, Catupiry e orégano",
+     "price": 79.5
+    },
+    {
+     "id": "catupiresa",
+     "name": "Catupiresa",
+     "description": "molho de tomate, muçarela, calabresa Seara, Catupiry e orégano",
+     "price": 69.5
+    },
+    {
+     "id": "marinara",
+     "name": "Marinara",
+     "description": "molho de tomate, manjericão, tomate cereja, muçarela de búfala, alho em lascas e orégano",
+     "price": 63
+    },
+    {
+     "id": "pepperoni",
+     "name": "Pepperoni",
+     "description": "molho de tomate, muçarela, pepperoni e orégano",
+     "price": 79.5
+    },
+    {
+     "id": "lombo-canadense",
+     "name": "Lombo canadense",
+     "description": "molho de tomate, muçarela, lombo canadense e orégano",
+     "price": 64.5
+    },
+    {
+     "id": "lombo-original",
+     "name": "Lombo Original",
+     "price": 69.5
+    },
+    {
+     "id": "carioca",
+     "name": "Carioca",
+     "description": "molho de tomate, muçarela, calabresa Seara, azeitona verde, tomate picado, ovos ralados e orégano",
+     "price": 65
+    },
+    {
+     "id": "3-queijos-gratinada-scala",
+     "name": "3 Queijos Gratinada Scala",
+     "description": "molho de tomate, muçarela, gorgonzola, parmesão gratinado e orégano",
+     "price": 69.5
+    },
+    {
+     "id": "catuperoni",
+     "name": "Catuperoni",
+     "description": "molho de tomate, muçarela, pepperoni, Catupiry e orégano",
+     "price": 92.5
+    },
+    {
+     "id": "napolitana",
+     "name": "Napolitana",
+     "description": "molho de tomate, muçarela, tomate, parmesão e orégano",
+     "price": 62.5
+    },
+    {
+     "id": "camarao-com-catupiry",
+     "name": "Camarão com Catupiry",
+     "description": "molho de tomate, muçarela, Catupiry, camarões e orégano",
+     "price": 94.5
+    },
+    {
+     "id": "pomodoro",
+     "name": "Pomodoro",
+     "description": "molho de tomate, Manjericão, Tomate Picado, Muçarela de Búfala, Parmesão e Orégano.",
+     "price": 52
+    },
+    {
+     "id": "parma-e-pesto",
+     "name": "Parma e Pesto",
+     "description": "molho de tomate, muçarela de búfala, tomate seco, presunto de parma, molho pesto e orégano",
+     "price": 70
+    }
+   ],
+   "liters": 1.5
+  },
+  {
+   "id": "ig20",
+   "name": "Pizza 20cm - Predileta",
+   "min": 1,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "cheesecake-de-frutas-vermelhas",
+     "name": "Cheesecake de frutas vermelhas",
+     "description": "cream cheese Philadelphia, chocolate branco forneável e geleia de frutas vermelhas",
+     "price": 59
+    },
+    {
+     "id": "banana-com-canela",
+     "name": "Banana com canela",
+     "description": "muçarela, banana, canela e açúcar",
+     "price": 52
+    },
+    {
+     "id": "banana-caramelizada",
+     "name": "Banana caramelizada",
+     "description": "mucarela, banana e chocolate branco caramelizado",
+     "price": 59
+    },
+    {
+     "id": "banoffee",
+     "name": "Banoffee",
+     "description": "Doce de leite, banana fatiada, mistura de açúcar e canela, marshmallow e biscoito tostine triturado",
+     "price": 59
+    },
+    {
+     "id": "negresco",
+     "name": "Negresco",
+     "description": "creme de leite, cream cheese Philadelphia, chocolate branco cremoso e pedaços crocantes de Negresco",
+     "price": 59
+    },
+    {
+     "id": "chocolate-ao-leite",
+     "name": "Chocolate ao leite",
+     "description": "creme de leite e chocolate ao leite em lascas",
+     "price": 69
+    },
+    {
+     "id": "duo-chocolate",
+     "name": "Duo chocolate",
+     "description": "creme de leite e mescla de chocolates ao leite e branco em lascas",
+     "price": 69
+    },
+    {
+     "id": "chocolate-ao-leite-com-morango",
+     "name": "Chocolate ao leite com morango",
+     "description": "creme de leite, chocolate ao leite em lascas e morango",
+     "price": 74
+    }
+   ]
+  },
+  {
+   "id": "ig21",
+   "name": "Massas - segunda pizza",
+   "min": 1,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "gourmet",
+     "name": "Gourmet",
+     "description": "Mais grossa e aerada",
+     "price": 0
+    },
+    {
+     "id": "fina",
+     "name": "Fina",
+     "description": "Sem borda e crocante",
+     "price": 0
+    }
+   ]
+  },
+  {
+   "id": "ig22",
+   "name": "Segunda Pizza - Sabores 40cm",
+   "min": 2,
+   "max": 2,
+   "rule": "sum",
+   "allowRepeat": true,
+   "options": [
+    {
+     "id": "3-queijos-gratinada-scala",
+     "name": "3 Queijos Gratinada Scala",
+     "description": "molho de tomate, muçarela, gorgonzola, parmesão gratinado e orégano",
+     "price": 69.5
+    },
+    {
+     "id": "4-queijos",
+     "name": "4 Queijos",
+     "description": "molho de tomate, muçarela, gorgonzola, parmesão, Catupiry e orégano",
+     "price": 79.5
+    },
+    {
+     "id": "a-moda",
+     "name": "A Moda",
+     "description": "molho de tomate, muçarela, calabresa Seara, azeitona preta, milho, palmito, Catupiry e orégano",
+     "price": 84.5
+    },
+    {
+     "id": "abobrinha",
+     "name": "Abobrinha",
+     "description": "molho de tomate, muçarela, abobrinhas, parmesão e orégano",
+     "price": 59.5
+    },
+    {
+     "id": "alho",
+     "name": "Alho",
+     "description": "molho de tomate, muçarela, alho frito torrado e orégano",
+     "price": 54.5
+    },
+    {
+     "id": "apimentada-original",
+     "name": "Apimentada Original",
+     "description": "(molho de tomate, muçarela, linguiça apimentada artesanal mineira Original, cebola e orégano) .",
+     "price": 64.5
+    },
+    {
+     "id": "atum-com-cebola",
+     "name": "Atum com Cebola",
+     "description": "molho de tomate, muçarela, atum, cebola e orégano",
+     "price": 87.5
+    },
+    {
+     "id": "bacon-com-ovos",
+     "name": "Bacon com ovos",
+     "description": "molho de tomate, muçarela, ovos ralados, bacon frito e orégano",
+     "price": 84.5
+    },
+    {
+     "id": "bruschetta-de-abobrinha",
+     "name": "Bruschetta de abobrinha",
+     "description": "molho de tomate, Tomate Picado, Abobrinha, Pesto, Parmesão e orégano.",
+     "price": 57.5
+    },
+    {
+     "id": "calabresa",
+     "name": "Calabresa",
+     "description": "molho de tomate, muçarela, calabresa Seara, cebola e orégano",
+     "price": 54
+    },
+    {
+     "id": "calabresa-seara-sem-mucarela",
+     "name": "Calabresa Seara sem muçarela",
+     "description": "Molho de tomate, tomate picado, calabresa, cebola e orégano.",
+     "price": 49.5
+    },
+    {
+     "id": "calabresa-gourmet",
+     "name": "Calabresa Gourmet",
+     "description": "molho de tomate, muçarela, calabresa Seara Gourmet com um toque de erva doce, cebola e orégano",
+     "price": 59
+    },
+    {
+     "id": "calabresa-seara-com-gorgonzola",
+     "name": "Calabresa Seara com Gorgonzola",
+     "description": "molho de tomate, muçarela, calabresa Seara Gourmet com um toque de erva doce, gorgonzola ralado e orégano",
+     "price": 59.5
+    },
+    {
+     "id": "calabria",
+     "name": "Calábria",
+     "description": "molho de tomate, muçarela, linguiça apimentada, ovos ralados, parmesão gratinado e orégano",
+     "price": 60.5
+    },
+    {
+     "id": "camarao-com-alho-poro-e-cream-cheese-phi",
+     "name": "Camarão com alho poró e cream cheese Philadelphia",
+     "description": "molho de tomate, muçarela, Cream Cheese Philadelphia, camarões, alho poró e orégano",
+     "price": 99.5
+    },
+    {
+     "id": "camarao-com-catupiry",
+     "name": "Camarão com Catupiry",
+     "description": "molho de tomate, muçarela, Catupiry, camarões e orégano",
+     "price": 94.5
+    },
+    {
+     "id": "caprese-original-com-catupiry",
+     "name": "Caprese Original com Catupiry",
+     "description": "molho de tomate com muçarela de búfala na base, tomate em rodelas com Catupiry, azeitona preta, manjericão e orégano",
+     "price": 57
+    },
+    {
+     "id": "caprese-parma-com-catupiry",
+     "name": "Caprese Parma com Catupiry",
+     "description": "molho de tomate com muçarela de búfala na base, tomate cereja, Catupiry, presunto de parma, manjericão e orégano",
+     "price": 74.5
+    },
+    {
+     "id": "carioca",
+     "name": "Carioca",
+     "description": "molho de tomate, muçarela, calabresa Seara, azeitona verde, tomate picado, ovos ralados e orégano",
+     "price": 65
+    },
+    {
+     "id": "carne-seca-com-catupiry",
+     "name": "Carne seca com Catupiry",
+     "description": "molho de tomate, muçarela, carne seca, Catupiry e orégano",
+     "price": 109.5
+    },
+    {
+     "id": "catuperoni",
+     "name": "Catuperoni",
+     "description": "molho de tomate, muçarela, pepperoni, Catupiry e orégano",
+     "price": 92.5
+    },
+    {
+     "id": "catupiresa",
+     "name": "Catupiresa",
+     "description": "molho de tomate, muçarela, calabresa Seara, Catupiry e orégano",
+     "price": 69.5
+    },
+    {
+     "id": "catupiresa-especial",
+     "name": "Catupiresa especial",
+     "description": "molho de tomate, muçarela, calabresa Seara, Catupiry, azeitona preta, cebola e orégano",
+     "price": 79.5
+    },
+    {
+     "id": "champignon",
+     "name": "Champignon",
+     "description": "molho de tomate, muçarela, champignon e orégano",
+     "price": 59
+    },
+    {
+     "id": "da-barra",
+     "name": "Da Barra",
+     "description": "molho de tomate, muçarela, tomate seco, champignon, muçarela de búfala, rúcula e orégano",
+     "price": 69.5
+    },
+    {
+     "id": "frango-caipira",
+     "name": "Frango Caipira",
+     "description": "molho de tomate, muçarela, frango desfiado, milho e orégano",
+     "price": 74.5
+    },
+    {
+     "id": "frango-caipira-com-catupiry",
+     "name": "Frango Caipira com Catupiry",
+     "description": "molho de tomate, muçarela, frango desfiado, Catupiry, milho e orégano",
+     "price": 89.5
+    },
+    {
+     "id": "frango-com-bacon-seara-e-cream-cheese",
+     "name": "Frango com Bacon Seara e Cream Cheese",
+     "description": "molho de tomate, muçarela, frango e bacon Seara e cream cheese Philadelphia",
+     "price": 90
+    },
+    {
+     "id": "frango-com-catupiry",
+     "name": "Frango com Catupiry",
+     "description": "molho de tomate, muçarela, frango desfiado, Catupiry e orégano",
+     "price": 86
+    },
+    {
+     "id": "genovesa",
+     "name": "Genovesa",
+     "description": "Pesto na base, muçarela, tomate cereja, rúcula, parmesão, orégano e nosso molho Pesto (feito com rúcula e manjericão frescos, além de parmesão e castanha de caju",
+     "price": 64.5
+    },
+    {
+     "id": "lombiry",
+     "name": "Lombiry",
+     "description": "molho de tomate, muçarela, lombo canadense, Catupiry e orégano",
+     "price": 84.5
+    },
+    {
+     "id": "lombo-canadense",
+     "name": "Lombo canadense",
+     "description": "molho de tomate, muçarela, lombo canadense e orégano",
+     "price": 64.5
+    },
+    {
+     "id": "lombo-com-pesto-e-parmesao-nigro",
+     "name": "Lombo com Pesto e Parmesão (Nigro)",
+     "description": "(Molho de tomate, muçarela de búfala, lombo, parmesão, pesto e orégano) / - na Versão Borda Gourmet com parmesão gratinado.",
+     "price": 77
+    },
+    {
+     "id": "lombo-original",
+     "name": "Lombo Original",
+     "description": "Molho de tomate, Lombo, Cream Cheese, Muçarela com Parmesão gratinado e orégano.",
+     "price": 69.5
+    },
+    {
+     "id": "marguerita",
+     "name": "Marguerita",
+     "description": "molho de tomate, muçarela, tomate, manjericão e orégano",
+     "price": 52
+    },
+    {
+     "id": "marguerita-especial",
+     "name": "Marguerita especial",
+     "description": "molho de tomate, muçarela, alho em lascas, tomate cereja, manjericão e orégano",
+     "price": 57
+    },
+    {
+     "id": "marguerita-romana",
+     "name": "Marguerita romana",
+     "description": "molho de tomate, muçarela, tomate, cebola, azeitona preta, manjericão e orégano",
+     "price": 59.5
+    },
+    {
+     "id": "marinara",
+     "name": "Marinara",
+     "description": "molho de tomate, manjericão, tomate cereja, muçarela de búfala, alho em lascas e orégano",
+     "price": 63
+    },
+    {
+     "id": "mucarela",
+     "name": "Muçarela",
+     "description": "molho de tomate, muçarela e orégano",
+     "price": 52
+    },
+    {
+     "id": "mucarela-com-catupiry",
+     "name": "Muçarela com Catupiry",
+     "description": "molho de tomate, muçarela, Catupiry e orégano",
+     "price": 69.5
+    },
+    {
+     "id": "napolitana",
+     "name": "Napolitana",
+     "description": "molho de tomate, muçarela, tomate, parmesão e orégano",
+     "price": 62.5
+    },
+    {
+     "id": "palmito",
+     "name": "Palmito",
+     "description": "molho de tomate, muçarela, palmito, azeitona verde e orégano",
+     "price": 64.5
+    },
+    {
+     "id": "parma-e-pesto",
+     "name": "Parma e Pesto",
+     "description": "molho de tomate, muçarela de búfala, tomate seco, presunto de parma, molho pesto e orégano",
+     "price": 70
+    },
+    {
+     "id": "pepperoni",
+     "name": "Pepperoni",
+     "description": "molho de tomate, muçarela, pepperoni e orégano",
+     "price": 79.5
+    },
+    {
+     "id": "pizza-do-gabriel-nigro-2026",
+     "name": "Pizza do Gabriel Nigro (2026)",
+     "description": "Cream cheese Philadelphia, muçarela, calabresa premium, queijo parmesão e finalizada com alho torrado.",
+     "price": 84.5
+    },
+    {
+     "id": "pomodoro",
+     "name": "Pomodoro",
+     "description": "molho de tomate, Manjericão, Tomate Picado, Muçarela de Búfala, Parmesão e Orégano.",
+     "price": 52
+    },
+    {
+     "id": "portuguesa",
+     "name": "Portuguesa",
+     "description": "molho de tomate, muçarela, presunto ralado, azeitona preta, ovos cozidos, cebola e orégano",
+     "price": 67.5
+    },
+    {
+     "id": "presunto",
+     "name": "Presunto",
+     "description": "molho de tomate, muçarela, presunto ralado e orégano",
+     "price": 57.5
+    },
+    {
+     "id": "presunto-com-champignon",
+     "name": "Presunto com champignon",
+     "description": "molho de tomate, muçarela, presunto ralado, champignon e orégano",
+     "price": 66.5
+    },
+    {
+     "id": "tomate-seco-e-rucula",
+     "name": "Tomate seco e rúcula",
+     "description": "molho de tomate, muçarela, tomate seco, rúcula e orégano",
+     "price": 54.5
+    }
+   ]
+  },
+  {
+   "id": "ig3f",
+   "name": "Pizza salgada até 2 Sabores - 40cm",
+   "min": 2,
+   "max": 2,
+   "rule": "fraction",
+   "allowRepeat": true,
+   "options": [
+    {
+     "id": "4-queijos",
+     "name": "4 Queijos",
+     "description": "molho de tomate, muçarela, gorgonzola, parmesão, Catupiry e orégano",
+     "price": 0,
+     "fullPrice": 159
+    },
+    {
+     "id": "3-queijos-gratinada-scala",
+     "name": "3 Queijos Gratinada Scala",
+     "description": "molho de tomate, muçarela, gorgonzola, parmesão gratinado e orégano",
+     "price": 0,
+     "fullPrice": 139
+    },
+    {
+     "id": "a-moda",
+     "name": "A Moda",
+     "description": "molho de tomate, muçarela, calabresa Seara, azeitona preta, milho, palmito, Catupiry e orégano",
+     "price": 0,
+     "fullPrice": 169
+    },
+    {
+     "id": "abobrinha",
+     "name": "Abobrinha",
+     "description": "molho de tomate, muçarela, abobrinhas, parmesão e orégano",
+     "price": 0,
+     "fullPrice": 119
+    },
+    {
+     "id": "alho",
+     "name": "Alho",
+     "description": "molho de tomate, muçarela, alho frito torrado e orégano",
+     "price": 0,
+     "fullPrice": 109
+    },
+    {
+     "id": "apimentada-original",
+     "name": "Apimentada Original",
+     "description": "(molho de tomate, muçarela, linguiça apimentada artesanal mineira Original, cebola e orégano) .",
+     "price": 0,
+     "fullPrice": 129
+    },
+    {
+     "id": "atum-com-cebola",
+     "name": "Atum com Cebola",
+     "description": "molho de tomate, muçarela, atum, cebola e orégano",
+     "price": 0,
+     "fullPrice": 175
+    },
+    {
+     "id": "bacon-com-ovos",
+     "name": "Bacon com ovos",
+     "description": "molho de tomate, muçarela, ovos ralados, bacon frito e orégano",
+     "price": 0,
+     "fullPrice": 169
+    },
+    {
+     "id": "bruschetta-de-abobrinha",
+     "name": "Bruschetta de abobrinha",
+     "description": "molho de tomate, Tomate Picado, Abobrinha, Pesto, Parmesão e orégano.",
+     "price": 0,
+     "fullPrice": 115
+    },
+    {
+     "id": "calabresa",
+     "name": "Calabresa",
+     "description": "molho de tomate, muçarela, calabresa Seara, cebola e orégano",
+     "price": 0,
+     "fullPrice": 108
+    },
+    {
+     "id": "calabresa-seara-sem-mucarela",
+     "name": "Calabresa Seara sem muçarela",
+     "description": "Molho de tomate, tomate picado, calabresa, cebola e orégano.",
+     "price": 0,
+     "fullPrice": 99
+    },
+    {
+     "id": "calabresa-gourmet",
+     "name": "Calabresa Gourmet",
+     "description": "molho de tomate, muçarela, calabresa Seara Gourmet com um toque de erva doce, cebola e orégano",
+     "price": 0,
+     "fullPrice": 118
+    },
+    {
+     "id": "calabresa-seara-com-gorgonzola",
+     "name": "Calabresa Seara com Gorgonzola",
+     "description": "molho de tomate, muçarela, calabresa Seara Gourmet com um toque de erva doce, gorgonzola ralado e orégano",
+     "price": 0,
+     "fullPrice": 119
+    },
+    {
+     "id": "calabria",
+     "name": "Calábria",
+     "description": "molho de tomate, muçarela, linguiça apimentada, ovos ralados, parmesão gratinado e orégano",
+     "price": 0,
+     "fullPrice": 121
+    },
+    {
+     "id": "camarao-com-alho-poro-e-cream-cheese-phi",
+     "name": "Camarão com alho poró e cream cheese Philadelphia",
+     "description": "molho de tomate, muçarela, Cream Cheese Philadelphia, camarões, alho poró e orégano",
+     "price": 0,
+     "fullPrice": 199
+    },
+    {
+     "id": "camarao-com-catupiry",
+     "name": "Camarão com Catupiry",
+     "description": "molho de tomate, muçarela, Catupiry, camarões e orégano",
+     "price": 0,
+     "fullPrice": 189
+    },
+    {
+     "id": "caprese-original-com-catupiry",
+     "name": "Caprese Original com Catupiry",
+     "description": "molho de tomate com muçarela de búfala na base, tomate em rodelas com Catupiry, azeitona preta, manjericão e orégano",
+     "price": 0,
+     "fullPrice": 114
+    },
+    {
+     "id": "caprese-parma-com-catupiry",
+     "name": "Caprese Parma com Catupiry",
+     "description": "molho de tomate com muçarela de búfala na base, tomate cereja, Catupiry, presunto de parma, manjericão e orégano",
+     "price": 0,
+     "fullPrice": 149
+    },
+    {
+     "id": "carioca",
+     "name": "Carioca",
+     "description": "molho de tomate, muçarela, calabresa Seara, azeitona verde, tomate picado, ovos ralados e orégano",
+     "price": 0,
+     "fullPrice": 130
+    },
+    {
+     "id": "carne-seca-com-catupiry",
+     "name": "Carne seca com Catupiry",
+     "description": "molho de tomate, muçarela, carne seca, Catupiry e orégano",
+     "price": 0,
+     "fullPrice": 219
+    },
+    {
+     "id": "catuperoni",
+     "name": "Catuperoni",
+     "description": "molho de tomate, muçarela, pepperoni, Catupiry e orégano",
+     "price": 0,
+     "fullPrice": 185
+    },
+    {
+     "id": "catupiresa",
+     "name": "Catupiresa",
+     "description": "molho de tomate, muçarela, calabresa Seara, Catupiry e orégano",
+     "price": 0,
+     "fullPrice": 139
+    },
+    {
+     "id": "catupiresa-especial",
+     "name": "Catupiresa especial",
+     "description": "molho de tomate, muçarela, calabresa Seara, Catupiry, azeitona preta, cebola e orégano",
+     "price": 0,
+     "fullPrice": 159
+    },
+    {
+     "id": "champignon",
+     "name": "Champignon",
+     "description": "molho de tomate, muçarela, champignon e orégano",
+     "price": 0,
+     "fullPrice": 118
+    },
+    {
+     "id": "da-barra",
+     "name": "Da Barra",
+     "description": "molho de tomate, muçarela, tomate seco, champignon, muçarela de búfala, rúcula e orégano",
+     "price": 0,
+     "fullPrice": 139
+    },
+    {
+     "id": "frango-caipira",
+     "name": "Frango Caipira",
+     "description": "molho de tomate, muçarela, frango desfiado, milho e orégano",
+     "price": 0,
+     "fullPrice": 149
+    },
+    {
+     "id": "frango-caipira-com-catupiry",
+     "name": "Frango Caipira com Catupiry",
+     "description": "molho de tomate, muçarela, frango desfiado, Catupiry, milho e orégano",
+     "price": 0,
+     "fullPrice": 179
+    },
+    {
+     "id": "frango-com-catupiry",
+     "name": "Frango com Catupiry",
+     "description": "molho de tomate, muçarela, frango desfiado, Catupiry e orégano",
+     "price": 0,
+     "fullPrice": 172
+    },
+    {
+     "id": "frango-com-bacon-seara-e-cream-cheese",
+     "name": "Frango com Bacon Seara e Cream Cheese",
+     "description": "molho de tomate, muçarela, frango e bacon Seara e cream cheese Philadelphia",
+     "price": 0,
+     "fullPrice": 180
+    },
+    {
+     "id": "genovesa",
+     "name": "Genovesa",
+     "description": "Pesto na base, muçarela, tomate cereja, rúcula, parmesão, orégano e nosso molho Pesto (feito com rúcula e manjericão frescos, além de parmesão e castanha de caju",
+     "price": 0,
+     "fullPrice": 129
+    },
+    {
+     "id": "lombiry",
+     "name": "Lombiry",
+     "description": "molho de tomate, muçarela, lombo canadense, Catupiry e orégano",
+     "price": 0,
+     "fullPrice": 169
+    },
+    {
+     "id": "lombo-canadense",
+     "name": "Lombo canadense",
+     "description": "molho de tomate, muçarela, lombo canadense e orégano",
+     "price": 0,
+     "fullPrice": 129
+    },
+    {
+     "id": "lombo-com-pesto-e-parmesao-nigro",
+     "name": "Lombo com Pesto e Parmesão (Nigro)",
+     "description": "(Molho de tomate, muçarela de búfala, lombo, parmesão, pesto e orégano) / - na Versão Borda Gourmet com parmesão gratinado.",
+     "price": 0,
+     "fullPrice": 154
+    },
+    {
+     "id": "lombo-original",
+     "name": "Lombo Original",
+     "description": "Molho de tomate, Lombo, Cream Cheese, Muçarela com Parmesão gratinado e orégano.",
+     "price": 0,
+     "fullPrice": 139
+    },
+    {
+     "id": "marguerita",
+     "name": "Marguerita",
+     "description": "molho de tomate, muçarela, tomate, manjericão e orégano",
+     "price": 0,
+     "fullPrice": 104
+    },
+    {
+     "id": "marguerita-especial",
+     "name": "Marguerita especial",
+     "description": "molho de tomate, muçarela, alho em lascas, tomate cereja, manjericão e orégano",
+     "price": 0,
+     "fullPrice": 114
+    },
+    {
+     "id": "marguerita-romana",
+     "name": "Marguerita romana",
+     "description": "molho de tomate, muçarela, tomate, cebola, azeitona preta, manjericão e orégano",
+     "price": 0,
+     "fullPrice": 119
+    },
+    {
+     "id": "marinara",
+     "name": "Marinara",
+     "description": "molho de tomate, manjericão, tomate cereja, muçarela de búfala, alho em lascas e orégano",
+     "price": 0,
+     "fullPrice": 126
+    },
+    {
+     "id": "mucarela",
+     "name": "Muçarela",
+     "description": "molho de tomate, muçarela e orégano",
+     "price": 0,
+     "fullPrice": 104
+    },
+    {
+     "id": "mucarela-com-catupiry",
+     "name": "Muçarela com Catupiry",
+     "description": "molho de tomate, muçarela, Catupiry e orégano",
+     "price": 0,
+     "fullPrice": 139
+    },
+    {
+     "id": "napolitana",
+     "name": "Napolitana",
+     "description": "molho de tomate, muçarela, tomate, parmesão e orégano",
+     "price": 0,
+     "fullPrice": 125
+    },
+    {
+     "id": "palmito",
+     "name": "Palmito",
+     "description": "molho de tomate, muçarela, palmito, azeitona verde e orégano",
+     "price": 0,
+     "fullPrice": 129
+    },
+    {
+     "id": "parma-e-pesto",
+     "name": "Parma e Pesto",
+     "description": "molho de tomate, muçarela de búfala, tomate seco, presunto de parma, molho pesto e orégano",
+     "price": 0,
+     "fullPrice": 140
+    },
+    {
+     "id": "pepperoni",
+     "name": "Pepperoni",
+     "description": "molho de tomate, muçarela, pepperoni e orégano",
+     "price": 0,
+     "fullPrice": 159
+    },
+    {
+     "id": "pizza-do-gabriel-nigro-2026",
+     "name": "Pizza do Gabriel Nigro (2026)",
+     "description": "Cream cheese Philadelphia, muçarela, calabresa premium, queijo parmesão e finalizada com alho torrado.",
+     "price": 0,
+     "fullPrice": 169
+    },
+    {
+     "id": "pomodoro",
+     "name": "Pomodoro",
+     "description": "molho de tomate, Manjericão, Tomate Picado, Muçarela de Búfala, Parmesão e Orégano.",
+     "price": 0,
+     "fullPrice": 104
+    },
+    {
+     "id": "portuguesa",
+     "name": "Portuguesa",
+     "description": "molho de tomate, muçarela, presunto ralado, azeitona preta, ovos cozidos, cebola e orégano",
+     "price": 0,
+     "fullPrice": 135
+    },
+    {
+     "id": "presunto",
+     "name": "Presunto",
+     "description": "molho de tomate, muçarela, presunto ralado e orégano",
+     "price": 0,
+     "fullPrice": 115
+    },
+    {
+     "id": "presunto-com-champignon",
+     "name": "Presunto com champignon",
+     "description": "molho de tomate, muçarela, presunto ralado, champignon e orégano",
+     "price": 0,
+     "fullPrice": 133
+    },
+    {
+     "id": "tomate-seco-e-rucula",
+     "name": "Tomate seco e rúcula",
+     "description": "molho de tomate, muçarela, tomate seco, rúcula e orégano",
+     "price": 0,
+     "fullPrice": 109
+    }
+   ]
+  },
+  {
+   "id": "ig23f",
+   "name": "Pizza Salgada - 30cm",
+   "min": 2,
+   "max": 2,
+   "rule": "fraction",
+   "allowRepeat": true,
+   "options": [
+    {
+     "id": "3-queijos-gratinada-scala",
+     "name": "3 Queijos Gratinada Scala",
+     "description": "molho de tomate, muçarela, gorgonzola, parmesão gratinado e orégano",
+     "price": 0,
+     "fullPrice": 115
+    },
+    {
+     "id": "4-queijos",
+     "name": "4 Queijos",
+     "description": "molho de tomate, muçarela, gorgonzola, parmesão, Catupiry e orégano",
+     "price": 0,
+     "fullPrice": 126
+    },
+    {
+     "id": "a-moda",
+     "name": "A Moda",
+     "description": "molho de tomate, muçarela, calabresa Seara, azeitona preta, milho, palmito, Catupiry e orégano",
+     "price": 0,
+     "fullPrice": 114
+    },
+    {
+     "id": "abobrinha",
+     "name": "Abobrinha",
+     "description": "molho de tomate, muçarela, abobrinhas, parmesão e orégano",
+     "price": 0,
+     "fullPrice": 91
+    },
+    {
+     "id": "alho",
+     "name": "Alho",
+     "description": "molho de tomate, muçarela, alho frito torrado e orégano",
+     "price": 0,
+     "fullPrice": 84
+    },
+    {
+     "id": "apimentada-original",
+     "name": "Apimentada Original",
+     "description": "molho de tomate, muçarela, linguiça apimentada artesanal mineira Original, cebola e orégano",
+     "price": 0,
+     "fullPrice": 91
+    },
+    {
+     "id": "atum-com-cebola",
+     "name": "Atum com Cebola",
+     "description": "molho de tomate, muçarela, atum, cebola e orégano",
+     "price": 0,
+     "fullPrice": 119
+    },
+    {
+     "id": "bacon-com-ovos",
+     "name": "Bacon com ovos",
+     "description": "molho de tomate, muçarela, ovos ralados, bacon frito e orégano",
+     "price": 0,
+     "fullPrice": 105
+    },
+    {
+     "id": "bruschetta-de-abobrinha",
+     "name": "Bruschetta de abobrinha",
+     "description": "molho de tomate, Tomate Picado, Abobrinha, Pesto, Parmesão e orégano.",
+     "price": 0,
+     "fullPrice": 77
+    },
+    {
+     "id": "calabresa",
+     "name": "Calabresa",
+     "description": "molho de tomate, muçarela, calabresa Seara, cebola e orégano",
+     "price": 0,
+     "fullPrice": 88
+    },
+    {
+     "id": "calabresa-seara-sem-mucarela",
+     "name": "Calabresa Seara sem muçarela",
+     "description": "Molho de tomate, tomate picado, calabresa, cebola e orégano.",
+     "price": 0,
+     "fullPrice": 77
+    },
+    {
+     "id": "calabresa-gourmet",
+     "name": "Calabresa Gourmet",
+     "description": "molho de tomate, muçarela, calabresa Seara Gourmet com um toque de erva doce, cebola e orégano",
+     "price": 0,
+     "fullPrice": 90
+    },
+    {
+     "id": "calabresa-seara-com-gorgonzola",
+     "name": "Calabresa Seara com Gorgonzola",
+     "description": "molho de tomate, muçarela, calabresa Seara Gourmet com um toque de erva doce, gorgonzola ralado e orégano",
+     "price": 0,
+     "fullPrice": 92
+    },
+    {
+     "id": "calabria",
+     "name": "Calábria",
+     "description": "molho de tomate, muçarela, linguiça apimentada, ovos ralados, parmesão gratinado e orégano",
+     "price": 0,
+     "fullPrice": 111
+    },
+    {
+     "id": "camarao-com-alho-poro-e-cream-cheese-phi",
+     "name": "Camarão com alho poró e cream cheese Philadelphia",
+     "description": "molho de tomate, muçarela, Cream Cheese Philadelphia, camarões, alho poró e orégano",
+     "price": 0,
+     "fullPrice": 142
+    },
+    {
+     "id": "camarao-com-catupiry",
+     "name": "Camarão com Catupiry",
+     "description": "molho de tomate, muçarela, Catupiry, camarões e orégano",
+     "price": 0,
+     "fullPrice": 134
+    },
+    {
+     "id": "caprese-original-com-catupiry",
+     "name": "Caprese Original com Catupiry",
+     "description": "molho de tomate com muçarela de búfala na base, tomate em rodelas com Catupiry, azeitona preta, manjericão e orégano",
+     "price": 0,
+     "fullPrice": 96
+    },
+    {
+     "id": "caprese-parma-com-catupiry",
+     "name": "Caprese Parma com Catupiry",
+     "description": "molho de tomate com muçarela de búfala na base, tomate cereja, Catupiry, presunto de parma, manjericão e orégano",
+     "price": 0,
+     "fullPrice": 119
+    },
+    {
+     "id": "carioca",
+     "name": "Carioca",
+     "description": "molho de tomate, muçarela, calabresa Seara, azeitona verde, tomate picado, ovos ralados e orégano",
+     "price": 0,
+     "fullPrice": 92
+    },
+    {
+     "id": "carne-seca-com-catupiry",
+     "name": "Carne seca com Catupiry",
+     "description": "molho de tomate, muçarela, carne seca, Catupiry e orégano",
+     "price": 0,
+     "fullPrice": 144
+    },
+    {
+     "id": "catuperoni",
+     "name": "Catuperoni",
+     "description": "molho de tomate, muçarela, pepperoni, Catupiry e orégano",
+     "price": 0,
+     "fullPrice": 131
+    },
+    {
+     "id": "catupiresa",
+     "name": "Catupiresa",
+     "description": "molho de tomate, muçarela, calabresa Seara, Catupiry e orégano",
+     "price": 0,
+     "fullPrice": 109
+    },
+    {
+     "id": "catupiresa-especial",
+     "name": "Catupiresa especial",
+     "description": "molho de tomate, muçarela, calabresa Seara, Catupiry, azeitona preta, cebola e orégano",
+     "price": 0,
+     "fullPrice": 112
+    },
+    {
+     "id": "champignon",
+     "name": "Champignon",
+     "description": "molho de tomate, muçarela, champignon e orégano",
+     "price": 0,
+     "fullPrice": 87
+    },
+    {
+     "id": "da-barra",
+     "name": "Da Barra",
+     "description": "Molho de tomate, muçarela, tomate seco, champignon, muçarela de búfala, rúcula e orégano).",
+     "price": 0,
+     "fullPrice": 107
+    },
+    {
+     "id": "frango-caipira",
+     "name": "Frango Caipira",
+     "description": "molho de tomate, muçarela, frango desfiado, milho e orégano",
+     "price": 0,
+     "fullPrice": 109
+    },
+    {
+     "id": "frango-caipira-com-catupiry",
+     "name": "Frango Caipira com Catupiry",
+     "description": "molho de tomate, muçarela, frango desfiado, Catupiry, milho e orégano",
+     "price": 0,
+     "fullPrice": 123
+    },
+    {
+     "id": "frango-com-bacon-seara-e-cream-cheese",
+     "name": "Frango com Bacon Seara e Cream Cheese",
+     "description": "molho de tomate, muçarela, frango e bacon Seara e cream cheese Philadelphia",
+     "price": 0,
+     "fullPrice": 132
+    },
+    {
+     "id": "frango-com-catupiry",
+     "name": "Frango com Catupiry",
+     "description": "molho de tomate, muçarela, frango desfiado, Catupiry e orégano",
+     "price": 0,
+     "fullPrice": 123
+    },
+    {
+     "id": "genovesa",
+     "name": "Genovesa",
+     "description": "Pesto na base, muçarela, tomate cereja, rúcula, parmesão, orégano e nosso molho Pesto (feito com rúcula e manjericão frescos, além de parmesão e castanha de caju",
+     "price": 0,
+     "fullPrice": 97
+    },
+    {
+     "id": "lombiry",
+     "name": "Lombiry",
+     "description": "molho de tomate, muçarela, lombo canadense, Catupiry e orégano",
+     "price": 0,
+     "fullPrice": 115
+    },
+    {
+     "id": "lombo-canadense",
+     "name": "Lombo canadense",
+     "description": "molho de tomate, muçarela, lombo canadense e orégano",
+     "price": 0,
+     "fullPrice": 95
+    },
+    {
+     "id": "lombo-com-pesto-e-parmesao-nigro",
+     "name": "Lombo com Pesto e Parmesão (Nigro)",
+     "description": "(Molho de tomate, muçarela de búfala, lombo, parmesão, pesto e orégano) / - na Versão Borda Gourmet com parmesão gratinado.",
+     "price": 0,
+     "fullPrice": 104
+    },
+    {
+     "id": "lombo-original",
+     "name": "Lombo Original",
+     "price": 0,
+     "fullPrice": 108
+    },
+    {
+     "id": "marguerita",
+     "name": "Marguerita",
+     "description": "molho de tomate, muçarela, tomate, manjericão e orégano",
+     "price": 0,
+     "fullPrice": 79
+    },
+    {
+     "id": "marguerita-especial",
+     "name": "Marguerita especial",
+     "description": "molho de tomate, muçarela, alho em lascas, tomate cereja, manjericão e orégano",
+     "price": 0,
+     "fullPrice": 84
+    },
+    {
+     "id": "marguerita-romana",
+     "name": "Marguerita romana",
+     "description": "molho de tomate, muçarela, tomate, cebola, azeitona preta, manjericão e orégano",
+     "price": 0,
+     "fullPrice": 84
+    },
+    {
+     "id": "marinara",
+     "name": "Marinara",
+     "description": "molho de tomate, manjericão, tomate cereja, muçarela de búfala, alho em lascas e orégano",
+     "price": 0,
+     "fullPrice": 115
+    },
+    {
+     "id": "mucarela",
+     "name": "Muçarela",
+     "description": "molho de tomate, muçarela e orégano",
+     "price": 0,
+     "fullPrice": 79
+    },
+    {
+     "id": "mucarela-com-catupiry",
+     "name": "Muçarela com Catupiry",
+     "description": "molho de tomate, muçarela, Catupiry e orégano",
+     "price": 0,
+     "fullPrice": 100
+    },
+    {
+     "id": "napolitana",
+     "name": "Napolitana",
+     "description": "molho de tomate, muçarela, tomate, parmesão e orégano",
+     "price": 0,
+     "fullPrice": 91
+    },
+    {
+     "id": "palmito",
+     "name": "Palmito",
+     "description": "molho de tomate, muçarela, palmito, azeitona verde e orégano",
+     "price": 0,
+     "fullPrice": 94
+    },
+    {
+     "id": "parma-e-pesto",
+     "name": "Parma e Pesto",
+     "description": "molho de tomate, muçarela de búfala, tomate seco, presunto de parma, molho pesto e orégano",
+     "price": 0,
+     "fullPrice": 105
+    },
+    {
+     "id": "pepperoni",
+     "name": "Pepperoni",
+     "description": "molho de tomate, muçarela, pepperoni e orégano",
+     "price": 0,
+     "fullPrice": 115
+    },
+    {
+     "id": "pizza-do-gabriel-nigro-2026",
+     "name": "Pizza do Gabriel Nigro (2026)",
+     "description": "Cream cheese Philadelphia, muçarela, calabresa premium, queijo parmesão e finalizada com alho torrado.",
+     "price": 0,
+     "fullPrice": 119
+    },
+    {
+     "id": "pomodoro",
+     "name": "Pomodoro",
+     "description": "molho de tomate, Manjericão, Tomate Picado, Muçarela de Búfala, Parmesão e Orégano.",
+     "price": 0,
+     "fullPrice": 84
+    },
+    {
+     "id": "portuguesa",
+     "name": "Portuguesa",
+     "description": "molho de tomate, muçarela, presunto ralado, azeitona preta, ovos cozidos, cebola e orégano",
+     "price": 0,
+     "fullPrice": 99
+    },
+    {
+     "id": "presunto",
+     "name": "Presunto",
+     "description": "molho de tomate, muçarela, presunto ralado e orégano",
+     "price": 0,
+     "fullPrice": 84
+    },
+    {
+     "id": "presunto-com-champignon",
+     "name": "Presunto com champignon",
+     "description": "molho de tomate, muçarela, presunto ralado, champignon e orégano",
+     "price": 0,
+     "fullPrice": 98
+    },
+    {
+     "id": "tomate-seco-e-rucula",
+     "name": "Tomate seco e rúcula",
+     "description": "molho de tomate, muçarela, tomate seco, rúcula e orégano",
+     "price": 0,
+     "fullPrice": 85
+    }
+   ]
+  },
+  {
+   "id": "ig26",
+   "name": "Massa doce - 40cm",
+   "min": 1,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "gourmet",
+     "name": "Gourmet",
+     "description": "Mais grossa e aerada",
+     "price": 0
+    },
+    {
+     "id": "recheada-catupiry-e-goiabada",
+     "name": "Recheada Catupiry e goiabada",
+     "description": "Borda cremosa de Catupiry e goiabada",
+     "price": 32
+    },
+    {
+     "id": "recheada-de-goiabada",
+     "name": "Recheada de goiabada",
+     "description": "Borda cremosa de goiabada",
+     "price": 32
+    },
+    {
+     "id": "recheada-de-doce-de-leite",
+     "name": "Recheada de doce de leite",
+     "description": "Borda de doce de leite",
+     "price": 32
+    },
+    {
+     "id": "recheada-de-creme-de-avela",
+     "name": "Recheada de creme de avelã",
+     "description": "Borda creme de avelã",
+     "price": 32
+    }
+   ]
+  },
+  {
+   "id": "ig27f",
+   "name": "Pizza Doce - 40cm",
+   "min": 2,
+   "max": 2,
+   "rule": "fraction",
+   "allowRepeat": true,
+   "options": [
+    {
+     "id": "banana-caramelizada",
+     "name": "Banana caramelizada",
+     "description": "mucarela, banana e chocolate branco caramelizado",
+     "price": 0,
+     "fullPrice": 129
+    },
+    {
+     "id": "banana-com-canela",
+     "name": "Banana com canela",
+     "description": "muçarela, banana, canela e açúcar",
+     "price": 0,
+     "fullPrice": 109
+    },
+    {
+     "id": "banana-com-creme-de-avela",
+     "name": "Banana com creme de avelã",
+     "description": "muçarela, banana fatiada e creme de avelã",
+     "price": 0,
+     "fullPrice": 159
+    },
+    {
+     "id": "banoffee",
+     "name": "Banoffee",
+     "description": "Doce de leite, banana fatiada, mistura de açúcar e canela, marshmallow e biscoito tostine triturado",
+     "price": 0,
+     "fullPrice": 115
+    },
+    {
+     "id": "cheesecake-de-frutas-vermelhas",
+     "name": "Cheesecake de frutas vermelhas",
+     "description": "cream cheese Philadelphia, chocolate branco forneável e geleia de frutas vermelhas",
+     "price": 0,
+     "fullPrice": 132
+    },
+    {
+     "id": "cheesecake-doce-de-leite",
+     "name": "Cheesecake doce de leite",
+     "description": "(muçarela, cream cheese Philadelphia, chocolate branco caramelizado, doce de leite mineiro) .",
+     "price": 0,
+     "fullPrice": 135
+    },
+    {
+     "id": "chocolate-ao-leite",
+     "name": "Chocolate ao leite",
+     "description": "creme de leite e chocolate ao leite em lascas",
+     "price": 0,
+     "fullPrice": 155
+    },
+    {
+     "id": "chocolate-ao-leite-com-banana",
+     "name": "Chocolate ao leite com banana",
+     "description": "muçarela, banana e chocolate ao leite em lascas",
+     "price": 0,
+     "fullPrice": 149
+    },
+    {
+     "id": "chocolate-ao-leite-com-mems",
+     "name": "Chocolate ao leite com m&ms",
+     "description": "creme de leite, chocolate ao leite em lascas e m&ms",
+     "price": 0,
+     "fullPrice": 175
+    },
+    {
+     "id": "chocolate-ao-leite-com-morango",
+     "name": "Chocolate ao leite com morango",
+     "description": "creme de leite, chocolate ao leite em lascas e morango",
+     "price": 0,
+     "fullPrice": 175
+    },
+    {
+     "id": "chocolate-branco",
+     "name": "Chocolate branco",
+     "description": "creme de leite, chocolate branco em lascas",
+     "price": 0,
+     "fullPrice": 169
+    },
+    {
+     "id": "chocolate-branco-com-mems",
+     "name": "Chocolate branco com m&ms",
+     "description": "creme de leite, chocolate branco em lascas e m&ms",
+     "price": 0,
+     "fullPrice": 179
+    },
+    {
+     "id": "chocolate-branco-com-morango",
+     "name": "Chocolate branco com morango",
+     "description": "creme de leite, chocolate branco em lascas e morango",
+     "price": 0,
+     "fullPrice": 179
+    },
+    {
+     "id": "chocolate-meio-amargo",
+     "name": "Chocolate meio amargo",
+     "description": "creme de leite e chocolate meio amargo em lascas",
+     "price": 0,
+     "fullPrice": 159
+    },
+    {
+     "id": "chocolate-meio-amargo-com-banana",
+     "name": "Chocolate meio amargo com banana",
+     "description": "muçarela, banana e chocolate meio amargo em lascas",
+     "price": 0,
+     "fullPrice": 149
+    },
+    {
+     "id": "chocolate-meio-amargo-com-mems",
+     "name": "Chocolate meio amargo com m&ms",
+     "description": "creme de leite, chocolate meio amargo em lascas e m&ms",
+     "price": 0,
+     "fullPrice": 175
+    },
+    {
+     "id": "chocolate-meio-amargo-com-morango",
+     "name": "Chocolate meio amargo com morango",
+     "description": "creme de leite, chocolate meio amargo em lascas e morango",
+     "price": 0,
+     "fullPrice": 179
+    },
+    {
+     "id": "creme-de-avela-com-morango",
+     "name": "Creme de Avelã com Morango",
+     "description": "creme de leite, Creme de Avelã e Morango.",
+     "price": 0,
+     "fullPrice": 109
+    },
+    {
+     "id": "doce-de-leite-com-banana",
+     "name": "Doce de leite com banana",
+     "description": "muçarela, banana, doce de leite, açúcar e canela",
+     "price": 0,
+     "fullPrice": 135
+    },
+    {
+     "id": "duo-chocolate",
+     "name": "Duo chocolate",
+     "description": "creme de leite e mescla de chocolates ao leite e branco em lascas",
+     "price": 0,
+     "fullPrice": 149
+    },
+    {
+     "id": "dulce-de-leche-tostine",
+     "name": "Dulce de Leche Tostine",
+     "description": "Creme de leite, doce de leite e biscoito tostine triturado",
+     "price": 0,
+     "fullPrice": 99
+    },
+    {
+     "id": "kit-kat",
+     "name": "Kit Kat",
+     "description": "creme de leite, recheio cremoso e deliciosos pedaços de Kit Kat",
+     "price": 0,
+     "fullPrice": 144
+    },
+    {
+     "id": "negresco",
+     "name": "Negresco",
+     "description": "creme de leite, cream cheese Philadelphia, chocolate branco cremoso e pedaços crocantes de Negresco",
+     "price": 0,
+     "fullPrice": 133
+    },
+    {
+     "id": "romeu-e-julieta",
+     "name": "Romeu & Julieta",
+     "description": "muçarela, goiabada e Catupiry",
+     "price": 0,
+     "fullPrice": 119
+    }
+   ]
+  },
+  {
+   "id": "ig28",
+   "name": "Massa doce - 30cm",
+   "min": 1,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "gourmet",
+     "name": "Gourmet",
+     "description": "Mais grossa e aerada",
+     "price": 0
+    },
+    {
+     "id": "recheada-catupiry-e-goiabada",
+     "name": "Recheada Catupiry e goiabada",
+     "description": "Borda cremosa de Catupiry e goiabada",
+     "price": 26
+    },
+    {
+     "id": "recheada-de-goiabada",
+     "name": "Recheada de goiabada",
+     "description": "Borda cremosa de goiabada",
+     "price": 26
+    },
+    {
+     "id": "recheada-de-doce-de-leite",
+     "name": "Recheada de doce de leite",
+     "description": "Borda de doce de leite",
+     "price": 26
+    },
+    {
+     "id": "recheada-de-creme-de-avela",
+     "name": "Recheada de creme de avelã",
+     "description": "Borda creme de avelã",
+     "price": 26
+    }
+   ]
+  },
+  {
+   "id": "ig29f",
+   "name": "Pizza doce até 2 Sabores - 30cm",
+   "min": 2,
+   "max": 2,
+   "rule": "fraction",
+   "allowRepeat": true,
+   "options": [
+    {
+     "id": "banana-caramelizada",
+     "name": "Banana caramelizada",
+     "description": "mucarela, banana e chocolate branco caramelizado",
+     "price": 0,
+     "fullPrice": 95
+    },
+    {
+     "id": "banana-com-canela",
+     "name": "Banana com canela",
+     "description": "muçarela, banana, canela e açúcar",
+     "price": 0,
+     "fullPrice": 79
+    },
+    {
+     "id": "banana-com-creme-de-avela",
+     "name": "Banana com creme de avelã",
+     "description": "muçarela, banana fatiada e creme de avelã",
+     "price": 0,
+     "fullPrice": 109
+    },
+    {
+     "id": "banoffee",
+     "name": "Banoffee",
+     "description": "Doce de leite, banana fatiada, mistura de açúcar e canela, marshmallow e biscoito tostine triturado",
+     "price": 0,
+     "fullPrice": 95
+    },
+    {
+     "id": "cheesecake-de-frutas-vermelhas",
+     "name": "Cheesecake de frutas vermelhas",
+     "description": "cream cheese Philadelphia, chocolate branco forneável e geleia de frutas vermelhas",
+     "price": 0,
+     "fullPrice": 99
+    },
+    {
+     "id": "cheesecake-doce-de-leite",
+     "name": "Cheesecake doce de leite",
+     "description": "(muçarela, cream cheese Philadelphia, chocolate branco caramelizado, doce de leite mineiro) .",
+     "price": 0,
+     "fullPrice": 95
+    },
+    {
+     "id": "chocolate-ao-leite",
+     "name": "Chocolate ao leite",
+     "description": "creme de leite e chocolate ao leite em lascas",
+     "price": 0,
+     "fullPrice": 125
+    },
+    {
+     "id": "chocolate-ao-leite-com-banana",
+     "name": "Chocolate ao leite com banana",
+     "description": "muçarela, banana e chocolate ao leite em lascas",
+     "price": 0,
+     "fullPrice": 125
+    },
+    {
+     "id": "chocolate-ao-leite-com-mems",
+     "name": "Chocolate ao leite com m&ms",
+     "description": "creme de leite, chocolate ao leite em lascas e m&ms",
+     "price": 0,
+     "fullPrice": 135
+    },
+    {
+     "id": "chocolate-ao-leite-com-morango",
+     "name": "Chocolate ao leite com morango",
+     "description": "creme de leite, chocolate ao leite em lascas e morango",
+     "price": 0,
+     "fullPrice": 135
+    },
+    {
+     "id": "chocolate-branco",
+     "name": "Chocolate branco",
+     "description": "creme de leite, chocolate branco em lascas",
+     "price": 0,
+     "fullPrice": 125
+    },
+    {
+     "id": "chocolate-branco-com-mems",
+     "name": "Chocolate branco com m&ms",
+     "description": "creme de leite, chocolate branco em lascas e m&ms",
+     "price": 0,
+     "fullPrice": 139
+    },
+    {
+     "id": "chocolate-branco-com-morango",
+     "name": "Chocolate branco com morango",
+     "description": "creme de leite, chocolate branco em lascas e morango",
+     "price": 0,
+     "fullPrice": 135
+    },
+    {
+     "id": "chocolate-meio-amargo",
+     "name": "Chocolate meio amargo",
+     "description": "creme de leite e chocolate meio amargo em lascas",
+     "price": 0,
+     "fullPrice": 125
+    },
+    {
+     "id": "chocolate-meio-amargo-com-banana",
+     "name": "Chocolate meio amargo com banana",
+     "description": "muçarela, banana e chocolate meio amargo em lascas",
+     "price": 0,
+     "fullPrice": 125
+    },
+    {
+     "id": "chocolate-meio-amargo-com-mems",
+     "name": "Chocolate meio amargo com m&ms",
+     "description": "creme de leite, chocolate meio amargo em lascas e m&ms",
+     "price": 0,
+     "fullPrice": 135
+    },
+    {
+     "id": "chocolate-meio-amargo-com-morango",
+     "name": "Chocolate meio amargo com morango",
+     "description": "creme de leite, chocolate meio amargo em lascas e morango",
+     "price": 0,
+     "fullPrice": 135
+    },
+    {
+     "id": "creme-de-avela-com-morango",
+     "name": "Creme de Avelã com Morango",
+     "description": "creme de leite, Creme de Avelã e Morango.",
+     "price": 0,
+     "fullPrice": 95
+    },
+    {
+     "id": "doce-de-leite-com-banana",
+     "name": "Doce de leite com banana",
+     "description": "muçarela, banana, doce de leite, açúcar e canela",
+     "price": 0,
+     "fullPrice": 95
+    },
+    {
+     "id": "duo-chocolate",
+     "name": "Duo Chocolate",
+     "description": "creme de leite e mescla de chocolates ao leite e branco em lascas",
+     "price": 0,
+     "fullPrice": 125
+    },
+    {
+     "id": "dulce-de-leche-tostine",
+     "name": "Dulce de Leche Tostine",
+     "description": "Creme de leite, doce de leite e biscoito tostine triturado",
+     "price": 0,
+     "fullPrice": 79
+    },
+    {
+     "id": "kit-kat",
+     "name": "Kit Kat",
+     "description": "creme de leite, recheio cremoso e deliciosos pedaços de Kit Kat",
+     "price": 0,
+     "fullPrice": 109
+    },
+    {
+     "id": "negresco",
+     "name": "Negresco",
+     "description": "creme de leite, cream cheese Philadelphia, chocolate branco cremoso e pedaços crocantes de Negresco",
+     "price": 0,
+     "fullPrice": 95
+    },
+    {
+     "id": "romeu-e-julieta",
+     "name": "Romeu & Julieta",
+     "description": "muçarela, goiabada e Catupiry",
+     "price": 0,
+     "fullPrice": 95
+    }
+   ]
+  },
+  {
+   "id": "ig30",
+   "name": "Pizza 20cm doce",
+   "min": 1,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "banana-caramelizada",
+     "name": "Banana caramelizada",
+     "description": "mucarela, banana e chocolate branco caramelizado",
+     "price": 59
+    },
+    {
+     "id": "banana-com-canela",
+     "name": "Banana com canela",
+     "description": "muçarela, banana, canela e açúcar",
+     "price": 52
+    },
+    {
+     "id": "banana-com-creme-de-avela",
+     "name": "Banana com creme de avelã",
+     "description": "muçarela, banana fatiada e creme de avelã",
+     "price": 59
+    },
+    {
+     "id": "banoffee",
+     "name": "Banoffee",
+     "description": "Doce de leite, banana fatiada, mistura de açúcar e canela, marshmallow e biscoito tostine triturado",
+     "price": 59
+    },
+    {
+     "id": "cheesecake-de-frutas-vermelhas",
+     "name": "Cheesecake de frutas vermelhas",
+     "description": "cream cheese Philadelphia, chocolate branco forneável e geleia de frutas vermelhas",
+     "price": 59
+    },
+    {
+     "id": "cheesecake-doce-de-leite",
+     "name": "Cheesecake doce de leite",
+     "description": "(muçarela, cream cheese Philadelphia, chocolate branco caramelizado, doce de leite mineiro) .",
+     "price": 59
+    },
+    {
+     "id": "chocolate-ao-leite",
+     "name": "Chocolate ao leite",
+     "description": "creme de leite e chocolate ao leite em lascas",
+     "price": 69
+    },
+    {
+     "id": "chocolate-ao-leite-com-banana",
+     "name": "Chocolate ao leite com banana",
+     "description": "muçarela, banana e chocolate ao leite em lascas",
+     "price": 64
+    },
+    {
+     "id": "chocolate-ao-leite-com-mems",
+     "name": "Chocolate ao leite com m&ms",
+     "description": "creme de leite, chocolate ao leite em lascas e m&ms",
+     "price": 77
+    },
+    {
+     "id": "chocolate-ao-leite-com-morango",
+     "name": "Chocolate ao leite com morango",
+     "description": "creme de leite, chocolate ao leite em lascas e morango",
+     "price": 74
+    },
+    {
+     "id": "chocolate-branco",
+     "name": "Chocolate branco",
+     "description": "creme de leite, chocolate branco em lascas",
+     "price": 69
+    },
+    {
+     "id": "chocolate-branco-com-mems",
+     "name": "Chocolate branco com m&ms",
+     "description": "creme de leite, chocolate branco em lascas e m&ms",
+     "price": 80
+    },
+    {
+     "id": "chocolate-branco-com-morango",
+     "name": "Chocolate branco com morango",
+     "description": "creme de leite, chocolate branco em lascas e morango",
+     "price": 76
+    },
+    {
+     "id": "chocolate-meio-amargo",
+     "name": "Chocolate meio amargo",
+     "description": "creme de leite e chocolate meio amargo em lascas",
+     "price": 69
+    },
+    {
+     "id": "chocolate-meio-amargo-com-banana",
+     "name": "Chocolate meio amargo com banana",
+     "description": "muçarela, banana e chocolate meio amargo em lascas",
+     "price": 69
+    },
+    {
+     "id": "chocolate-meio-amargo-com-mems",
+     "name": "Chocolate meio amargo com m&ms",
+     "description": "creme de leite, chocolate meio amargo em lascas e m&ms",
+     "price": 82
+    },
+    {
+     "id": "chocolate-meio-amargo-com-morango",
+     "name": "Chocolate meio amargo com morango",
+     "description": "creme de leite, chocolate meio amargo em lascas e morango",
+     "price": 76
+    },
+    {
+     "id": "creme-de-avela-com-morango",
+     "name": "Creme de Avelã com Morango",
+     "description": "creme de leite, Creme de Avelã e Morango.",
+     "price": 59
+    },
+    {
+     "id": "doce-de-leite-com-banana",
+     "name": "Doce de leite com banana",
+     "description": "muçarela, banana, doce de leite, açúcar e canela",
+     "price": 59
+    },
+    {
+     "id": "duo-chocolate",
+     "name": "Duo chocolate",
+     "description": "creme de leite e mescla de chocolates ao leite e branco em lascas",
+     "price": 69
+    },
+    {
+     "id": "dulce-de-leche-tostine",
+     "name": "Dulce de Leche Tostine",
+     "description": "Creme de leite, doce de leite e biscoito tostine triturado",
+     "price": 55
+    },
+    {
+     "id": "kit-kat",
+     "name": "Kit Kat",
+     "description": "creme de leite, recheio cremoso e deliciosos pedaços de Kit Kat",
+     "price": 69
+    },
+    {
+     "id": "marshmallow-com-kit-kat",
+     "name": "Marshmallow com Kit Kat",
+     "description": "creme de leite, Kit Kat pasta, marshmallow",
+     "price": 69
+    },
+    {
+     "id": "negresco",
+     "name": "Negresco",
+     "description": "creme de leite, cream cheese Philadelphia, chocolate branco cremoso e pedaços crocantes de Negresco",
+     "price": 59
+    },
+    {
+     "id": "romeu-e-julieta",
+     "name": "Romeu & Julieta",
+     "description": "muçarela, goiabada e Catupiry",
+     "price": 59
+    }
+   ]
+  },
+  {
+   "id": "ig31",
+   "name": "Escolha a sua massa!",
+   "min": 1,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "gourmet",
+     "name": "Gourmet",
+     "description": "Mais grossa e aerada",
+     "price": 0
+    },
+    {
+     "id": "fina",
+     "name": "Fina",
+     "description": "Sem borda e crocante",
+     "price": 0
+    },
+    {
+     "id": "recheada-de-2-queijos",
+     "name": "Recheada de 2 Queijos",
+     "description": "Requeijão e Cheddar Veganos.",
+     "price": 19.9
+    },
+    {
+     "id": "recheada-de-requeijao-vegano",
+     "name": "Recheada de Requeijão Vegano",
+     "description": "Requeijão Vegano",
+     "price": 19.9
+    },
+    {
+     "id": "recheada-de-cheddar-vegano",
+     "name": "Recheada de Cheddar Vegano",
+     "description": "Cheddar Vegano",
+     "price": 19.9
+    }
+   ]
+  },
+  {
+   "id": "ig32f",
+   "name": "Escolha até dois sabores!",
+   "min": 2,
+   "max": 2,
+   "rule": "fraction",
+   "allowRepeat": true,
+   "options": [
+    {
+     "id": "veg-2-queijos-com-palmito",
+     "name": "Veg - 2 Queijos com Palmito",
+     "description": "Massa vegana, molho de tomate, cheddar vegano, requeijão vegano, palmito, orégano",
+     "price": 0,
+     "fullPrice": 93
+    },
+    {
+     "id": "veg-abobrinha-com-requeijao-vegano",
+     "name": "Veg - Abobrinha com Requeijão Vegano",
+     "description": "Massa vegana, molho de tomate, abobrinha em rodelas, cebola, requeijão vegano Popvegan, azeitonas verdes e orégano",
+     "price": 0,
+     "fullPrice": 93
+    },
+    {
+     "id": "veg-a-moda-vegana",
+     "name": "Veg - A moda Vegana",
+     "description": "massa vegana, molho de tomate, tomate seco, palmito picado, manjericão, alho em lascas, requeijão vegano e orégano",
+     "price": 0,
+     "fullPrice": 93
+    },
+    {
+     "id": "veg-calabresa-com-cheddar",
+     "name": "Veg - Calabresa com Cheddar",
+     "description": "massa vegana, molho de tomate, calabresa 100% vegetal, cebola, cheddar vegano e orégano",
+     "price": 0,
+     "fullPrice": 93
+    },
+    {
+     "id": "veg-calabresa-com-requeijao",
+     "name": "Veg - Calabresa com Requeijão",
+     "description": "massa vegana, molho de tomate, calabresa 100% vegetal, cebola, requeijão vegano e orégano",
+     "price": 0,
+     "fullPrice": 93
+    },
+    {
+     "id": "veg-caprese-vegana",
+     "name": "Veg - Caprese Vegana",
+     "description": "Molho de tomate, tomate em rodelas, azeitonas pretas, requeijão vegano, manjericão e orégano",
+     "price": 0,
+     "fullPrice": 93
+    },
+    {
+     "id": "veg-frango-com-cheddar",
+     "name": "Veg - Frango com Cheddar",
+     "description": "massa vegana, molho de tomate, frango 100% Vegetal, milho, cheddar vegano e orégano",
+     "price": 0,
+     "fullPrice": 93
+    },
+    {
+     "id": "veg-frango-com-requeijao",
+     "name": "Veg - Frango com Requeijão",
+     "description": "massa vegana, molho de tomate, frango 100% vegetal, milho, requeijão vegano e orégano",
+     "price": 0,
+     "fullPrice": 93
+    },
+    {
+     "id": "veg-marguerita-especial-vegana",
+     "name": "Veg - Marguerita Especial Vegana",
+     "description": "molho de tomate, requeijão vegano, tomates cereja, alho em lascas, manjericão, orégano",
+     "price": 0,
+     "fullPrice": 93
+    },
+    {
+     "id": "veg-ratatouille",
+     "name": "Veg - Ratatouille",
+     "description": "Massa vegana, molho de tomate, abobrinha em rodelas, cebola, tomate fatiado, manjericão e orégano",
+     "price": 0,
+     "fullPrice": 93
+    }
+   ]
+  },
+  {
+   "id": "ig33f",
+   "name": "Escolha até dois sabores!",
+   "min": 2,
+   "max": 2,
+   "rule": "fraction",
+   "allowRepeat": true,
+   "options": [
+    {
+     "id": "veg-2-queijos-com-palmito",
+     "name": "Veg - 2 Queijos com Palmito",
+     "description": "Massa vegana, molho de tomate, cheddar vegano, requeijão vegano, palmito, orégano",
+     "price": 0,
+     "fullPrice": 111
+    },
+    {
+     "id": "veg-abobrinha-com-requeijao-vegano",
+     "name": "Veg - Abobrinha com Requeijão Vegano",
+     "description": "Massa vegana, molho de tomate, abobrinha em rodelas, cebola, requeijão vegano Popvegan, azeitonas verdes e orégano",
+     "price": 0,
+     "fullPrice": 111
+    },
+    {
+     "id": "veg-a-moda-vegana",
+     "name": "Veg - A moda Vegana",
+     "description": "massa vegana, molho de tomate, tomate seco, palmito picado, manjericão, alho em lascas, requeijão vegano e orégano",
+     "price": 0,
+     "fullPrice": 111
+    },
+    {
+     "id": "veg-calabresa-com-cheddar",
+     "name": "Veg - Calabresa com Cheddar",
+     "description": "massa vegana, molho de tomate, calabresa 100% vegetal, cebola, cheddar vegano e orégano",
+     "price": 0,
+     "fullPrice": 111
+    },
+    {
+     "id": "veg-calabresa-com-requeijao",
+     "name": "Veg - Calabresa com Requeijão",
+     "description": "massa vegana, molho de tomate, calabresa 100% vegetal, cebola, requeijão vegano e orégano",
+     "price": 0,
+     "fullPrice": 111
+    },
+    {
+     "id": "veg-frango-com-cheddar",
+     "name": "Veg - Frango com Cheddar",
+     "description": "massa vegana, molho de tomate, frango 100% Vegetal, milho, cheddar vegano e orégano",
+     "price": 0,
+     "fullPrice": 111
+    },
+    {
+     "id": "veg-frango-com-requeijao",
+     "name": "Veg - Frango com Requeijão",
+     "description": "massa vegana, molho de tomate, frango 100% vegetal, milho, requeijão vegano e orégano",
+     "price": 0,
+     "fullPrice": 111
+    },
+    {
+     "id": "veg-marguerita-especial-vegana",
+     "name": "Veg - Marguerita Especial Vegana",
+     "description": "molho de tomate, requeijão vegano, tomates cereja, alho em lascas, manjericão, orégano",
+     "price": 0,
+     "fullPrice": 111
+    },
+    {
+     "id": "veg-ratatouille",
+     "name": "Veg - Ratatouille",
+     "description": "Massa vegana, molho de tomate, abobrinha em rodelas, cebola, tomate fatiado, manjericão e orégano",
+     "price": 0,
+     "fullPrice": 111
+    }
+   ]
+  },
+  {
+   "id": "ig34",
+   "name": "Qual sua borda?",
+   "min": 1,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "gourmet",
+     "name": "Gourmet",
+     "description": "Mais grossa e aerada.",
+     "price": 0
+    },
+    {
+     "id": "borda-de-romeu-e-julieta-vegana",
+     "name": "Borda de Romeu e Julieta Vegana",
+     "description": "Requeijão Vegana com Goiabada.",
+     "price": 19
+    },
+    {
+     "id": "borda-de-chocolate-vegano",
+     "name": "Borda de Chocolate Vegano",
+     "description": "Chocolate ao leite Vegano.",
+     "price": 25
+    },
+    {
+     "id": "borda-de-beijinho",
+     "name": "Borda de Beijinho",
+     "description": "Creme de Beijinho Vegano.",
+     "price": 25
+    },
+    {
+     "id": "borda-de-veganela",
+     "name": "Borda de Veganela",
+     "description": "Creme de Avelã Vegano.",
+     "price": 29
+    }
+   ]
+  },
+  {
+   "id": "ig35",
+   "name": "Escolha o sabor",
+   "min": 1,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "veg-banana-com-acucar-e-canela",
+     "name": "Veg - Banana com Açúcar e Canela",
+     "description": "(Massa vegana, banana fatiada, açúcar e canela). / - Tamanho: 30cm",
+     "price": 84
+    },
+    {
+     "id": "veg-banana-com-chocolate",
+     "name": "Veg - Banana com Chocolate",
+     "description": "(massa vegana, banana fatiada e chocolate vegano). / - Tamanho: 30cm",
+     "price": 94
+    },
+    {
+     "id": "veg-banana-com-veganella",
+     "name": "Veg - Banana com Veganella",
+     "description": "(Massa vegana, banana fatiada e creme de avelã Veganella). / - Tamanho: 30cm",
+     "price": 135
+    },
+    {
+     "id": "veg-romeu-e-julieta-vegana",
+     "name": "Veg - Romeu & Julieta Vegana",
+     "description": "(Massa vegana, requeijão vegano e goiabada). / - Tamanho: 30cm",
+     "price": 84
+    }
+   ]
+  },
+  {
+   "id": "ig36",
+   "name": "Escolha sua pizza Vegana 20cm",
+   "min": 1,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "veg-banana-com-acucar-e-canela",
+     "name": "Veg - Banana com Açúcar e Canela",
+     "description": "Massa vegana, banana fatiada, açúcar e canela",
+     "price": 53
+    },
+    {
+     "id": "veg-banana-com-chocolate",
+     "name": "Veg - Banana com Chocolate",
+     "description": "massa vegana, banana fatiada e chocolate vegano",
+     "price": 64
+    },
+    {
+     "id": "veg-banana-com-veganella",
+     "name": "Veg - Banana com Veganella",
+     "description": "Massa vegana, banana fatiada e creme de avelã Veganella",
+     "price": 75
+    },
+    {
+     "id": "veg-romeu-e-julieta-vegana",
+     "name": "Veg - Romeu & Julieta Vegana",
+     "description": "Massa vegana, requeijão vegano e goiabada",
+     "price": 53
+    }
+   ]
+  },
+  {
+   "id": "ig37",
+   "name": "Hits - 30cm - R$ 69",
+   "min": 2,
+   "max": 2,
+   "rule": "sum",
+   "allowRepeat": true,
+   "options": [
+    {
+     "id": "alho",
+     "name": "Alho",
+     "description": "molho de tomate, muçarela, alho frito torrado e orégano",
+     "price": 0
+    },
+    {
+     "id": "apimentada-original",
+     "name": "Apimentada Original",
+     "description": "(molho de tomate, muçarela, linguiça apimentada artesanal mineira Original, cebola e orégano) .",
+     "price": 0
+    },
+    {
+     "id": "calabresa",
+     "name": "Calabresa",
+     "description": "molho de tomate, muçarela, calabresa Seara, cebola e orégano",
+     "price": 0
+    },
+    {
+     "id": "genovesa",
+     "name": "Genovesa",
+     "description": "Pesto na base, muçarela, tomate cereja, rúcula, parmesão, orégano e nosso molho Pesto (feito com rúcula e manjericão frescos, além de parmesão e castanha de caju",
+     "price": 0
+    },
+    {
+     "id": "marguerita-romana",
+     "name": "Marguerita romana",
+     "description": "molho de tomate, muçarela, tomate, cebola, azeitona preta, manjericão e orégano",
+     "price": 0
+    },
+    {
+     "id": "marguerita-especial",
+     "name": "Marguerita especial",
+     "description": "molho de tomate, muçarela, alho em lascas, tomate cereja, manjericão e orégano",
+     "price": 0
+    },
+    {
+     "id": "mucarela",
+     "name": "Muçarela",
+     "description": "molho de tomate, muçarela e orégano",
+     "price": 0
+    },
+    {
+     "id": "presunto",
+     "name": "Presunto",
+     "description": "molho de tomate, muçarela, presunto ralado e orégano",
+     "price": 0
+    },
+    {
+     "id": "tomate-seco-e-rucula",
+     "name": "Tomate seco e rúcula",
+     "description": "molho de tomate, muçarela, tomate seco, rúcula e orégano",
+     "price": 0
+    },
+    {
+     "id": "catupiresa",
+     "name": "Catupiresa",
+     "description": "molho de tomate, muçarela, calabresa Seara, Catupiry e orégano",
+     "price": 9.5
+    },
+    {
+     "id": "pepperoni",
+     "name": "Pepperoni",
+     "description": "molho de tomate, muçarela, pepperoni e orégano",
+     "price": 14.5
+    },
+    {
+     "id": "frango-caipira-com-catupiry",
+     "name": "Frango Caipira com Catupiry",
+     "description": "molho de tomate, muçarela, frango desfiado, Catupiry, milho e orégano",
+     "price": 11.5
+    },
+    {
+     "id": "parma-e-pesto",
+     "name": "Parma e Pesto",
+     "description": "molho de tomate, muçarela de búfala, tomate seco, presunto de parma, molho pesto e orégano",
+     "price": 9.5
+    },
+    {
+     "id": "4-queijos",
+     "name": "4 Queijos",
+     "description": "molho de tomate, muçarela, gorgonzola, parmesão, Catupiry e orégano",
+     "price": 14.5
+    },
+    {
+     "id": "lombo-original",
+     "name": "Lombo Original",
+     "price": 9.5
+    }
+   ]
+  },
+  {
+   "id": "ig38",
+   "name": "Refri em promo. Que tal?",
+   "min": 0,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "coca-cola-original-1-5l",
+     "name": "Coca-Cola Original 1,5l",
+     "description": "Garrafa 1,5l",
+     "price": 11.9
+    },
+    {
+     "id": "coca-cola-sem-acucar-1-5l",
+     "name": "Coca-Cola sem Açúcar 1,5l",
+     "description": "Garrafa 1,5l",
+     "price": 11.9
+    },
+    {
+     "id": "refrigerante-guarana-antarctica-1-5-l",
+     "name": "Refrigerante Guaraná Antarctica 1,5 l",
+     "price": 11.9
+    },
+    {
+     "id": "coca-cola-original-350ml",
+     "name": "Coca-Cola Original 350ml",
+     "description": "Lata 350ml",
+     "price": 7.9
+    },
+    {
+     "id": "coca-cola-zero-lata-350ml",
+     "name": "Coca Cola Zero Lata 350ml",
+     "price": 7.9
+    },
+    {
+     "id": "guarana-antarctica-350ml",
+     "name": "Guaraná Antarctica 350ml",
+     "price": 7.9
+    },
+    {
+     "id": "refrigerante-guarana-zero-antarctica",
+     "name": "Refrigerante Guaraná Zero Antarctica",
+     "description": "Lata 350ml",
+     "price": 7.9
+    }
+   ],
+   "liters": 1.5
+  },
+  {
+   "id": "ig39",
+   "name": "Hits - 30cm - R$ 59",
+   "min": 2,
+   "max": 2,
+   "rule": "sum",
+   "allowRepeat": true,
+   "options": [
+    {
+     "id": "pomodoro",
+     "name": "Pomodoro",
+     "description": "molho de tomate, Manjericão, Tomate Picado, Muçarela de Búfala, Parmesão e Orégano.",
+     "price": 0
+    },
+    {
+     "id": "bruschetta-de-abobrinha",
+     "name": "Bruschetta de abobrinha",
+     "description": "molho de tomate, Tomate Picado, Abobrinha, Pesto, Parmesão e orégano.",
+     "price": 0
+    },
+    {
+     "id": "calabresa-seara-sem-mucarela",
+     "name": "Calabresa Seara sem muçarela",
+     "description": "Molho de tomate, tomate picado, calabresa, cebola e orégano.",
+     "price": 0
+    },
+    {
+     "id": "marguerita",
+     "name": "Marguerita",
+     "description": "molho de tomate, muçarela, tomate, manjericão e orégano",
+     "price": 0
+    },
+    {
+     "id": "marinara",
+     "name": "Marinara",
+     "description": "molho de tomate, manjericão, tomate cereja, muçarela de búfala, alho em lascas e orégano",
+     "price": 0
+    }
+   ]
+  },
+  {
+   "id": "ig40",
+   "name": "Hits - 40cm - R$ 79",
+   "min": 2,
+   "max": 2,
+   "rule": "sum",
+   "allowRepeat": true,
+   "options": [
+    {
+     "id": "marguerita",
+     "name": "Marguerita",
+     "description": "molho de tomate, muçarela, tomate, manjericão e orégano",
+     "price": 0
+    },
+    {
+     "id": "calabresa",
+     "name": "Calabresa",
+     "description": "molho de tomate, muçarela, calabresa Seara, cebola e orégano",
+     "price": 0
+    },
+    {
+     "id": "marguerita-romana",
+     "name": "Marguerita romana",
+     "description": "molho de tomate, muçarela, tomate, cebola, azeitona preta, manjericão e orégano",
+     "price": 0
+    },
+    {
+     "id": "marinara",
+     "name": "Marinara",
+     "description": "molho de tomate, manjericão, tomate cereja, muçarela de búfala, alho em lascas e orégano",
+     "price": 0
+    },
+    {
+     "id": "mucarela",
+     "name": "Muçarela",
+     "description": "molho de tomate, muçarela e orégano",
+     "price": 0
+    },
+    {
+     "id": "pomodoro",
+     "name": "Pomodoro",
+     "description": "molho de tomate, Manjericão, Tomate Picado, Muçarela de Búfala, Parmesão e Orégano.",
+     "price": 0
+    },
+    {
+     "id": "presunto",
+     "name": "Presunto",
+     "description": "molho de tomate, muçarela, presunto ralado e orégano",
+     "price": 0
+    },
+    {
+     "id": "portuguesa",
+     "name": "Portuguesa",
+     "description": "molho de tomate, muçarela, presunto ralado, azeitona preta, ovos cozidos, cebola e orégano",
+     "price": 19.5
+    },
+    {
+     "id": "palmito",
+     "name": "Palmito",
+     "description": "molho de tomate, muçarela, palmito, azeitona verde e orégano",
+     "price": 11.5
+    },
+    {
+     "id": "mucarela-com-catupiry",
+     "name": "Muçarela com Catupiry",
+     "description": "molho de tomate, muçarela, Catupiry e orégano",
+     "price": 21.5
+    },
+    {
+     "id": "marguerita-especial",
+     "name": "Marguerita especial",
+     "description": "molho de tomate, muçarela, alho em lascas, tomate cereja, manjericão e orégano",
+     "price": 9.5
+    },
+    {
+     "id": "lombo-canadense",
+     "name": "Lombo canadense",
+     "description": "molho de tomate, muçarela, lombo canadense e orégano",
+     "price": 21.5
+    },
+    {
+     "id": "catupiresa",
+     "name": "Catupiresa",
+     "description": "molho de tomate, muçarela, calabresa Seara, Catupiry e orégano",
+     "price": 23
+    },
+    {
+     "id": "carioca",
+     "name": "Carioca",
+     "description": "molho de tomate, muçarela, calabresa Seara, azeitona verde, tomate picado, ovos ralados e orégano",
+     "price": 18
+    }
+   ]
+  },
+  {
+   "id": "ig41",
+   "name": "Pizza 20cm Imperdível",
+   "min": 0,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "banana-com-canela",
+     "name": "Banana com canela",
+     "description": "muçarela, banana, canela e açúcar",
+     "price": 52
+    },
+    {
+     "id": "romeu-e-julieta",
+     "name": "Romeu & Julieta",
+     "description": "muçarela, goiabada e Catupiry",
+     "price": 59
+    },
+    {
+     "id": "banana-caramelizada",
+     "name": "Banana caramelizada",
+     "description": "mucarela, banana e chocolate branco caramelizado",
+     "price": 59
+    },
+    {
+     "id": "cheesecake-doce-de-leite",
+     "name": "Cheesecake Doce de Leite",
+     "price": 59
+    }
+   ]
+  },
+  {
+   "id": "ig43",
+   "name": "Escolha sua calabresa",
+   "min": 2,
+   "max": 2,
+   "rule": "sum",
+   "allowRepeat": true,
+   "options": [
+    {
+     "id": "calabresa-seara-sem-mucarela",
+     "name": "Calabresa Seara sem muçarela",
+     "description": "Molho de tomate, tomate picado, calabresa, cebola e orégano.",
+     "price": 0
+    },
+    {
+     "id": "calabresa",
+     "name": "Calabresa",
+     "description": "molho de tomate, muçarela, calabresa Seara, cebola e orégano",
+     "price": 0
+    },
+    {
+     "id": "calabresa-gourmet",
+     "name": "Calabresa Gourmet",
+     "description": "molho de tomate, muçarela, calabresa Seara Gourmet com um toque de erva doce, cebola e orégano",
+     "price": 0
+    },
+    {
+     "id": "catupiresa",
+     "name": "Catupiresa",
+     "description": "molho de tomate, muçarela, calabresa Seara, Catupiry e orégano",
+     "price": 0
+    },
+    {
+     "id": "catupiresa-especial",
+     "name": "Catupiresa especial",
+     "description": "molho de tomate, muçarela, calabresa Seara, Catupiry, azeitona preta, cebola e orégano",
+     "price": 0
+    }
+   ]
+  },
+  {
+   "id": "ig42",
+   "name": "Pizza 20cm Imperdível",
+   "min": 0,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "banana-com-canela",
+     "name": "Banana com canela",
+     "description": "muçarela, banana, canela e açúcar",
+     "price": 52
+    },
+    {
+     "id": "romeu-e-julieta",
+     "name": "Romeu & Julieta",
+     "description": "muçarela, goiabada e Catupiry",
+     "price": 59
+    },
+    {
+     "id": "banana-caramelizada",
+     "name": "Banana caramelizada",
+     "description": "mucarela, banana e chocolate branco caramelizado",
+     "price": 59
+    },
+    {
+     "id": "cheesecake-doce-de-leite",
+     "name": "Cheesecake Doce de Leite",
+     "price": 59
+    }
+   ]
+  },
+  {
+   "id": "ig44",
+   "name": "Escolha a sua preferência",
+   "min": 1,
+   "max": 6,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "alho-adicional",
+     "name": "Alho adicional",
+     "price": 14
+    },
+    {
+     "id": "azeitona-preta-adicional",
+     "name": "Azeitona preta adicional",
+     "price": 10
+    },
+    {
+     "id": "azeitona-verde-adicional",
+     "name": "Azeitona verde adicional",
+     "price": 10
+    },
+    {
+     "id": "calabresa-adicional",
+     "name": "Calabresa adicional",
+     "price": 29
+    },
+    {
+     "id": "catupiry-adicional",
+     "name": "Catupiry adicional",
+     "price": 26
+    },
+    {
+     "id": "cebola-adicional",
+     "name": "Cebola adicional",
+     "price": 6
+    },
+    {
+     "id": "cream-cheese-philadelphia-adicional",
+     "name": "Cream cheese Philadelphia adicional",
+     "price": 26
+    },
+    {
+     "id": "milho-adicional",
+     "name": "Milho adicional",
+     "price": 6
+    },
+    {
+     "id": "mucarela-bufala-adicional",
+     "name": "Muçarela bufala adicional",
+     "price": 29
+    },
+    {
+     "id": "parmesao-adicional",
+     "name": "Parmesão adicional",
+     "price": 15
+    },
+    {
+     "id": "rucula-adicional",
+     "name": "Rúcula adicional",
+     "price": 6
+    },
+    {
+     "id": "tomate-adicional",
+     "name": "Tomate adicional",
+     "price": 7
+    },
+    {
+     "id": "doce-leite-adicional",
+     "name": "Doce leite adicional",
+     "price": 26
+    },
+    {
+     "id": "goiabada-adicional",
+     "name": "Goiabada adicional",
+     "price": 23
+    },
+    {
+     "id": "morango-adicional",
+     "name": "Morango adicional",
+     "price": 19
+    },
+    {
+     "id": "mems-adicional",
+     "name": "M&ms adicional",
+     "price": 29
+    },
+    {
+     "id": "creme-de-avela-adicional",
+     "name": "Creme de avelã adicional",
+     "price": 26
+    },
+    {
+     "id": "gorgonzola-adicional",
+     "name": "Gorgonzola adicional",
+     "price": 19
+    },
+    {
+     "id": "champignon-adicional",
+     "name": "Champignon adicional",
+     "price": 17
+    }
+   ]
+  },
+  {
+   "id": "ig45",
+   "name": "Vinhos",
+   "min": 1,
+   "max": 1,
+   "rule": "sum",
+   "allowRepeat": false,
+   "options": [
+    {
+     "id": "vinho-tinto-chileno-amitie-reserva-carme",
+     "name": "Vinho Tinto Chileno Amitié Reserva Carménerè Miraflores 750ml",
+     "description": "Produto para maiores de 18 anos",
+     "price": 70
+    },
+    {
+     "id": "vinho-branco-reserva-chardonnay-miraflor",
+     "name": "Vinho Branco Reserva Chardonnay Miraflores 750ml",
+     "description": "Produto Para Maiores de 18 Anos",
+     "price": 70
+    },
+    {
+     "id": "vinho-rose-reserva-carmenere-miraflores-",
+     "name": "Vinho Rosé Reserva Carmenere Miraflores 750ml",
+     "description": "Produto para maiores de 18 anos",
+     "price": 70
+    },
+    {
+     "id": "vinho-fino-tinto-seco-chileno-miraflores",
+     "name": "Vinho Fino Tinto Seco Chileno Miraflores Reserva Merlot Amitié 750ml",
+     "description": "Produto para maiores de 18 anos",
+     "price": 70
+    },
+    {
+     "id": "vinho-tinto-amitie-reserva-cabernet-sauv",
+     "name": "Vinho Tinto Amitié Reserva Cabernet Sauvignon Miraflores 750ml",
+     "description": "Produto para maiores de 18 anos",
+     "price": 70
+    }
+   ]
+  }
+ ],
+ "items": [
+  {
+   "keepId": "m3",
+   "ifoodId": "843f7018-9673-4460-97b5-e3aed07b92a9",
+   "categoryId": "cat_imbat",
+   "name": "1/2 Caprese Original com Catupiry + 1/2 Bruschetta de abobrinha · 30cm",
+   "description": "Caprese Original com Catupiry:(molho de tomate, muçarela 100% búfala, tomate fatiado, Catupiry, azeitona preta, manjericão e orégano). / Bruschetta de abobrinha: (molho de tomate, Tomate Picado, Abobrinha, Pesto, Parmesão e orégano).",
+   "kind": "combo",
+   "price": 79,
+   "compareAt": 86.5,
+   "groupIds": [
+    "ig0",
+    "ig1"
+   ],
+   "heroOptionNames": [
+    "Caprese Original com Catupiry",
+    "Bruschetta de abobrinha"
+   ]
+  },
+  {
+   "keepId": "m2",
+   "ifoodId": "76c77bb4-4b83-4121-83b6-27bf63801119",
+   "categoryId": "cat_imbat",
+   "name": "1/2 Muçarela + 1/2 Marguerita romana · 30cm",
+   "description": "Muçarela: (molho de tomate, muçarela e orégano). / Marguerita romana: (molho de tomate, muçarela, tomate, cebola, azeitona preta, manjericão e orégano).",
+   "kind": "combo",
+   "price": 79,
+   "compareAt": 81.5,
+   "groupIds": [
+    "ig0",
+    "ig1"
+   ],
+   "heroOptionNames": [
+    "Muçarela",
+    "Marguerita romana"
+   ]
+  },
+  {
+   "keepId": "m1",
+   "ifoodId": "c3d036ec-9ccc-40c9-8a33-b4124dd82893",
+   "categoryId": "cat_imbat",
+   "name": "1/2 Calabresa 1/2 Marguerita · 30cm",
+   "description": "Calabresa: (molho de tomate, muçarela, calabresa Seara, cebola e orégano). / Marguerita: (molho de tomate, muçarela, tomate, manjericão e orégano).",
+   "kind": "offer",
+   "price": 81,
+   "compareAt": 83.5,
+   "groupIds": [
+    "ig0",
+    "ig1"
+   ],
+   "heroOptionNames": [
+    "Calabresa",
+    "Marguerita"
+   ]
+  },
+  {
+   "keepId": "m4",
+   "ifoodId": "7b407254-d22f-4576-9cf7-a83182bb8164",
+   "categoryId": "cat_imbat",
+   "name": "1/2 Catupiresa + 1/2 Pomodoro · 30cm",
+   "description": "Catupiresa: (molho de tomate, muçarela, calabresa Seara, Catupiry e orégano). / Pomodoro: (molho de tomate, Manjericão, Tomate Picado, Muçarela de Búfala, Parmesão e Orégano).",
+   "kind": "combo",
+   "price": 92,
+   "compareAt": 96.5,
+   "groupIds": [
+    "ig0",
+    "ig1"
+   ],
+   "heroOptionNames": [
+    "Catupiresa",
+    "Pomodoro"
+   ]
+  },
+  {
+   "keepId": "m5",
+   "ifoodId": "fc242e0e-e628-45f4-9a08-7b84b2482af9",
+   "categoryId": "cat_imbat",
+   "name": "1/2 Frango com Catupiry 1/2 Calabresa Seara sem muçarela · 30cm",
+   "description": "Frango com Catupiry: (molho de tomate, muçarela, frango, Catupiry e orégano). / Calabresa Seara sem muçarela: (molho de tomate, tomate picado, calabresa Seara, cebola e orégano).",
+   "kind": "offer",
+   "price": 95,
+   "compareAt": 100,
+   "groupIds": [
+    "ig0",
+    "ig1"
+   ],
+   "heroOptionNames": [
+    "Frango com Catupiry",
+    "Calabresa Seara sem muçarela"
+   ]
+  },
+  {
+   "keepId": "m6",
+   "ifoodId": "e67b2c58-1f8e-4e07-9106-5412372790bd",
+   "categoryId": "cat_imbat",
+   "name": "1/2 Portuguesa + 1/2 Marinara · 30cm",
+   "description": "Portuguesa: (molho de tomate, muçarela, presunto, azeitona preta, ovos cozidos, cebola e orégano). / Marinara: (molho de tomate, muçarela 100% búfala, alho em lascas, manjericão, tomate cereja, e orégano).",
+   "kind": "combo",
+   "price": 99,
+   "compareAt": 107,
+   "groupIds": [
+    "ig0",
+    "ig1"
+   ],
+   "heroOptionNames": [
+    "Portuguesa",
+    "Marinara"
+   ]
+  },
+  {
+   "ifoodId": "2948ac03-b243-4908-96d6-9f567cd4a77f",
+   "categoryId": "cat_imbat",
+   "name": "Pizza 40cm (até dois sabores) com Refri Grátis",
+   "description": "Ação com Pizza Salgada 40cm (até dois sabores) e leve um refrigerante grátis à sua escolha. / Aproveite, vamos comemorar!",
+   "kind": "offer",
+   "price": 0,
+   "groupIds": [
+    "ig2",
+    "ig3",
+    "ig4"
+   ],
+   "heroOptionNames": [
+    "4 Queijos",
+    "3 Queijos Gratinada Scala"
+   ]
+  },
+  {
+   "keepId": "c1",
+   "ifoodId": "f7b9827a-1540-43f4-8e04-0b0af04e2a5b",
+   "categoryId": "cat_imbat",
+   "name": "Pizza 40cm (8 fatias) por R$ 99 qualquer sabor",
+   "description": "Sabores para você experimentar por apenas R$ 99 (até dois sabores por pizza).",
+   "kind": "offer",
+   "price": 99,
+   "groupIds": [
+    "ig5",
+    "ig6",
+    "ig1"
+   ],
+   "heroOptionNames": [
+    "Calabresa Seara sem muçarela",
+    "Muçarela"
+   ]
+  },
+  {
+   "keepId": "c2",
+   "ifoodId": "7a951950-c867-4005-87b1-3b667aebc963",
+   "categoryId": "cat_imbat",
+   "name": "Duas Pizzas a partir de R$ 119 (30cm salgada + 20cm doce)",
+   "description": "Combo de 2 Pizzas por R$ 119, sendo a primeira salgada 30cm (até dois sabores) e a segunda doce de 20cm (um sabor) com um preço mais que especial! / - 119 reais: Pizza salgado de 30cm (até dois sabores dos sabores disponíveis) com 1 Pizza doce de 20cm. / - Valores podem variar de acordo com a escolha dos sabores.",
+   "kind": "combo",
+   "price": 119,
+   "compareAt": 174,
+   "groupIds": [
+    "ig0",
+    "ig7",
+    "ig8"
+   ],
+   "heroOptionNames": [
+    "Marguerita",
+    "Muçarela"
+   ]
+  },
+  {
+   "keepId": "c3",
+   "ifoodId": "a78159c8-bf1b-4fcf-8caa-f06370b4ada8",
+   "categoryId": "cat_imbat",
+   "name": "Duas Pizzas a partir de R$ 149 (40cm Salgada + 20cm Doce)",
+   "description": "Combo de 2 Pizzas por R$ 149, sendo a primeira salgada 40cm (até dois sabores) e a segunda doce de 20cm (um sabor) com um preço mais que especial! / - Valores podem variar de acordo com a escolha do(s) sabor(es).",
+   "kind": "combo",
+   "price": 149,
+   "compareAt": 270,
+   "groupIds": [
+    "ig9",
+    "ig10",
+    "ig11",
+    "ig1"
+   ],
+   "heroOptionNames": [
+    "Bruschetta de abobrinha",
+    "Calabresa Seara sem muçarela"
+   ]
+  },
+  {
+   "ifoodId": "76674f87-d83a-402c-b58e-662f86f88e8e",
+   "categoryId": "cat_imbat",
+   "name": "Duas Pizzas Salgadas a partir de R$ 155 (30cm + 30cm)",
+   "description": "Promoção de 2 pizzas salgadas de 30cm + 30cm (até dois sabores) a partir de R$ 155 com os sabores prediletos da Forneria Original! / - Valores podem mudar de acordo com a escolha dos sabores.",
+   "kind": "combo",
+   "price": 155,
+   "compareAt": 252,
+   "groupIds": [
+    "ig0",
+    "ig12",
+    "ig13",
+    "ig14",
+    "ig1"
+   ],
+   "heroOptionNames": [
+    "Marinara",
+    "Pomodoro"
+   ]
+  },
+  {
+   "ifoodId": "3c07fc24-833e-4ea8-8f95-98ca4ec8fdef",
+   "categoryId": "cat_combos",
+   "name": "Campeão de vendas: 40cm + 30cm + 20cm grátis* - Combo",
+   "description": "Promoção Tamanho Família / Na compra de 1 pizza salgada 40cm até 2 sabores e 1 de qualquer sabor 30cm, ganhe 1 pizza doce de 20cm. / *Sabores selecionados na pizza de 20cm grátis.",
+   "kind": "combo",
+   "price": 0,
+   "groupIds": [
+    "ig5",
+    "ig3",
+    "ig15",
+    "ig16",
+    "ig17"
+   ],
+   "heroOptionNames": [
+    "4 Queijos",
+    "3 Queijos Gratinada Scala"
+   ]
+  },
+  {
+   "ifoodId": "ce3f156b-07c5-479d-9365-a7a0fe717d11",
+   "categoryId": "cat_combos",
+   "name": "Pizza (40cm) + Refri Promo - Sabores mais pedidos por vocês!",
+   "description": "Combinação perfeita para todo brasileiro. / Escolha uma pizza salgada de 40cm - Grande - (até dois sabores) e o seu refri predileto. / - Originalmente feito para você! / - Escolha seu refri preferido com um valor promocional.",
+   "kind": "combo",
+   "price": 11,
+   "groupIds": [
+    "ig18",
+    "ig19",
+    "ig4"
+   ],
+   "heroOptionNames": [
+    "Muçarela",
+    "Calabresa"
+   ]
+  },
+  {
+   "ifoodId": "b221b1ea-df61-4c61-9667-c1e9a31b4eb4",
+   "categoryId": "cat_combos",
+   "name": "Pizza Doce (20cm): A predileta de vocês",
+   "description": "A minizinha que você vai amar. / Pizzas de 20cm (Broto) são sempre na massa Gourmet.",
+   "kind": "combo",
+   "price": 0,
+   "groupIds": [
+    "ig20"
+   ],
+   "photoName": "Cheesecake de frutas vermelhas"
+  },
+  {
+   "ifoodId": "a8fb8767-4552-4801-a890-c914beaa1c84",
+   "categoryId": "cat_combos",
+   "name": "Duas Pizzas (40cm+ 40cm) com Refri Grátis",
+   "description": "Na compra de 2 Pizzas 40cm (Grande) Salgadas (até dois sabores), leve um refrigerante grátis à sua escolha para acompanhar seu pedido!",
+   "kind": "combo",
+   "price": 0,
+   "groupIds": [
+    "ig2",
+    "ig3",
+    "ig21",
+    "ig22",
+    "ig4"
+   ],
+   "heroOptionNames": [
+    "4 Queijos",
+    "3 Queijos Gratinada Scala"
+   ]
+  },
+  {
+   "keepId": "s40",
+   "ifoodId": "2097e89a-2b96-4b5b-b14a-6d5523fdda99",
+   "categoryId": "cat_salg",
+   "name": "Pizza 40cm Sem Borda Recheada até 2 sabores",
+   "description": "Monte sua pizza de 40cm (Grande) escolhendo até dois sabores salgados.",
+   "kind": "buildable",
+   "price": 99,
+   "groupIds": [
+    "ig2",
+    "ig3f"
+   ],
+   "heroOptionNames": [
+    "4 Queijos",
+    "3 Queijos Gratinada Scala"
+   ]
+  },
+  {
+   "ifoodId": "466cd575-9527-472b-9997-54ecd4952b71",
+   "categoryId": "cat_salg",
+   "name": "Pizza 30cm até 2 sabores",
+   "description": "Monte sua pizza média (30cm) com até dois sabores salgados. Meio a meio cobra a média dos dois sabores; a borda recheada é escolhida na massa.",
+   "kind": "buildable",
+   "price": 77,
+   "groupIds": [
+    "g_massa30",
+    "ig23f"
+   ],
+   "heroOptionNames": [
+    "3 Queijos Gratinada Scala",
+    "4 Queijos"
+   ],
+   "s30": true
+  },
+  {
+   "ifoodId": "42229f05-fc29-48f0-88fe-2a4f4fdf4ea4",
+   "categoryId": "cat_doces",
+   "name": "Pizzas Doces 40cm até 2 Sabores",
+   "description": "Monte sua pizza de 40cm (Grande) escolhendo até dois sabores doces.",
+   "kind": "buildable",
+   "price": 99,
+   "groupIds": [
+    "ig26",
+    "ig27f"
+   ],
+   "heroOptionNames": [
+    "Banana caramelizada",
+    "Banana com canela"
+   ]
+  },
+  {
+   "ifoodId": "4797cf90-30ae-472a-87c8-dbce22010efb",
+   "categoryId": "cat_doces",
+   "name": "Pizzas doces 30cm até 2 Sabores",
+   "description": "Monte sua pizza de 30cm (Média) escolhendo até dois sabores doces.",
+   "kind": "buildable",
+   "price": 79,
+   "groupIds": [
+    "ig28",
+    "ig29f"
+   ],
+   "heroOptionNames": [
+    "Banana caramelizada",
+    "Banana com canela"
+   ]
+  },
+  {
+   "ifoodId": "4bcc8d2d-8a6d-4ebb-9470-adfab31387a0",
+   "categoryId": "cat_doces",
+   "name": "Pizzas Doces 20cm (um sabor)",
+   "description": "A minizinha que você vai amar. / Pizzas de 20cm (broto) são sempre na massa Gourmet.",
+   "kind": "simple",
+   "price": 0,
+   "groupIds": [
+    "ig30"
+   ],
+   "photoName": "Banana caramelizada"
+  },
+  {
+   "ifoodId": "383aadeb-ef8a-49d5-9a0a-e4de674586d9",
+   "categoryId": "cat_veganas",
+   "name": "Pizzas Veganas Salgadas (até dois sabores) · 30cm",
+   "description": "Escolha até dois sabores salgados Veganos e experimente uma nova combinação! / - Tamanho: 30cm",
+   "kind": "buildable",
+   "price": 93,
+   "groupIds": [
+    "ig31",
+    "ig32f"
+   ],
+   "heroOptionNames": [
+    "Veg - 2 Queijos com Palmito",
+    "Veg - Abobrinha com Requeijão Vegano"
+   ]
+  },
+  {
+   "ifoodId": "0fb8aab8-0cfc-46fd-94d9-a47cbf2dfdc6",
+   "categoryId": "cat_veganas",
+   "name": "Pizzas Veganas Salgadas (até dois sabores) · 40cm",
+   "description": "Escolha até dois sabores salgados Veganos e experimente uma nova combinação! / - Tamanho: 40cm",
+   "kind": "buildable",
+   "price": 111,
+   "groupIds": [
+    "ig31",
+    "ig33f"
+   ],
+   "heroOptionNames": [
+    "Veg - 2 Queijos com Palmito",
+    "Veg - Abobrinha com Requeijão Vegano"
+   ]
+  },
+  {
+   "ifoodId": "f62f9ec6-a7eb-4a6e-ae10-61fbd123d312",
+   "categoryId": "cat_veganas",
+   "name": "Pizzas Veganas Doces (um sabor) 30cm",
+   "description": "Escolha sua pizza Vegano Doce!",
+   "kind": "simple",
+   "price": 0,
+   "groupIds": [
+    "ig34",
+    "ig35"
+   ],
+   "photoName": "Veg - Banana com Açúcar e Canela"
+  },
+  {
+   "ifoodId": "d132dfc6-a5da-4791-a650-a52d1a15a12e",
+   "categoryId": "cat_veganas",
+   "name": "Pizzas Veganas Doces (um sabor) 20cm",
+   "description": "Escolha sua pizza Vegano Doce!",
+   "kind": "simple",
+   "price": 0,
+   "groupIds": [
+    "ig36"
+   ],
+   "photoName": "Veg - Banana com Açúcar e Canela"
+  },
+  {
+   "keepId": "b2",
+   "ifoodId": "208476a7-37e2-4515-82b0-24095b910205",
+   "categoryId": "cat_bebidas",
+   "name": "Coca-Cola Original 1,5l",
+   "description": "Garrafa 1,5l",
+   "kind": "simple",
+   "price": 14,
+   "groupIds": [],
+   "isDrink": true,
+   "liters": 1.5
+  },
+  {
+   "keepId": "b3",
+   "ifoodId": "9874bdbd-0c7e-4a28-8f82-2851e5bf89a0",
+   "categoryId": "cat_bebidas",
+   "name": "Coca-Cola sem Açúcar 1,5l",
+   "description": "Garrafa 1,5l",
+   "kind": "simple",
+   "price": 14,
+   "groupIds": [],
+   "isDrink": true,
+   "liters": 1.5
+  },
+  {
+   "keepId": "b1",
+   "ifoodId": "bd727665-f750-4665-b7df-3850851fe4b9",
+   "categoryId": "cat_bebidas",
+   "name": "Refrigerante Guaraná Antarctica 1,5l",
+   "kind": "simple",
+   "price": 14,
+   "groupIds": [],
+   "isDrink": true,
+   "liters": 1.5
+  },
+  {
+   "ifoodId": "92dcaafb-dc37-4fb4-af5d-740a43159b67",
+   "categoryId": "cat_bebidas",
+   "name": "Refrigerante Guaraná Antárctica Zero 1,5l",
+   "description": "Garrafa 1,5l",
+   "kind": "simple",
+   "price": 14,
+   "groupIds": [],
+   "isDrink": true,
+   "liters": 1.5
+  },
+  {
+   "ifoodId": "a912fc97-847a-46bf-a014-431dd35c232d",
+   "categoryId": "cat_bebidas",
+   "name": "Coca-Cola Original 350ml",
+   "description": "Lata 350ml",
+   "kind": "simple",
+   "price": 8.9,
+   "groupIds": [],
+   "isDrink": true,
+   "liters": 0.35
+  },
+  {
+   "ifoodId": "41bd54ff-18ba-43f4-8d55-f75fef078bf5",
+   "categoryId": "cat_bebidas",
+   "name": "Coca Cola Zero Lata 350ml",
+   "kind": "simple",
+   "price": 8.9,
+   "groupIds": [],
+   "isDrink": true,
+   "liters": 0.35
+  },
+  {
+   "keepId": "b4",
+   "ifoodId": "8ca25ab4-247b-4159-a198-9bdd1b57788d",
+   "categoryId": "cat_bebidas",
+   "name": "Guaraná Antarctica 350ml",
+   "kind": "simple",
+   "price": 8.9,
+   "groupIds": [],
+   "isDrink": true,
+   "liters": 0.35
+  },
+  {
+   "ifoodId": "3d94784a-954c-4b1c-bb27-b8248fa3f3c3",
+   "categoryId": "cat_bebidas",
+   "name": "Refrigerante Guaraná Zero Antarctica",
+   "description": "Lata 350ml",
+   "kind": "simple",
+   "price": 8.9,
+   "groupIds": [],
+   "isDrink": true
+  },
+  {
+   "ifoodId": "2a3f2886-8d82-47c5-a7c3-97d4ed423fc2",
+   "categoryId": "cat_bebidas",
+   "name": "Chá Matte Sabor Limão Leão 1.5l",
+   "description": "Garrafa 1,5l",
+   "kind": "simple",
+   "price": 11,
+   "groupIds": [],
+   "isDrink": true,
+   "liters": 1.5
+  },
+  {
+   "keepId": "b6",
+   "ifoodId": "1a2700d6-df6a-4b08-90f9-11cb7f8a885b",
+   "categoryId": "cat_bebidas",
+   "name": "Chá Ice Tea Leão Pêssego 1,5l",
+   "description": "Garrafa 1,5l",
+   "kind": "simple",
+   "price": 11,
+   "groupIds": [],
+   "isDrink": true,
+   "liters": 1.5
+  },
+  {
+   "ifoodId": "9e3898ca-cdac-434b-b09d-48e67790c030",
+   "categoryId": "cat_bebidas",
+   "name": "Chá Matte Leão Original 1,5l",
+   "description": "Garrafa 1,5l",
+   "kind": "simple",
+   "price": 11,
+   "groupIds": [],
+   "isDrink": true,
+   "liters": 1.5
+  },
+  {
+   "ifoodId": "ee3e9e99-b7cd-46ba-822e-97a004f0369b",
+   "categoryId": "cat_bebidas",
+   "name": "Chá Ice Tea Leão Limão 1,5l",
+   "description": "Garrafa 1,5l",
+   "kind": "simple",
+   "price": 11,
+   "groupIds": [],
+   "isDrink": true,
+   "liters": 1.5
+  },
+  {
+   "ifoodId": "3569cc6a-3323-4416-8c28-84367c5fd217",
+   "categoryId": "cat_bebidas",
+   "name": "Suco Del Valle Pêssego 290ml",
+   "description": "Lata 290ml",
+   "kind": "simple",
+   "price": 5.9,
+   "groupIds": [],
+   "isDrink": true,
+   "liters": 0.29
+  },
+  {
+   "ifoodId": "8476504e-12fa-42a5-bd41-728a8134cbee",
+   "categoryId": "cat_bebidas",
+   "name": "Suco Del Valle Néctar Manga 290ml",
+   "description": "Lata 290ml",
+   "kind": "simple",
+   "price": 6.9,
+   "groupIds": [],
+   "isDrink": true,
+   "liters": 0.29
+  },
+  {
+   "ifoodId": "3ebc88ca-d800-4263-ac6b-8c98fd274df0",
+   "categoryId": "cat_bebidas",
+   "name": "Suco Del Valle Néctar Uva 290ml",
+   "description": "Lata 290ml",
+   "kind": "simple",
+   "price": 5.9,
+   "groupIds": [],
+   "isDrink": true,
+   "liters": 0.29
+  },
+  {
+   "ifoodId": "56734d44-23ed-41fb-9dc3-7cb075cd0c11",
+   "categoryId": "cat_bebidas",
+   "name": "Energético Ultra Monster 473ml",
+   "description": "Lata 473ml",
+   "kind": "simple",
+   "price": 14.9,
+   "groupIds": [],
+   "isDrink": true,
+   "liters": 0.473
+  },
+  {
+   "ifoodId": "e8eb3998-efd0-45a8-b2d1-b7197cbde6d8",
+   "categoryId": "cat_bebidas",
+   "name": "Energético Energy Monster 473ml",
+   "description": "Lata 473ml",
+   "kind": "simple",
+   "price": 14.9,
+   "groupIds": [],
+   "isDrink": true,
+   "liters": 0.473
+  },
+  {
+   "ifoodId": "1ed196d6-5df0-483b-a8b0-d66f178f8223",
+   "categoryId": "cat_bebidas",
+   "name": "Energético Monster Mango Loco 473ml",
+   "kind": "simple",
+   "price": 14.9,
+   "groupIds": [],
+   "isDrink": true,
+   "liters": 0.473
+  },
+  {
+   "ifoodId": "f202cbdc-3f49-44cc-96fd-be244a9eea1d",
+   "categoryId": "cat_bebidas",
+   "name": "Cerveja Budweiser 330ml",
+   "description": "Produto Para Maiores de 18 Anos",
+   "kind": "simple",
+   "price": 8.9,
+   "groupIds": [],
+   "isDrink": true,
+   "liters": 0.33
+  },
+  {
+   "ifoodId": "46761a5f-f7aa-4dd3-b199-c6a9784ba73e",
+   "categoryId": "cat_bebidas",
+   "name": "Cerveja Spaten 330ml",
+   "kind": "simple",
+   "price": 8.9,
+   "groupIds": [],
+   "isDrink": true,
+   "liters": 0.33
+  },
+  {
+   "ifoodId": "3911fc55-5798-4552-bede-2a9d21cca781",
+   "categoryId": "cat_originais",
+   "name": "Cortador",
+   "kind": "simple",
+   "price": 10,
+   "groupIds": [],
+   "photoName": "Cortador"
+  },
+  {
+   "ifoodId": "7ad2f5f0-b2b7-476b-8b49-0fba5e2c9d74",
+   "categoryId": "cat_hits",
+   "name": "Pizza Salgada Hits 30cm (ate dois sabores) - R$ 69",
+   "kind": "offer",
+   "price": 69,
+   "groupIds": [
+    "ig2",
+    "ig37",
+    "ig38"
+   ],
+   "heroOptionNames": [
+    "Alho",
+    "Apimentada Original"
+   ]
+  },
+  {
+   "ifoodId": "b8f3e4bb-a312-4439-99f7-649edcf6c132",
+   "categoryId": "cat_hits",
+   "name": "Pizza Salgada Hits 30cm (ate dois sabores) - R$ 59",
+   "kind": "offer",
+   "price": 59,
+   "groupIds": [
+    "ig2",
+    "ig39",
+    "ig38"
+   ],
+   "heroOptionNames": [
+    "Pomodoro",
+    "Bruschetta de abobrinha"
+   ]
+  },
+  {
+   "ifoodId": "2837b52f-ad4a-4bbd-9abd-b025412a030e",
+   "categoryId": "cat_hits",
+   "name": "Pizza Salgada Hits 40cm (ate dois sabores) - R$ 79",
+   "kind": "offer",
+   "price": 79,
+   "groupIds": [
+    "ig2",
+    "ig40",
+    "ig38"
+   ],
+   "heroOptionNames": [
+    "Marguerita",
+    "Calabresa"
+   ]
+  },
+  {
+   "ifoodId": "ae947e62-4b9f-42f7-83ef-917ad6804a39",
+   "categoryId": "cat_hits",
+   "name": "Banana com Canela · 20cm",
+   "description": "Queijo Muçarela, Banana em rodelas, Açúcar e Canela em pó.",
+   "kind": "offer",
+   "price": 52,
+   "groupIds": [],
+   "photoName": "Banana com Canela"
+  },
+  {
+   "ifoodId": "88019adb-8ca5-4450-9b06-c49dbb013918",
+   "categoryId": "cat_hits",
+   "name": "Banana Caramelizada · 20cm",
+   "description": "muçarela, banana e chocolate branco forneável",
+   "kind": "offer",
+   "price": 59,
+   "groupIds": [],
+   "photoName": "Banana Caramelizada"
+  },
+  {
+   "ifoodId": "90345eb5-435f-407f-b630-49343189eb40",
+   "categoryId": "cat_hits",
+   "name": "Cheesecake Doce de Leite · 20cm",
+   "description": "(muçarela, cream cheese Philadelphia, chocolate branco forneável, doce de leite mineiro) .",
+   "kind": "offer",
+   "price": 59,
+   "groupIds": [],
+   "photoName": "Cheesecake Doce de Leite"
+  },
+  {
+   "ifoodId": "9bde7d45-a6ba-41de-b544-35358882996e",
+   "categoryId": "cat_hits",
+   "name": "Kit Kat · 20cm",
+   "description": "creme de leite, recheio cremoso e deliciosos pedaços de Kit Kat",
+   "kind": "offer",
+   "price": 69,
+   "groupIds": [],
+   "photoName": "Kit Kat"
+  },
+  {
+   "ifoodId": "a6874668-f891-4fab-99ed-a0bc5c2a1780",
+   "categoryId": "cat_hits",
+   "name": "Banoffee · 20cm",
+   "description": "Doce de leite, banana fatiada, mistura de açúcar e canela, marshmallow e biscoito tostine triturado",
+   "kind": "offer",
+   "price": 59,
+   "groupIds": [],
+   "photoName": "Banoffee"
+  },
+  {
+   "ifoodId": "b2a4b319-59c9-4610-9a3a-e9d0ff6ec7fc",
+   "categoryId": "cat_hits",
+   "name": "Pizza Calabresa Seara sem muçarela · 40cm",
+   "kind": "offer",
+   "price": 80,
+   "groupIds": [
+    "ig5",
+    "ig38",
+    "ig41"
+   ],
+   "heroOptionNames": [
+    "Calabresa Seara sem muçarela",
+    "Calabresa Seara sem muçarela"
+   ]
+  },
+  {
+   "ifoodId": "c2a540a1-5c3a-4439-a85d-02191cf313de",
+   "categoryId": "cat_hits",
+   "name": "Pizza Calabresa Seara com Gorgonzola · 30cm",
+   "description": "molho de tomate, muçarela, calabresa Seara Gourmet com um toque de erva doce, gorgonzola e orégano",
+   "kind": "offer",
+   "price": 80,
+   "groupIds": [
+    "ig15",
+    "ig38",
+    "ig41"
+   ],
+   "heroOptionNames": [
+    "Calabresa Seara com Gorgonzola",
+    "Calabresa Seara com Gorgonzola"
+   ]
+  },
+  {
+   "ifoodId": "224cb004-e480-4a62-9732-0a0823366cb6",
+   "categoryId": "cat_hits",
+   "name": "Pizza Calabresa · 30cm",
+   "description": "Escolha sua calabresa favorita!",
+   "kind": "offer",
+   "price": 80,
+   "groupIds": [
+    "ig15",
+    "ig43",
+    "ig38",
+    "ig42"
+   ],
+   "heroOptionNames": [
+    "Calabresa Seara sem muçarela",
+    "Calabresa"
+   ]
+  },
+  {
+   "ifoodId": "bc6da3c4-f8f4-4f2b-a60b-d408d785584d",
+   "categoryId": "cat_hits",
+   "name": "Pizza Pomodoro · 30cm",
+   "description": "molho de tomate, Manjericão, Tomate Picado, Muçarela de Búfala, Parmesão e Orégano",
+   "kind": "offer",
+   "price": 80,
+   "groupIds": [
+    "ig15",
+    "ig38",
+    "ig41"
+   ],
+   "heroOptionNames": [
+    "Pomodoro",
+    "Pomodoro"
+   ]
+  },
+  {
+   "ifoodId": "db4e4d69-bff8-47fa-8f78-cd524f7cdc52",
+   "categoryId": "cat_adicionais",
+   "name": "Adicionais",
+   "kind": "simple",
+   "price": 0,
+   "groupIds": [
+    "ig44"
+   ]
+  },
+  {
+   "ifoodId": "6a88f54e-fb8d-44c6-8428-024fac60eea3",
+   "categoryId": "cat_ofertas",
+   "name": "Marguerita · 30cm",
+   "description": "molho de tomate, muçarela, tomate, manjericão e orégano",
+   "kind": "offer",
+   "price": 79,
+   "groupIds": [
+    "ig0"
+   ],
+   "heroOptionNames": [
+    "Marguerita",
+    "Marguerita"
+   ]
+  },
+  {
+   "ifoodId": "d147334a-faea-4eaa-aa7f-5ce257e38f7e",
+   "categoryId": "cat_ofertas",
+   "name": "Pomodoro · 30cm",
+   "description": "molho de tomate, Manjericão, Tomate Picado, Muçarela de Búfala, Parmesão e Orégano",
+   "kind": "offer",
+   "price": 84,
+   "groupIds": [
+    "ig0"
+   ],
+   "heroOptionNames": [
+    "Pomodoro",
+    "Pomodoro"
+   ]
+  },
+  {
+   "ifoodId": "05d35f23-ac46-4fee-a77e-db9f20a10969",
+   "categoryId": "cat_ofertas",
+   "name": "Marinara · 30cm",
+   "description": "molho de tomate, muçarela 100% búfala, alho em lascas, manjericão, tomate cereja, e orégano",
+   "kind": "offer",
+   "price": 115,
+   "groupIds": [
+    "ig0"
+   ],
+   "heroOptionNames": [
+    "Marinara",
+    "Marinara"
+   ]
+  },
+  {
+   "ifoodId": "8d0a8c4d-abb3-436c-b7c2-25c24fef06d5",
+   "categoryId": "cat_ofertas",
+   "name": "Bruschetta de Abobrinha · 30cm",
+   "description": "molho de tomate, Tomate Picado, Abobrinha, Pesto, Parmesão e orégano",
+   "kind": "offer",
+   "price": 77,
+   "groupIds": [
+    "ig0"
+   ],
+   "heroOptionNames": [
+    "Bruschetta de Abobrinha",
+    "Bruschetta de Abobrinha"
+   ]
+  },
+  {
+   "ifoodId": "6f7d48fa-82c3-443e-a32c-440c90442338",
+   "categoryId": "cat_ofertas",
+   "name": "Calabresa Seara sem muçarela · 30cm",
+   "description": "molho de tomate, tomate picado, calabresa Seara, cebola e orégano",
+   "kind": "offer",
+   "price": 77,
+   "groupIds": [
+    "ig0"
+   ],
+   "heroOptionNames": [
+    "Calabresa Seara sem muçarela",
+    "Calabresa Seara sem muçarela"
+   ]
+  },
+  {
+   "ifoodId": "544c3b27-dc68-4efc-b8df-55c5b0116a6a",
+   "categoryId": "cat_ofertas",
+   "name": "Calabresa · 30cm",
+   "description": "molho de tomate, muçarela, calabresa Seara, cebola e orégano",
+   "kind": "offer",
+   "price": 88,
+   "groupIds": [
+    "ig0"
+   ],
+   "heroOptionNames": [
+    "Calabresa",
+    "Calabresa"
+   ]
+  },
+  {
+   "ifoodId": "d18febda-a0cd-494e-8222-55846ca8b6bf",
+   "categoryId": "cat_ofertas",
+   "name": "Frango com Catupiry · 30cm",
+   "description": "molho de tomate, muçarela, frango, Catupiry e orégano",
+   "kind": "offer",
+   "price": 123,
+   "groupIds": [
+    "ig0"
+   ],
+   "heroOptionNames": [
+    "Frango com Catupiry",
+    "Frango com Catupiry"
+   ]
+  },
+  {
+   "ifoodId": "78cb269f-366e-4e59-a525-7c8d6e16441e",
+   "categoryId": "cat_ofertas",
+   "name": "Caprese Original com Catupiry · 30cm",
+   "description": "molho de tomate, muçarela 100% búfala, tomate fatiado, Catupiry, azeitona preta, manjericão e orégano",
+   "kind": "offer",
+   "price": 96,
+   "groupIds": [
+    "ig0"
+   ],
+   "heroOptionNames": [
+    "Caprese Original com Catupiry",
+    "Caprese Original com Catupiry"
+   ]
+  },
+  {
+   "ifoodId": "7518beea-ad9b-46c7-a864-9fcc113ba594",
+   "categoryId": "cat_ofertas",
+   "name": "Caprese Parma com Catupiry · 30cm",
+   "description": "molho de tomate, muçarela 100% búfala, Catupiry, tomate cereja, parma, manjericão e orégano",
+   "kind": "offer",
+   "price": 119,
+   "groupIds": [
+    "ig0"
+   ],
+   "heroOptionNames": [
+    "Caprese Parma com Catupiry",
+    "Caprese Parma com Catupiry"
+   ]
+  },
+  {
+   "ifoodId": "c4a9c164-67a9-43f6-9328-992304447a9b",
+   "categoryId": "cat_ofertas",
+   "name": "Pepperoni · 30cm",
+   "description": "molho de tomate, muçarela, pepperoni e orégano",
+   "kind": "offer",
+   "price": 115,
+   "groupIds": [
+    "ig0"
+   ],
+   "heroOptionNames": [
+    "Pepperoni",
+    "Pepperoni"
+   ]
+  },
+  {
+   "keepId": "d1",
+   "ifoodId": "d837ce94-e0a1-4b68-8738-70f74af30105",
+   "categoryId": "cat_ofertas",
+   "name": "Banana com canela · 20cm",
+   "description": "(muçarela, banana, canela e açúcar). / Pizza doce de 20cm são sempre na massa gourmet.",
+   "kind": "offer",
+   "price": 52,
+   "groupIds": [],
+   "photoName": "Banana com canela"
+  },
+  {
+   "keepId": "d2",
+   "ifoodId": "88c8126a-fb4e-4553-9cab-2febb7bdecc1",
+   "categoryId": "cat_ofertas",
+   "name": "Cheesecake de frutas vermelhas · 20cm",
+   "description": "(cream cheese Philadelphia, chocolate branco forneável e geleia de frutas vermelhas). / Pizza doce de 20cm são sempre na massa gourmet.",
+   "kind": "offer",
+   "price": 59,
+   "groupIds": [],
+   "photoName": "Cheesecake de frutas vermelhas"
+  },
+  {
+   "ifoodId": "36980279-9c2b-4ce5-955a-c7f23b782424",
+   "categoryId": "cat_ofertas",
+   "name": "Cheesecake doce de leite · 20cm",
+   "description": "(muçarela, cream cheese Philadelphia, chocolate branco forneável, doce de leite mineiro) . / Pizza doce de 20cm são sempre na massa gourmet.",
+   "kind": "offer",
+   "price": 59,
+   "groupIds": [],
+   "photoName": "Cheesecake doce de leite"
+  },
+  {
+   "keepId": "d3",
+   "ifoodId": "02ccc8ef-bd7c-4a5e-b548-352df78f0aa5",
+   "categoryId": "cat_ofertas",
+   "name": "Banana caramelizada · 20cm",
+   "description": "(mucarela, banana e chocolate branco forneável). / Pizza doce de 20cm são sempre na massa gourmet.",
+   "kind": "offer",
+   "price": 59,
+   "groupIds": [],
+   "photoName": "Banana caramelizada"
+  },
+  {
+   "keepId": "d4",
+   "ifoodId": "036469d4-73a6-4577-a3ed-55678f4347e5",
+   "categoryId": "cat_ofertas",
+   "name": "Negresco · 20cm",
+   "description": "(creme de leite, cream cheese Philadelphia, chocolate branco forneável e pedaços crocantes de Negresco). / Pizza doce de 20cm são sempre na massa gourmet.",
+   "kind": "offer",
+   "price": 59,
+   "groupIds": [],
+   "photoName": "Negresco"
+  },
+  {
+   "ifoodId": "fe52d16a-4df7-4489-b427-5c296d2225d7",
+   "categoryId": "cat_vinhos",
+   "name": "Vinhos",
+   "kind": "simple",
+   "price": 0,
+   "groupIds": [
+    "ig45"
+   ]
+  }
+ ]
+}

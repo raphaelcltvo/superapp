@@ -1,0 +1,259 @@
+0|Gourmet|(Mais grossa e aerada).
+1|Fina|(Sem borda e crocante).
+2|Recheada de Catupiry|(Borda cremosa de Catupiry).
+3|Recheada de cream cheese Philadelphia|(Borda cream cheese Philadelphia).
+4|Recheada Catupiry e goiabada|(Borda cremosa de Catupiry e goiabada).
+5|Recheada de goiabada|(Borda cremosa de goiabada).
+6|Recheada de doce de leite|(Borda de doce de leite).
+7|Recheada de creme de avelã|(Borda creme de avelã).
+8|Coca-Cola Original 1,5l|Garrafa 1,5l
+9|Coca-Cola sem Açúcar 1,5l|Garrafa 1,5l
+10|Refrigerante Guaraná Antarctica 1,5l|
+11|Fina|(Sem borda e Crocante).
+12|1/2 4 Queijos|(molho de tomate, muçarela, gorgonzola, parmesão, Catupiry e orégano).
+13|1/2 3 Queijos Gratinada Scala|(molho de tomate, muçarela, gorgonzola, parmesão gratinado e orégano).
+14|1/2 A Moda|(molho de tomate, muçarela, calabresa Seara, azeitona preta, milho, palmito, Catupiry e orégano).
+15|1/2 Abobrinha|(molho de tomate, muçarela, abobrinhas, parmesão e orégano).
+16|1/2 Alho|(molho de tomate, muçarela, alho frito torrado e orégano).
+17|1/2 Apimentada Original|(molho de tomate, muçarela, linguiça apimentada artesanal mineira Original, cebola e orégano) .
+18|1/2 Atum com Cebola|(molho de tomate, muçarela, atum, cebola e orégano).
+19|1/2 Bacon com ovos|(molho de tomate, muçarela, ovos ralados, bacon frito e orégano).
+20|1/2 Bruschetta de abobrinha|(molho de tomate, Tomate Picado, Abobrinha, Pesto, Parmesão e orégano.)
+21|1/2 Calabresa|(molho de tomate, muçarela, calabresa Seara, cebola e orégano).
+22|1/2 Calabresa Seara sem muçarela|Molho de tomate, tomate picado, calabresa, cebola e orégano.
+23|1/2 Calabresa Gourmet|(molho de tomate, muçarela, calabresa Seara Gourmet com um toque de erva doce, cebola e orégano).
+24|1/2 Calabresa Seara com Gorgonzola|(molho de tomate, muçarela, calabresa Seara Gourmet com um toque de erva doce, gorgonzola ralado e orégano).
+25|1/2 Calábria|(molho de tomate, muçarela, linguiça apimentada, ovos ralados, parmesão gratinado e orégano).
+26|1/2 Camarão com alho poró e cream cheese Philadelphia|(molho de tomate, muçarela, Cream Cheese Philadelphia, camarões, alho poró e orégano).
+27|1/2 Camarão com Catupiry|(molho de tomate, muçarela, Catupiry, camarões e orégano).
+28|1/2 Caprese Original com Catupiry|(molho de tomate com muçarela de búfala na base, tomate em rodelas com Catupiry, azeitona preta, manjericão e orégano).
+29|1/2 Caprese Parma com Catupiry|(molho de tomate com muçarela de búfala na base, tomate cereja, Catupiry, presunto de parma, manjericão e orégano).
+30|1/2 Carioca|(molho de tomate, muçarela, calabresa Seara, azeitona verde, tomate picado, ovos ralados e orégano).
+31|1/2 Carne seca com Catupiry|(molho de tomate, muçarela, carne seca, Catupiry e orégano).
+32|1/2 Catuperoni|(molho de tomate, muçarela, pepperoni, Catupiry e orégano).
+33|1/2 Catupiresa|(molho de tomate, muçarela, calabresa Seara, Catupiry e orégano).
+34|1/2 Catupiresa especial|(molho de tomate, muçarela, calabresa Seara, Catupiry, azeitona preta, cebola e orégano).
+35|1/2 Champignon|(molho de tomate, muçarela, champignon e orégano).
+36|1/2 Da Barra|(molho de tomate, muçarela, tomate seco, champignon, muçarela de búfala, rúcula e orégano).
+37|1/2 Frango Caipira|(molho de tomate, muçarela, frango desfiado, milho e orégano).
+38|1/2 Frango Caipira com Catupiry|(molho de tomate, muçarela, frango desfiado, Catupiry, milho e orégano).
+39|1/2 Frango com Catupiry|(molho de tomate, muçarela, frango desfiado, Catupiry e orégano).
+40|1/2 Frango com Bacon Seara e Cream Cheese|(molho de tomate, muçarela, frango e bacon Seara e cream cheese Philadelphia)
+41|1/2 Genovesa|(Pesto na base, muçarela, tomate cereja, rúcula, parmesão, orégano e nosso molho Pesto (feito com rúcula e manjericão frescos, além de parmesão e castanha de caju).
+42|1/2 Lombiry|(molho de tomate, muçarela, lombo canadense, Catupiry e orégano).
+43|1/2 Lombo canadense|(molho de tomate, muçarela, lombo canadense e orégano).
+44|1/2 Lombo com Pesto e Parmesão (Nigro)|(Molho de tomate, muçarela de búfala, lombo, parmesão, pesto e orégano) / - na Versão Borda Gourmet com parmesão gratinado.
+45|1/2 Lombo Original|Molho de tomate, Lombo, Cream Cheese, Muçarela com Parmesão gratinado e orégano.
+46|1/2 Marguerita|(molho de tomate, muçarela, tomate, manjericão e orégano).
+47|1/2 Marguerita especial|(molho de tomate, muçarela, alho em lascas, tomate cereja, manjericão e orégano).
+48|1/2 Marguerita romana|(molho de tomate, muçarela, tomate, cebola, azeitona preta, manjericão e orégano).
+49|1/2 Marinara|(molho de tomate, manjericão, tomate cereja, muçarela de búfala, alho em lascas e orégano).
+50|1/2 Muçarela|(molho de tomate, muçarela e orégano).
+51|1/2 Muçarela com Catupiry|(molho de tomate, muçarela, Catupiry e orégano).
+52|1/2 Napolitana|(molho de tomate, muçarela, tomate, parmesão e orégano).
+53|1/2 Palmito|(molho de tomate, muçarela, palmito, azeitona verde e orégano).
+54|1/2 Parma e Pesto|(molho de tomate, muçarela de búfala, tomate seco, presunto de parma, molho pesto e orégano).
+55|1/2 Pepperoni|(molho de tomate, muçarela, pepperoni e orégano)
+56|1/2 Pizza do Gabriel Nigro (2026)|Cream cheese Philadelphia, muçarela, calabresa premium, queijo parmesão e finalizada com alho torrado.
+57|1/2 Pomodoro|(molho de tomate, Manjericão, Tomate Picado, Muçarela de Búfala, Parmesão e Orégano.)
+58|1/2 Portuguesa|(molho de tomate, muçarela, presunto ralado, azeitona preta, ovos cozidos, cebola e orégano).
+59|1/2 Presunto|(molho de tomate, muçarela, presunto ralado e orégano).
+60|1/2 Presunto com champignon|(molho de tomate, muçarela, presunto ralado, champignon e orégano).
+61|1/2 Tomate seco e rúcula|(molho de tomate, muçarela, tomate seco, rúcula e orégano).
+62|Refrigerante Guaraná Antarctica 1,5 l|
+63|Chá Ice Tea Leão Pêssego 1,5l|Garrafa 1,5l
+64|Chá Ice Tea Leão Limão 1,5l|Garrafa 1,5l
+65|Chá Mate Limão Matte Leão 1,5l|
+66|Chá Matte Leão Original 1,5l|Garrafa 1,5l
+67|1/2 Apimentada Original|(molho de tomate, muçarela, linguiça apimentada artesanal mineira Original, cebola e orégano).
+68|Banana com canela|(muçarela, banana, canela e açúcar).
+69|Dulce de Leche Tostine|(Creme de leite, doce de leite e biscoito tostine triturado).
+70|Romeu & Julieta|(muçarela, goiabada e Catupiry).
+71|Cheesecake de frutas vermelhas|(cream cheese Philadelphia, chocolate branco forneável e geleia de frutas vermelhas)
+72|Banoffee|(Doce de leite, banana fatiada, mistura de açúcar e canela, marshmallow e biscoito tostine triturado).
+73|Creme de Avelã com Morango|(creme de leite, Creme de Avelã e Morango.)
+74|Negresco|(creme de leite, cream cheese Philadelphia, chocolate branco cremoso e pedaços crocantes de Negresco).
+75|Romeu e Julieta|
+76|Cheesecake Doce de Leite|
+77|Banana Caramelizada|
+78|Banana com creme de avelã|(muçarela, banana fatiada e creme de avelã).
+79|Doce de leite com banana|(muçarela, banana, doce de leite, açúcar e canela).
+80|1/2 Da Barra|Molho de tomate, muçarela, tomate seco, champignon, muçarela de búfala, rúcula e orégano).
+81|Gourmet - 2ªpizza|(Mais grossa e aerada).
+82|Fina - 2ªpizza|(Sem borda e crocante).
+83|Recheada de Catupiry - 2ªpizza|(Borda cremosa de Catupiry).
+84|Recheada de cream cheese Philadelphia - 2ªpizza|(Borda cream cheese Philadelphia).
+85|Recheada Catupiry e goiabada - 2ªpizza|(Borda cremosa de Catupiry e goiabada).
+86|Recheada de goiabada - 2ªpizza|(Borda cremosa de goiabada).
+87|Recheada de doce de leite - 2ªpizza|(Borda de doce de leite).
+88|Recheada de creme de avelã - 2ªpizza|(Borda creme de avelã).
+89|1/2 Marinara - 2ªpizza|(molho de tomate, manjericão, tomate cereja, muçarela de búfala, alho em lascas e orégano).
+90|1/2 Pomodoro - 2ªpizza|(molho de tomate, Manjericão, Tomate Picado, Muçarela de Búfala, Parmesão e Orégano.)
+91|1/2 Marguerita - 2ªpizza|(molho de tomate, muçarela, tomate, manjericão e orégano).
+92|1/2 Caprese Original com Catupiry - 2ªpizza|(molho de tomate com muçarela de búfala na base, tomate em rodelas com Catupiry, azeitona preta, manjericão e orégano).
+93|1/2 Muçarela - 2ªpizza|(molho de tomate, muçarela e orégano).
+94|1/2 Marguerita romana - 2ªpizza|(molho de tomate, muçarela, tomate, cebola, azeitona preta, manjericão e orégano).
+95|1/2 Alho - 2ªpizza|(molho de tomate, muçarela, alho frito torrado e orégano).
+96|1/2 Calabresa - 2ªpizza|(molho de tomate, muçarela, calabresa Seara, cebola e orégano).
+97|1/2 Marguerita especial - 2ªpizza|(molho de tomate, muçarela, alho em lascas, tomate cereja, manjericão e orégano).
+98|1/2 Portuguesa - 2ªpizza|(molho de tomate, muçarela, presunto ralado, azeitona preta, ovos cozidos, cebola e orégano).
+99|1/2 3 Queijos Gratinada Scala - 2ªpizza|(molho de tomate, muçarela, gorgonzola, parmesão gratinado e orégano).
+100|1/2 Da Barra - 2ªpizza|Molho de tomate, muçarela, tomate seco, champignon, muçarela de búfala, rúcula e orégano).
+101|1/2 Calábria - 2ªpizza|(molho de tomate, muçarela, linguiça apimentada, ovos ralados, parmesão gratinado e orégano).
+102|1/2 Frango Caipira - 2ªpizza|(molho de tomate, muçarela, frango desfiado, milho e orégano).
+103|1/2 Caprese Parma com Catupiry - 2ªpizza|(molho de tomate com muçarela de búfala na base, tomate cereja, Catupiry, presunto de parma, manjericão e orégano).
+104|1/2 Catupiresa - 2ªpizza|(molho de tomate, muçarela, calabresa Seara, Catupiry e orégano).
+105|1/2 4 Queijos - 2ªpizza|(molho de tomate, muçarela, gorgonzola, parmesão, Catupiry e orégano).
+106|1/2 Pepperoni - 2ªpizza|(molho de tomate, muçarela, pepperoni e orégano)
+107|3 Queijos Gratinada|(molho de tomate, muçarela, gorgonzola, parmesão gratinado e orégano).
+108|4 Queijos|(molho de tomate, muçarela, gorgonzola, parmesão, Catupiry e orégano).
+109|A Moda|(molho de tomate, muçarela, calabresa, azeitona preta, milho, palmito, Catupiry e orégano).
+110|Abobrinha|(molho de tomate, muçarela, abobrinhas, parmesão e orégano).
+111|Alho|(molho de tomate, muçarela, alho frito torrado e orégano).
+112|Apimentada Original|(molho de tomate, muçarela, linguiça apimentada artesanal mineira Original, cebola e orégano).
+113|Atum com cebola|(molho de tomate, muçarela, atum, cebola e orégano).
+114|Bacon com ovos|(molho de tomate, muçarela, ovos ralados, bacon frito e orégano).
+115|Bruschetta de abobrinha|(molho de tomate, Tomate Picado, Abobrinha, Pesto, Parmesão e orégano.)
+116|Calabresa|(molho de tomate, muçarela, calabresa, cebola e orégano).
+117|Calabresa Seara sem muçarela|Molho de tomate, tomate picado, calabresa, cebola e orégano.
+118|Calabresa Gourmet|(molho de tomate, muçarela, calabresa Seara Gourmet com um toque de erva doce, cebola e orégano).
+119|Calabresa Seara com Gorgonzola|(molho de tomate, muçarela, calabresa Seara Gourmet com um toque de erva doce, gorgonzola ralado e orégano).
+120|Calábria|(molho de tomate, muçarela, linguiça apimentada, ovos ralados, parmesão gratinado e orégano).
+121|Camarão com alho poró e cream cheese Philadelphia|(molho de tomate, muçarela, cream cheese Philadelphia,camarões, alho poró e orégano).
+122|Camarão com Catupiry|(molho de tomate, muçarela, Catupiry, camarões e orégano).
+123|Caprese Original com Catupiry|(molho de tomate com muçarela de búfala na base, tomate em rodelas com Catupiry, azeitona preta, manjericão e orégano).
+124|Caprese Parma com Catupiry|(molho de tomate com muçarela de búfala na base, tomate cereja, Catupiry, presunto de parma, manjericão e orégano).
+125|Carioca|(molho de tomate, muçarela, calabresa, azeitona verde, tomate picado, ovos ralados e orégano).
+126|Carne seca com Catupiry|(molho de tomate, muçarela, carne seca, Catupiry e orégano).
+127|Catuperoni|(molho de tomate, muçarela, pepperoni, Catupiry e orégano).
+128|Catupiresa|(molho de tomate, muçarela, calabresa, Catupiry e orégano).
+129|Catupiresa especial|(molho de tomate, muçarela, calabresa, Catupiry, azeitona preta, cebola e orégano).
+130|Champignon|(molho de tomate, muçarela, champignon e orégano).
+131|Da Barra|(molho de tomate, muçarela, tomate seco, champignon, muçarela de búfala, rúcula e orégano).
+132|Frango Caipira|(molho de tomate, muçarela, frango desfiado, milho e orégano).
+133|Frango Caipira com Catupiry|(molho de tomate, muçarela, frango desfiado, Catupiry, milho e orégano).
+134|Frango com Bacon Seara e Cream Cheese|(molho de tomate, muçarela, frango e bacon Seara e cream cheese Philadelphia)
+135|Frango com Catupiry|(molho de tomate, muçarela, frango, Catupiry e orégano).
+136|Genovesa|(pesto na base, muçarela, tomate cereja, rúcula, parmesão, orégano e nosso molho Pesto (feito com rúcula e manjericão frescos, além de parmesão e castanha de caju).
+137|Lombiry|(molho de tomate, muçarela, lombo canadense, Catupiry e orégano).
+138|Lombo canadense|(molho de tomate, muçarela, lombo canadense e orégano).
+139|Lombo com Pesto e Parmesão (Nigro)|(Molho de tomate, muçarela de búfala, lombo, parmesão, pesto e orégano) / - na Versão Borda Gourmet com parmesão gratinado.
+140|Lombo Original|Molho de tomate, Lombo, Cream Cheese, Muçarela com Parmesão gratinado e orégano.
+141|Marguerita|(molho de tomate, muçarela, tomate, manjericão e orégano).
+142|Marguerita especial|(molho de tomate, muçarela, alho em lascas, tomate cereja, manjericão e orégano).
+143|Marguerita romana|(molho de tomate, muçarela, tomate, cebola, azeitona preta, manjericão e orégano).
+144|Marinara|(molho de tomate, manjericão, tomate cereja, muçarela de búfala, alho em lascas e orégano).
+145|Muçarela|(molho de tomate, muçarela e orégano).
+146|Muçarela com Catupiry|(molho de tomate, muçarela, Catupiry e orégano).
+147|Palmito|(molho de tomate, muçarela, palmito, azeitona verde e orégano).
+148|Napolitana|(molho de tomate, muçarela, tomate, parmesão e orégano).
+149|Parma e Pesto|(molho de tomate, muçarela de búfala, tomate seco, presunto de parma, molho pesto e orégano).
+150|Pepperoni|(molho de tomate, muçarela, pepperoni e orégano).
+151|Pizza do Gabriel Nigro (2026)|Cream cheese Philadelphia, muçarela, calabresa premium, queijo parmesão e finalizada com alho torrado.
+152|Pomodoro|(molho de tomate, Manjericão, Tomate Picado, Muçarela de Búfala, Parmesão e Orégano.)
+153|Portuguesa|(molho de tomate, muçarela, presunto, azeitona preta, ovos cozidos, cebola e orégano).
+154|Presunto|(molho de tomate, muçarela, presunto e orégano).
+155|Presunto com champignon|(molho de tomate, muçarela, presunto, champignon e orégano).
+156|Tomate seco e rúcula|(molho de tomate, muçarela, tomate seco, rúcula e orégano).
+157|Banana caramelizada|(mucarela, banana e chocolate branco caramelizado).
+158|Cheesecake doce de leite|(muçarela, cream cheese Philadelphia, chocolate branco caramelizado, doce de leite mineiro) .
+159|Chocolate ao leite|(creme de leite e chocolate ao leite em lascas).
+160|Chocolate ao leite com banana|(muçarela, banana e chocolate ao leite em lascas).
+161|Chocolate ao leite com m&ms|(creme de leite, chocolate ao leite em lascas e m&ms).
+162|Chocolate ao leite com morango|(creme de leite, chocolate ao leite em lascas e morango).
+163|Chocolate branco|(creme de leite, chocolate branco em lascas).
+164|Chocolate branco com m&ms|(creme de leite, chocolate branco em lascas e m&ms).
+165|Chocolate branco com morango|(creme de leite, chocolate branco em lascas e morango).
+166|Chocolate meio amargo|(creme de leite e chocolate meio amargo em lascas).
+167|Chocolate meio amargo com banana|(muçarela, banana e chocolate meio amargo em lascas).
+168|Chocolate meio amargo com m&ms|(creme de leite, chocolate meio amargo em lascas e m&ms).
+169|Chocolate meio amargo com morango|(creme de leite, chocolate meio amargo em lascas e morango).
+170|Duo chocolate|(creme de leite e mescla de chocolates ao leite e branco em lascas).
+171|Dulce Leche Tostine|(Creme de leite, doce de leite e biscoito tostine triturado).
+172|Kit Kat|(creme de leite, recheio cremoso e deliciosos pedaços de Kit Kat).
+173|Marshmallow com Kit Kat|(creme de leite, kitkat pasta, marshmallow).
+174|1/2 Lombo Original|
+175|1/2 Banana caramelizada|(mucarela, banana e chocolate branco caramelizado).
+176|1/2 Banana com canela|(muçarela, banana, canela e açúcar).
+177|1/2 Banoffee|(Doce de leite, banana fatiada, mistura de açúcar e canela, marshmallow e biscoito tostine triturado).
+178|1/2 Cheesecake de frutas vermelhas|(cream cheese Philadelphia, chocolate branco forneável e geleia de frutas vermelhas)
+179|1/2 Cheesecake doce de leite|(muçarela, cream cheese Philadelphia, chocolate branco caramelizado, doce de leite mineiro) .
+180|1/2 Chocolate ao leite|(creme de leite e chocolate ao leite em lascas).
+181|1/2 Chocolate ao leite com banana|(muçarela, banana e chocolate ao leite em lascas).
+182|1/2 Chocolate ao leite com m&ms|(creme de leite, chocolate ao leite em lascas e m&ms).
+183|1/2 Chocolate ao leite com morango|(creme de leite, chocolate ao leite em lascas e morango).
+184|1/2 Chocolate branco|(creme de leite, chocolate branco em lascas).
+185|1/2 Chocolate branco com m&ms|(creme de leite, chocolate branco em lascas e m&ms).
+186|1/2 Chocolate branco com morango|(creme de leite, chocolate branco em lascas e morango).
+187|1/2 Chocolate meio amargo|(creme de leite e chocolate meio amargo em lascas).
+188|1/2 Chocolate meio amargo com banana|(muçarela, banana e chocolate meio amargo em lascas).
+189|1/2 Chocolate meio amargo com m&ms|(creme de leite, chocolate meio amargo em lascas e m&ms).
+190|1/2 Chocolate meio amargo com morango|(creme de leite, chocolate meio amargo em lascas e morango).
+191|1/2 Creme de Avelã com Morango|(creme de leite, Creme de Avelã e Morango.)
+192|1/2 Doce de leite com banana|(muçarela, banana, doce de leite, açúcar e canela).
+193|1/2 Duo chocolate|(creme de leite e mescla de chocolates ao leite e branco em lascas).
+194|1/2 Dulce de Leche Tostine|(Creme de leite, doce de leite e biscoito tostine triturado).
+195|1/2 Kit Kat|(creme de leite, recheio cremoso e deliciosos pedaços de Kit Kat).
+196|1/2 Negresco|(creme de leite, cream cheese Philadelphia, chocolate branco cremoso e pedaços crocantes de Negresco).
+197|1/2 Romeu & Julieta|(muçarela, goiabada e Catupiry).
+198|1/2 Banana com creme de avelã|(muçarela, banana fatiada e creme de avelã).
+199|1/2 Duo Chocolate|(creme de leite e mescla de chocolates ao leite e branco em lascas).
+200|Marshmallow com Kit Kat|(creme de leite, Kit Kat pasta, marshmallow).
+201|Recheada de 2 Queijos|Requeijão e Cheddar Veganos.
+202|Recheada de Requeijão Vegano|Requeijão Vegano
+203|Recheada de Cheddar Vegano|Cheddar Vegano
+204|1/2 Veg - 2 Queijos com Palmito|(Massa vegana, molho de tomate, cheddar vegano, requeijão vegano, palmito, orégano).
+205|1/2 Veg - Abobrinha com Requeijão Vegano|(Massa vegana, molho de tomate, abobrinha em rodelas, cebola, requeijão vegano Popvegan, azeitonas verdes e orégano).
+206|1/2 Veg - A moda Vegana|(massa vegana, molho de tomate, tomate seco, palmito picado, manjericão, alho em lascas, requeijão vegano e orégano).
+207|1/2 Veg - Calabresa com Cheddar|(massa vegana, molho de tomate, calabresa 100% vegetal, cebola, cheddar vegano e orégano).
+208|1/2 Veg - Calabresa com Requeijão|(massa vegana, molho de tomate, calabresa 100% vegetal, cebola, requeijão vegano e orégano).
+209|1/2 Veg - Caprese Vegana|(Molho de tomate, tomate em rodelas, azeitonas pretas, requeijão vegano, manjericão e orégano).
+210|1/2 Veg - Frango com Cheddar|(massa vegana, molho de tomate, frango 100% Vegetal, milho, cheddar vegano e orégano).
+211|1/2 Veg - Frango com Requeijão|(massa vegana, molho de tomate, frango 100% vegetal, milho, requeijão vegano e orégano).
+212|1/2 Veg - Marguerita Especial Vegana|(molho de tomate, requeijão vegano, tomates cereja, alho em lascas, manjericão, orégano).
+213|1/2 Veg - Ratatouille|(Massa vegana, molho de tomate, abobrinha em rodelas, cebola, tomate fatiado, manjericão e orégano).
+214|Gourmet|Mais grossa e aerada.
+215|Borda de Romeu e Julieta Vegana|Requeijão Vegana com Goiabada.
+216|Borda de Chocolate Vegano|Chocolate ao leite Vegano.
+217|Borda de Beijinho|Creme de Beijinho Vegano.
+218|Borda de Veganela|Creme de Avelã Vegano.
+219|Veg - Banana com Açúcar e Canela|(Massa vegana, banana fatiada, açúcar e canela). / - Tamanho: 30cm
+220|Veg - Banana com Chocolate|(massa vegana, banana fatiada e chocolate vegano). / - Tamanho: 30cm
+221|Veg - Banana com Veganella|(Massa vegana, banana fatiada e creme de avelã Veganella). / - Tamanho: 30cm
+222|Veg - Romeu & Julieta Vegana|(Massa vegana, requeijão vegano e goiabada). / - Tamanho: 30cm
+223|Veg - Banana com Açúcar e Canela|(Massa vegana, banana fatiada, açúcar e canela).
+224|Veg - Banana com Chocolate|(massa vegana, banana fatiada e chocolate vegano).
+225|Veg - Banana com Veganella|(Massa vegana, banana fatiada e creme de avelã Veganella).
+226|Veg - Romeu & Julieta Vegana|(Massa vegana, requeijão vegano e goiabada).
+227|Coca-Cola Original 350ml|Lata 350ml
+228|Coca Cola Zero Lata 350ml|
+229|Guaraná Antarctica 350ml|
+230|Refrigerante Guaraná Zero Antarctica|Lata 350ml
+231|Banana com canela - 20cm|(muçarela, banana, canela e açúcar).
+232|Romeu & Julieta - 20cm|(muçarela, goiabada e Catupiry).
+233|Banana caramelizada - 20cm|(mucarela, banana e chocolate branco caramelizado).
+234|Cheesecake Doce de Leite - 20cm|
+235|Alho adicional|
+236|Azeitona preta adicional|
+237|Azeitona verde adicional|
+238|Calabresa adicional|
+239|Catupiry adicional|
+240|Cebola adicional|
+241|Cream cheese Philadelphia adicional|
+242|Milho adicional|
+243|Muçarela bufala adicional|
+244|Parmesão adicional|
+245|Rúcula adicional|
+246|Tomate adicional|
+247|Doce leite adicional|
+248|Goiabada adicional|
+249|Morango adicional|
+250|M&ms adicional|
+251|Creme de avelã adicional|
+252|Gorgonzola adicional|
+253|Champignon adicional|
+254|Vinho Tinto Chileno Amitié Reserva Carménerè Miraflores 750ml|Produto para maiores de 18 anos
+255|Vinho Branco Reserva Chardonnay Miraflores 750ml|Produto Para Maiores de 18 Anos
+256|Vinho Rosé Reserva Carmenere Miraflores 750ml|Produto para maiores de 18 anos
+257|Vinho Fino Tinto Seco Chileno Miraflores Reserva Merlot Amitié 750ml|Produto para maiores de 18 anos
+258|Vinho Tinto Amitié Reserva Cabernet Sauvignon Miraflores 750ml|Produto para maiores de 18 anos

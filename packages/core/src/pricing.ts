@@ -98,6 +98,20 @@ export function hasVariablePrice(item: Item, groups: OptionGroup[]) {
   return groups.some((g) => effectiveRule(item, g) === "fraction" ? active(g).some((o) => (o.fullPrice ?? 0) > fractionBase(g)) : active(g).some((o) => o.price > 0));
 }
 
+/**
+ * Menor preço possível do item para exibir no card ("a partir de"): preço do item + as escolhas
+ * obrigatórias mais baratas dos grupos de soma. Grupos meio a meio já estão no preço base.
+ */
+export function minPrice(item: Item, groups: OptionGroup[]): number {
+  let v = item.price;
+  for (const g of groups) {
+    if (g.min <= 0 || effectiveRule(item, g) === "fraction") continue;
+    const prices = active(g).map((o) => o.price).sort((a, b) => a - b);
+    v += g.allowRepeat ? (prices[0] ?? 0) * g.min : prices.slice(0, g.min).reduce((a, b) => a + b, 0);
+  }
+  return r2(v);
+}
+
 /** Linha para cada opção de um grupo meio a meio: "+ R$ 30,00 a metade · inteira R$ 159,00". */
 export function fractionLabel(g: OptionGroup, o: Option) {
   const d = fractionDelta(g, o, g.max);

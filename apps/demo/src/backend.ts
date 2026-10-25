@@ -13,7 +13,7 @@ import type { Customer, Item, OptionGroup, Order, Store } from "@cw/core";
  * Backend completo rodando no navegador: mesma API do servidor, banco em memória salvo no IndexedDB,
  * SAIPOS de teste que confirma, despacha e entrega os pedidos sozinha.
  */
-const DB_NAME = "superapp-demo", KEY = "snapshot-v7"; // v7: primeira visita, leads e senha do pagamento online
+const DB_NAME = "superapp-demo", KEY = "snapshot-v8"; // v7: primeira visita, leads e senha do pagamento online
 const SLUG = "forneria-original";
 const media = (f: string) => `media/${f}`;
 
@@ -61,7 +61,7 @@ export async function startDemo(onProgress: (msg: string) => void): Promise<Demo
   if (!snap) {
     onProgress("Montando a Forneria Original com 90 dias de histórico…");
     const photo = (n: string) => ((photoIndex as Record<string, string>)[n] ? media((photoIndex as Record<string, string>)[n]) : undefined);
-    await seedForneria(db, { photo, media: { cover: media("capa.jpg"), logo: media("logo.jpg"), video: media("banner-99.mp4"), poster: media("poster.jpg"), gif: media("doces.gif") }, history: true });
+    await seedForneria(db, { photo, photoNames: Object.keys(photoIndex as Record<string, string>), media: { cover: media("capa.jpg"), logo: media("logo.jpg"), video: media("banner-99.mp4"), poster: media("poster.jpg"), gif: media("doces.gif") }, history: true });
     // loja aberta a qualquer hora na demonstração
     const st = (await db.get<Store & { id: string }>("stores", T, "sto_leblon"))!;
     await db.put("stores", T, { ...st, hours: [0, 1, 2, 3, 4, 5, 6].map((w) => ({ weekday: w as 0, open: "00:00", close: "23:59" })) });

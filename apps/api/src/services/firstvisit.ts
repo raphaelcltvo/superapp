@@ -104,7 +104,7 @@ export async function applyFirstVisit<M extends MenuShape>(ctx: Ctx, menu: M, sn
       out.firstVisit = {
         mode: es.firstVisit.mode, source: q.source,
         coupon: couponPublic(cp),
-        questions: q.questions.map((x) => ({ id: x.id, title: x.title, options: x.options.map((o) => ({ id: o.id, label: o.label })) })),
+        questions: q.questions.map((x) => ({ id: x.id, title: x.title, options: x.options.map((o) => ({ id: o.id, label: o.label, ...(o.final ? { final: true } : {}) })) })),
         afterSeconds: campaignHit ? es.firstVisit.afterCampaignSeconds : 0,
         consentText: CONSENT_TEXT,
       };
@@ -140,7 +140,9 @@ export async function saveFirstVisit(ctx: Ctx, snap: Snapshot, i: FirstVisitInpu
   // só respostas às perguntas da vez, com opções válidas
   const answers: Record<string, string> = { ...lead.answers };
   for (const q of questions) { const a = i.answers[q.id]; if (a && q.options.some((o) => o.id === a)) answers[q.id] = a; }
-  const answeredAll = questions.every((q) => answers[q.id]);
+  // pergunta adaptativa: uma resposta marcada como "final" já basta para escolher o perfil
+  const stopAt = questions.findIndex((q) => q.options.some((o) => o.final && o.id === answers[q.id]));
+  const answeredAll = questions.every((q, idx) => answers[q.id] || (stopAt >= 0 && idx > stopAt));
   if (!Object.keys(answers).length) throw new HttpError(422, "Responda pelo menos uma pergunta");
   lead.answers = answers; lead.questionSource = source; lead.skipped = false;
 

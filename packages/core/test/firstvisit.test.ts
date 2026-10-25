@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { PLAYBOOKS, computePersonas, favoriteOrder, lineTitle, matchCampaign, matchPersona, targetFromAnswers, validBirthDate, validCpfDigits, type FvCatalog } from "../src";
+import { PLAYBOOKS, computePersonas, personaPosterior, favoriteOrder, lineTitle, matchCampaign, matchPersona, targetFromAnswers, validBirthDate, validCpfDigits, type FvCatalog } from "../src";
 import type { Order, PricedLine } from "../src";
 
 const catalog: FvCatalog = {
@@ -76,5 +76,33 @@ describe("primeira visita", () => {
     expect(validCpfDigits("529.982.247-26")).toBe(false);
     expect(validBirthDate("1993-05-10", new Date("2026-10-24"))).toBe(true);
     expect(validBirthDate("2020-02-30")).toBe(false);
+  });
+});
+
+describe("clássico ou novidade e pergunta adaptativa", () => {
+  // dois grupos do mesmo tamanho de pedido: fiéis aos clássicos x exploradores da cauda longa
+  const ords: Order[] = [];
+  const CL = ["Calabresa", "Marguerita", "Muçarela"], TAIL = ["Atum", "Genovesa", "Calábria", "Parma", "Lombiry", "Camarão", "Da Barra", "Palmito"];
+  for (let i = 0; i < 60; i++) for (let k = 0; k < 3; k++) ords.push(ord(`c${i}`, [L("p40", half(CL[(i + k) % 3], CL[(i + k + 1) % 3]))], 110));
+  for (let i = 0; i < 30; i++) for (let k = 0; k < 3; k++) ords.push(ord(`e${i}`, [L("p40", half(TAIL[(i + 2 * k) % 8], TAIL[(i + 2 * k + 1) % 8]))], 130));
+  for (let i = 0; i < 40; i++) { ords.push(ord(`g2${i}`, [L("duas"), L("coca")], 170)); ords.push(ord(`g2${i}`, [L("duas")], 149)); }
+  const pb = PLAYBOOKS.pizza.map((q) => ({ ...q, enabled: q.dim === "party" || q.dim === "novelty" }));
+  const m = computePersonas(ords, catalog, { maxQuestions: 2, playbook: pb })!;
+  it("a 2ª pergunta é clássico x novidade quando é isso que separa os grupos", () => {
+    expect(m.questions.map((q) => q.dim)).toEqual(["party", "novelty"]);
+    const exp = matchPersona(m, { party: "dupla", novelty: "novidade" })!;
+    expect(exp.centroid.explore).toBeGreaterThan(0.6);
+    expect(exp.name).toMatch(/novidade/);
+    const cla = matchPersona(m, { party: "dupla", novelty: "classico" })!;
+    expect(cla.centroid.explore).toBeLessThan(0.3);
+  });
+  it("uma resposta que já define o perfil pula a 2ª pergunta", () => {
+    const galera = m.questions[0].options.find((o) => o.id === "galera")!;
+    expect(galera.final).toBe(true);
+    const dupla = m.questions[0].options.find((o) => o.id === "dupla")!;
+    expect(dupla.final).toBeFalsy();
+    const post = personaPosterior(m, { party: "galera" }, [m.questions[0]]);
+    expect(post[0].p).toBeGreaterThan(0.8);
+    expect(post.reduce((s, x) => s + x.p, 0)).toBeCloseTo(1, 5);
   });
 });

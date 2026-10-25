@@ -55,7 +55,7 @@ for (const [label, mk] of backends) describe(`API (${label})`, () => {
     const m = await call("GET", "/public/forneria-original/menu?source=instagram");
     expect(m.status).toBe(200);
     expect(m.body.profile).toBe("novo");
-    expect(m.body.categories[0].id).toBe("cat_combos");
+    expect(m.body.categories[0].id).toBe("cat_imbat");
     expect(m.body.banners.menu_top.id).toBe("bn_99");
     expect(m.body.banners.below_suggested.media.kind).toBe("gif");
     expect(m.body.items.s40.fromPrice).toBe(true);

@@ -21,8 +21,8 @@ export function registerEngagePublic(r: Hono<Env>) {
 }
 
 const avoidTag = z.object({ id: z.string().min(1).max(30), label: z.string().min(1).max(40), keywords: z.array(z.string().min(2)).min(1) });
-const fvOption = z.object({ id: z.string().min(1).max(30), label: z.string().min(1).max(40), values: z.record(z.number().min(0).max(1)) });
-const fvQuestion = z.object({ id: z.string().min(1).max(30), dim: z.enum(["party", "deal", "sweet"]), title: z.string().min(3).max(80), enabled: z.boolean().optional(), options: z.array(fvOption).min(2).max(5) });
+const fvOption = z.object({ id: z.string().min(1).max(30), label: z.string().min(1).max(40), values: z.record(z.number().min(0).max(1)), final: z.boolean().optional() });
+const fvQuestion = z.object({ id: z.string().min(1).max(30), dim: z.enum(["party", "deal", "sweet", "novelty"]), title: z.string().min(3).max(80), enabled: z.boolean().optional(), options: z.array(fvOption).min(2).max(5) });
 const campaignTarget = z.object({
   id: z.string().min(1).max(40), active: z.boolean(), source: z.string().max(40).optional(), campaign: z.string().max(80).optional(), content: z.string().max(80).optional(),
   target: z.union([z.object({ kind: z.literal("item"), itemId: z.string() }), z.object({ kind: z.literal("category"), categoryId: z.string() })]),

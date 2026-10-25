@@ -114,7 +114,7 @@ export function PageView({ page, menu, photos, couponCodeFor, onClose, onOpenIte
                   <div className="carousel">{b.itemIds.filter((id) => menu.items[id]).map((id) => (
                     <button key={id} className="mini tap" onClick={() => onOpenItem(id)}>
                       <div className="ph"><ItemArt item={menu.items[id]} photos={photos} /></div>
-                      <span className="nm">{menu.items[id].name.split(" · ")[0]}</span><span className="pr">{brl(menu.items[id].price)}</span>
+                      <span className="nm">{menu.items[id].name.split(" · ")[0]}</span><span className="pr">{brl(menu.items[id].minPrice ?? menu.items[id].price)}</span>
                     </button>))}
                   </div>
                 </div>);

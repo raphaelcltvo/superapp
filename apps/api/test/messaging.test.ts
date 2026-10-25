@@ -142,7 +142,7 @@ describe("Mensagens: WhatsApp e e-mail", () => {
     const old = (c: any) => c.orders === 1 && c.firstOrderAt && Date.now() - +new Date(c.firstOrderAt) > 8 * 864e5;
     const target = cs.find((c) => old(c) && c.optinEmail && !c.optinWhatsapp) || cs.find(old);
     await db.patch("customers", T, target.id, { optinWhatsapp: false, optinEmail: true, emailStatus: "valid" });
-    await call("PUT", "/admin/automations/au_2pedido", { ...(await call("GET", "/admin/automations/au_2pedido")).body, channel: "whatsapp_then_email", emailTemplateId: "tpl_em_bf", holdoutPercent: 0, maxPerCustomerPerWeek: 5, quietHours: undefined });
+    await call("PUT", "/admin/automations/au_2pedido", { ...(await call("GET", "/admin/automations/au_2pedido")).body, channel: "whatsapp_then_email", emailTemplateId: "tpl_em_bf", holdoutPercent: 0, maxPerCustomerPerWeek: 5, quietHours: [0, 0] });
     admin = "";
     expect((await call("POST", "/cron/tick", {}, { "x-cron-secret": "errado" })).status).toBe(401);
     const tk = await call("POST", "/cron/tick", {}, { "x-cron-secret": "cron123" });
